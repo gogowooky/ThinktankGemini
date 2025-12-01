@@ -77,20 +77,20 @@ function Get-TTState ($ID) {
     return $null
 }
 
-function Add-TTEvent ($Tag, $Mods, $Key, $ActionID, $PCName) {
+function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
     if ( $PCName -notin @( $null, $Env:Computername, '*' ) ) { return }
     
     if ($Key.Contains(',')) {
-        $Key.Split(',') | ForEach-Object { Add-TTEvent $Tag $Mods $_.Trim() $ActionID $PCName }
+        $Key.Split(',') | ForEach-Object { Add-TTEvent $Context $Mods $_.Trim() $ActionID $PCName }
         return
     }
 
     $evnt = [ThinktankApp.TTEvent]::new()
     $evnt.Name = $ActionID
-    $evnt.Tag = $Tag
+    $evnt.Context = $Context
     $evnt.Mods = $Mods
     $evnt.Key = $Key
-    $evnt.ID = "$Tag|$Mods|$Key"
+    $evnt.ID = "$Context|$Mods|$Key"
     
     $global:Application.Models.Events.AddItem($evnt)
 }

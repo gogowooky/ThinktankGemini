@@ -26,6 +26,7 @@ namespace ThinktankApp
         private string _currentPanelName = "";
         private string _currentMode = "";
         private string _currentTool = "";
+        private string _currentExModMode = ""; // Added ExModMode
         private string _currentKeyInfo = "";
 
         public TTActions Actions { get; private set; }
@@ -226,7 +227,7 @@ namespace ThinktankApp
             if (StatusBar != null)
             {
                 StatusBar.Items.Clear();
-                StatusBar.Items.Add(string.Format("{0} : {1} : {2}   {3}", _currentPanelName, _currentMode, _currentTool, _currentKeyInfo));
+                StatusBar.Items.Add(string.Format("{0} : {1} : {2} : {3}   {4}", _currentPanelName, _currentMode, _currentTool, _currentExModMode, _currentKeyInfo));
             }
         }
 
@@ -296,14 +297,14 @@ namespace ThinktankApp
             _currentKeyInfo = ""; // Reset key info on focus change
             UpdateStatusBar();
 
-            // Switch KeyTable based on focus
-            // Construct tag: PanelName + Mode + Tool (simplified) or just PanelName + ToolName if available
-            // Reference logic: $kt_tag = $this.FocusedTool.TTPanel.Name + $this.FocusedTool.Name
-            // Here we have panelName, mode, tool.
-            // Example: Library + Table + Main -> LibraryTableMain
-            // Example: Library + Table + Keyword -> LibraryTableKeyword
-            string keyTableTag = panelName + mode + tool;
-            SwitchKeyTable(keyTableTag);
+            RebuildCurrentKeyTable();
+        }
+
+        public void SetExModMode(string mode)
+        {
+            _currentExModMode = mode;
+            RebuildCurrentKeyTable();
+            UpdateStatusBar();
         }
 
         public void Show()
@@ -452,156 +453,115 @@ namespace ThinktankApp
              // Placeholder for future panel visibility logic
         }
 
-        // KeyTable Definitions
-        private Dictionary<string, string[]> KeyTableTags_EventTags = new Dictionary<string, string[]>
-        {
-            { "Application",            new[] { "App", "Panel" } },
-            { "ExApp",                  new[] { "ExApp" } },
-            { "ExDate",                 new[] { "ExDate" } },
-            { "ExMenu",                 new[] { "ExMenu" } },
-            { "ExLibrary",              new[] { "ExPanel", "ExLibrary" } },
-            { "ExIndex",                new[] { "ExPanel", "ExIndex" } },
-            { "ExShelf",                new[] { "ExPanel", "ExShelf" } },
-            { "ExDesk",                 new[] { "ExPanel", "ExDesk" } },
-            { "ExSystem",               new[] { "ExPanel", "ExSystem" } },
-            { "LibraryEditorMain",      new[] { "App", "Panel", "Library", "Editor", "EditorMode" } },
-            { "LibraryEditorKeyword",   new[] { "App", "Panel", "Library", "Keyword", "EditorMode", "EditorKeyword" } },
-            { "LibraryTableMain",       new[] { "App", "Panel", "Library", "TableMode", "Table" } },
-            { "LibraryTableKeyword",    new[] { "App", "Panel", "Library", "Keyword", "TableMode", "TableKeyword" } },
-            { "LibraryWebViewMain",     new[] { "App", "Panel", "Library", "WebViewMode", "WebView" } },
-            { "LibraryWebViewKeyword",  new[] { "App", "Panel", "Library", "Keyword", "WebViewMode", "WebViewKeyword" } },
-            { "IndexEditorMain",        new[] { "App", "Panel", "Index", "Editor", "EditorMode" } },
-            { "IndexEditorKeyword",     new[] { "App", "Panel", "Index", "Keyword", "EditorMode", "EditorKeyword" } },
-            { "IndexTableMain",         new[] { "App", "Panel", "Index", "TableMode", "Table" } },
-            { "IndexTableKeyword",      new[] { "App", "Panel", "Index", "Keyword", "TableMode", "TableKeyword" } },
-            { "IndexWebViewMain",       new[] { "App", "Panel", "Index", "WebViewMode", "WebView" } },
-            { "IndexWebViewKeyword",    new[] { "App", "Panel", "Index", "Keyword", "WebViewMode", "WebViewKeyword" } },
-            { "ShelfEditorMain",        new[] { "App", "Panel", "Shelf", "Editor", "EditorMode" } },
-            { "ShelfEditorKeyword",     new[] { "App", "Panel", "Shelf", "Keyword", "EditorMode", "EditorKeyword" } },
-            { "ShelfTableMain",         new[] { "App", "Panel", "Shelf", "TableMode", "Table" } },
-            { "ShelfTableKeyword",      new[] { "App", "Panel", "Shelf", "Keyword", "TableMode", "TableKeyword" } },
-            { "ShelfWebViewMain",       new[] { "App", "Panel", "Shelf", "WebViewMode", "WebView" } },
-            { "ShelfWebViewKeyword",    new[] { "App", "Panel", "Shelf", "Keyword", "WebViewMode", "WebViewKeyword" } },
-            { "DeskEditorMain",         new[] { "App", "Panel", "Desk", "Editor", "EditorMode" } },
-            { "DeskEditorKeyword",      new[] { "App", "Panel", "Desk", "Keyword", "EditorMode", "EditorKeyword" } },
-            { "DeskTableMain",          new[] { "App", "Panel", "Desk", "TableMode", "Table" } },
-            { "DeskTableKeyword",       new[] { "App", "Panel", "Desk", "Keyword", "TableMode", "TableKeyword" } },
-            { "DeskWebViewMain",        new[] { "App", "Panel", "Desk", "WebViewMode", "WebView" } },
-            { "DeskWebViewKeyword",     new[] { "App", "Panel", "Desk", "Keyword", "WebViewMode", "WebViewKeyword" } },
-            { "SystemEditorMain",       new[] { "App", "Panel", "System", "Editor", "EditorMode" } },
-            { "SystemEditorKeyword",    new[] { "App", "Panel", "System", "Keyword", "EditorMode", "EditorKeyword" } },
-            { "SystemTableMain",        new[] { "App", "Panel", "System", "TableMode", "Table" } },
-            { "SystemTableKeyword",     new[] { "App", "Panel", "System", "Keyword", "TableMode", "TableKeyword" } },
-            { "SystemWebViewMain",      new[] { "App", "Panel", "System", "WebViewMode", "WebView" } },
-            { "SystemWebViewKeyword",   new[] { "App", "Panel", "System", "Keyword", "WebViewMode", "WebViewKeyword" } }
-        };
-
-        // KeyTableTags -> Modifier(int) -> Key(int) -> TTAction
-        private Dictionary<string, Dictionary<int, Dictionary<int, TTAction>>> KeyTableTags_Actions = new Dictionary<string, Dictionary<int, Dictionary<int, TTAction>>>();
-        
         // Current KeyTable: Modifier(int) -> Key(int) -> TTAction
         private Dictionary<int, Dictionary<int, TTAction>> CurrentKeyTable = null;
         private string _currentKeyTableTag = "";
 
+        // Helper class to store action with its specificity score
+        private class ActionMatch
+        {
+            public TTAction Action;
+            public int Score;
+        }
+
         public void SetupKeyTables()
         {
-            KeyTableTags_Actions.Clear();
+            RebuildCurrentKeyTable();
+        }
+
+        private void RebuildCurrentKeyTable()
+        {
+            CurrentKeyTable = new Dictionary<int, Dictionary<int, TTAction>>();
+            _currentKeyTableTag = string.Format("{0}-{1}-{2}-{3}", _currentPanelName, _currentMode, _currentTool, _currentExModMode);
+
+            // Temporary storage for best matches: Modifier -> Key -> ActionMatch
+            var bestMatches = new Dictionary<int, Dictionary<int, ActionMatch>>();
 
             foreach (var item in Models.Events.Items)
             {
                 TTEvent evnt = item as TTEvent;
-                if (evnt != null)
+                if (evnt == null) continue;
+
+                // Parse Context: Panel-Mode-Tool-ExModMode
+                string[] parts = evnt.Context.Split('-');
+                if (parts.Length != 4) continue; 
+
+                string pPanel = parts[0];
+                string pMode = parts[1];
+                string pTool = parts[2];
+                string pExMode = parts[3];
+
+                // Check Match
+                if (!MatchContext(pPanel, _currentPanelName)) continue;
+                if (!MatchContext(pMode, _currentMode)) continue;
+                if (!MatchContext(pTool, _currentTool)) continue;
+                if (!MatchContext(pExMode, _currentExModMode)) continue;
+
+                // Calculate Score (higher is better)
+                int score = 0;
+                if (pPanel != "*") score += 1;
+                if (pMode != "*") score += 1;
+                if (pTool != "*") score += 1;
+                if (pExMode != "*") score += 1;
+
+                string actionID = evnt.Name;
+                TTAction action = (TTAction)Actions.GetItem(actionID);
+                if (action == null) continue;
+
+                // Parse Modifier
+                int intm = 0;
+                if (!string.IsNullOrEmpty(evnt.Mods) && evnt.Mods != "None")
                 {
-                    string tag = evnt.Tag;
-                    string modsStr = evnt.Mods;
-                    string keyStr = evnt.Key;
-                    string actionID = evnt.Name;
-
-                    TTAction action = (TTAction)Actions.GetItem(actionID);
-                    if (action == null) continue;
-
-                    // Parse Modifier
-                    int intm = 0;
-                    if (!string.IsNullOrEmpty(modsStr) && modsStr != "None")
+                    System.Windows.Input.ModifierKeys modKey;
+                    if (Enum.TryParse(evnt.Mods.Replace("None", "").Trim(), out modKey))
                     {
-                        System.Windows.Input.ModifierKeys modKey;
-                        if (Enum.TryParse(modsStr.Replace("None", "").Trim(), out modKey))
-                        {
-                            intm = (int)modKey;
-                        }
+                        intm = (int)modKey;
                     }
+                }
 
-                    // Parse Key
-                    int intk = 0;
-                    // Handle special keys if needed (Left1, WheelPlus etc as per reference)
-                    // For now, standard keys
-                    System.Windows.Input.Key key;
-                    if (Enum.TryParse(keyStr, out key))
-                    {
-                        intk = (int)key;
-                    }
-                    else
-                    {
-                        // Fallback for special keys logic from reference if needed
-                        continue; 
-                    }
+                // Parse Key
+                int intk = 0;
+                System.Windows.Input.Key key;
+                if (Enum.TryParse(evnt.Key, out key))
+                {
+                    intk = (int)key;
+                }
+                else
+                {
+                    continue; 
+                }
 
-                    foreach (var kvp in KeyTableTags_EventTags)
-                    {
-                        string keyTableTag = kvp.Key;
-                        string[] eventTags = kvp.Value;
+                // Register if better score
+                if (!bestMatches.ContainsKey(intm))
+                {
+                    bestMatches[intm] = new Dictionary<int, ActionMatch>();
+                }
 
-                        if (Array.IndexOf(eventTags, tag) >= 0)
-                        {
-                            if (!KeyTableTags_Actions.ContainsKey(keyTableTag))
-                            {
-                                KeyTableTags_Actions[keyTableTag] = new Dictionary<int, Dictionary<int, TTAction>>();
-                            }
-                            if (!KeyTableTags_Actions[keyTableTag].ContainsKey(intm))
-                            {
-                                KeyTableTags_Actions[keyTableTag][intm] = new Dictionary<int, TTAction>();
-                            }
-                            
-                            var modDict = KeyTableTags_Actions[keyTableTag][intm];
-                            modDict[intk] = action;
-                        }
-                    }
+                if (!bestMatches[intm].ContainsKey(intk) || bestMatches[intm][intk].Score < score)
+                {
+                    bestMatches[intm][intk] = new ActionMatch { Action = action, Score = score };
                 }
             }
 
-            // Set initial key table
-            SwitchKeyTable("Application");
+            // Convert bestMatches to CurrentKeyTable
+            foreach (var modKvp in bestMatches)
+            {
+                CurrentKeyTable[modKvp.Key] = new Dictionary<int, TTAction>();
+                foreach (var keyKvp in modKvp.Value)
+                {
+                    CurrentKeyTable[modKvp.Key][keyKvp.Key] = keyKvp.Value.Action;
+                }
+            }
+            
+            UpdateStatusBar();
         }
 
-        public void SwitchKeyTable(string kt_tag)
+        private bool MatchContext(string pattern, string value)
         {
-            if (kt_tag == "focusedtool" && _currentPanelName != "")
-            {
-                // Construct tag from focused panel/tool
-                // Example: Library + EditorMain -> LibraryEditorMain
-                // We assume _currentTool holds something like "EditorMain" or "TableKeyword"
-                // But currently OnPanelFocusChanged passes "Editor" or "Table" as mode, and "Main" or "Keyword" as tool?
-                // Let's check OnPanelFocusChanged logic.
-                // It receives: panelName, mode, tool.
-                // mode is "Table", "Editor", "WebView".
-                // tool is "Main", "Keyword".
-                // So we can construct: panelName + mode + tool
-                // e.g. LibraryTableMain
-                kt_tag = _currentPanelName + _currentMode + _currentTool;
-            }
-
-            if (KeyTableTags_Actions.ContainsKey(kt_tag))
-            {
-                CurrentKeyTable = KeyTableTags_Actions[kt_tag];
-                _currentKeyTableTag = kt_tag;
-                UpdateStatusBar();
-            }
-            else
-            {
-                // Fallback
-                CurrentKeyTable = null;
-                _currentKeyTableTag = "";
-            }
+            if (pattern == "*") return true;
+            // Handle empty value matching only if pattern is empty (unlikely with * usage) or *
+            if (string.IsNullOrEmpty(value)) return false; 
+            return string.Equals(pattern, value, StringComparison.OrdinalIgnoreCase);
         }
 
         public bool InvokeActionOnKey(System.Windows.Input.KeyEventArgs e)

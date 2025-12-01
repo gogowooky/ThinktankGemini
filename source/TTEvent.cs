@@ -4,13 +4,13 @@ namespace ThinktankApp
 {
     public class TTEvent : TTObject
     {
-        public string Tag { get; set; }
+        public string Context { get; set; }
         public string Mods { get; set; }
         public string Key { get; set; }
 
         public TTEvent() : base()
         {
-            Tag = "";
+            Context = "";
             Mods = "";
             Key = "";
         }
