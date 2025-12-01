@@ -1,5 +1,5 @@
 ﻿
-Add-TTEvent     '*-*-*-*'             'Control'           O                  Application.Run.Break
+Add-TTEvent     '*-*-*-*'             'Control'         O                  Application.Run.Break
 
 #region === App/Panel
 #region A
