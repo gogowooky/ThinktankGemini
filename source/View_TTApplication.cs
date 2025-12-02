@@ -556,7 +556,21 @@ namespace ThinktankApp
                 if (!MatchContext(pPanel, _currentPanelName)) continue;
                 if (!MatchContext(pMode, _currentMode)) continue;
                 if (!MatchContext(pTool, _currentTool)) continue;
-                if (!MatchContext(pExMode, _currentExModMode)) continue;
+                
+                // Strict ExModMode matching:
+                // If we are in an ExModMode, the event MUST explicitly specify that mode.
+                // Wildcards (*) are not allowed for ExModMode when it is active.
+                if (!string.IsNullOrEmpty(_currentExModMode))
+                {
+                     if (!string.Equals(pExMode, _currentExModMode, StringComparison.OrdinalIgnoreCase))
+                     {
+                         continue;
+                     }
+                }
+                else
+                {
+                    if (!MatchContext(pExMode, _currentExModMode)) continue;
+                }
 
                 // Calculate Score (higher is better)
                 int score = 0;

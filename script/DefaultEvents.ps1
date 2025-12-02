@@ -1,5 +1,5 @@
 ﻿
-Add-TTEvent     '*-*-*-*'             'Control'         O                  Application.Run.Break
+Add-TTEvent     '*-*-*-*'             'Control'     O                  Application.Run.Break
 
 #region === App/Panel
 #region A
@@ -11,6 +11,13 @@ Add-TTEvent     '*-*-*-*'             'Alt'           I                   Applic
 Add-TTEvent     '*-*-*-*'             'Alt'           S                   Application.Current.ExMode:ExShelf
 Add-TTEvent     '*-*-*-*'             'Alt'           D                   Application.Current.ExMode:ExDesk
 Add-TTEvent     '*-*-*-*'             'Alt'           ImeProcessed        Application.Current.ExMode:ExSystem          #   @ / `
+
+
+Add-TTEvent     '*-*-*-*'             'Alt+Shift'     L                   Application.Focus.Panel:Library
+Add-TTEvent     '*-*-*-*'             'Alt+Shift'     I                   Application.Focus.Panel:Index
+Add-TTEvent     '*-*-*-*'             'Alt+Shift'     S                   Application.Focus.Panel:Shelf
+Add-TTEvent     '*-*-*-*'             'Alt+Shift'     D                   Application.Focus.Panel:Desk
+Add-TTEvent     '*-*-*-*'             'Alt+Shift'     ImeProcessed        Application.Focus.Panel:System              #  @ / `
 
 # Add-TTEvent     App             'Alt+Shift'     L                   Application.Focus.Panel:Library
 # ... (Other focus actions need to be defined or mapped)
