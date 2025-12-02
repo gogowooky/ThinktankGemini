@@ -46,6 +46,12 @@ namespace ThinktankApp
             set { SetProperty(ref _description, value); }
         }
 
+        protected string _itemSaveProperties = "";
+        protected string _itemDisplayColumns = "";
+        protected string _itemNarrowProperties = "";
+        protected string _itemWideProperties = "";
+        protected string _itemMinimalProperties = "";
+
         public TTCollection()
         {
             Items = new ObservableCollection<TTObject>();

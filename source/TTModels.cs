@@ -15,6 +15,12 @@ namespace ThinktankApp
             Name = "Thinktank";
             Description = "コレクション一覧";
 
+            _itemDisplayColumns = "Description:説明,Count:件数,Name:名前,UpdateDate:更新日";
+            _itemNarrowProperties = "Name,Count";
+            _itemWideProperties = "Description,Count,Name,UpdateDate";
+            _itemMinimalProperties = "Name";
+            _itemSaveProperties = "ID,Name,Description";
+
             Status = new TTStatus();
             Status.ID = "Status";
             Status.Name = "ステータス";

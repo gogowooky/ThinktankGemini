@@ -8,6 +8,11 @@ namespace ThinktankApp
         public TTStatus() : base()
         {
             Description = "Status";
+            _itemDisplayColumns = "Name:名前,Value:設定";
+            _itemNarrowProperties = "Name,Value";
+            _itemWideProperties = "Name,Value";
+            _itemMinimalProperties = "Name,Value";
+            _itemSaveProperties = "ID,Name,Value";
         }
 
         public void SetValue(string id, string value)
