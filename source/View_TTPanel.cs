@@ -6,6 +6,7 @@ using System.Windows.Markup;
 using System.Xml;
 using ICSharpCode.AvalonEdit;
 using Microsoft.Web.WebView2.Wpf;
+using System.Windows.Threading;
 
 using System.ComponentModel;
 
@@ -34,11 +35,21 @@ namespace ThinktankApp
         public TTModels Models { get; private set; }
         public string TableResource { get; private set; }
 
+        private DispatcherTimer _resizeTimer;
+
         public TTPanel(string name, string xamlPath, string stylePath, TTModels models)
         {
             Name = name;
             Models = models;
             LoadView(xamlPath, stylePath);
+
+            _resizeTimer = new DispatcherTimer();
+            _resizeTimer.Interval = TimeSpan.FromMilliseconds(100);
+            _resizeTimer.Tick += (s, e) =>
+            {
+                _resizeTimer.Stop();
+                UpdateTableColumns();
+            };
         }
 
         private void LoadView(string xamlPath, string stylePath)
@@ -113,7 +124,11 @@ namespace ThinktankApp
             if (TableMain != null) 
             {
                 TableMain.GotFocus += (s, e) => OnFocusChanged("Table", "Main");
-                TableMain.SizeChanged += (s, e) => UpdateTableColumns();
+                TableMain.SizeChanged += (s, e) => 
+                {
+                    _resizeTimer.Stop();
+                    _resizeTimer.Start();
+                };
             }
             if (TableKeyword != null) TableKeyword.GotFocus += (s, e) => OnFocusChanged("Table", "Keyword");
 
