@@ -197,6 +197,7 @@ namespace ThinktankApp
                 Menu = (System.Windows.Controls.Menu)MainWindow.FindName("Menu");
 
                 MainWindow.PreviewKeyDown += OnPreviewKeyDown;
+                MainWindow.PreviewKeyUp += OnPreviewKeyUp;
             }
             catch (Exception ex)
             {
@@ -207,15 +208,18 @@ namespace ThinktankApp
 
         private void OnPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            var key = (e.Key == System.Windows.Input.Key.System) ? e.SystemKey : e.Key;
+
             // Ignore modifier keys themselves
-            if (e.Key == System.Windows.Input.Key.LeftCtrl || e.Key == System.Windows.Input.Key.RightCtrl ||
-                e.Key == System.Windows.Input.Key.LeftAlt || e.Key == System.Windows.Input.Key.RightAlt ||
-                e.Key == System.Windows.Input.Key.LeftShift || e.Key == System.Windows.Input.Key.RightShift ||
-                e.Key == System.Windows.Input.Key.LWin || e.Key == System.Windows.Input.Key.RWin)
+            if (key == System.Windows.Input.Key.LeftCtrl || key == System.Windows.Input.Key.RightCtrl ||
+                key == System.Windows.Input.Key.LeftAlt || key == System.Windows.Input.Key.RightAlt ||
+                key == System.Windows.Input.Key.LeftShift || key == System.Windows.Input.Key.RightShift ||
+                key == System.Windows.Input.Key.LWin || key == System.Windows.Input.Key.RWin)
             {
                 return;
             }
 
+            // Console.WriteLine("KeyDown: " + key);
             if (InvokeActionOnKey(e))
             {
                 e.Handled = true;
@@ -300,11 +304,68 @@ namespace ThinktankApp
             RebuildCurrentKeyTable();
         }
 
+        private System.Windows.Input.ModifierKeys _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
+
         public void SetExModMode(string mode)
         {
-            _currentExModMode = mode;
-            RebuildCurrentKeyTable();
-            UpdateStatusBar();
+            MainWindow.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _currentExModMode = mode;
+                
+                // Capture current modifiers when setting a non-empty mode
+                if (!string.IsNullOrEmpty(mode))
+                {
+                    _triggeringModifiers = System.Windows.Input.Keyboard.Modifiers;
+                }
+                else
+                {
+                    _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
+                    _currentKeyInfo = "";
+                }
+
+                RebuildCurrentKeyTable();
+                UpdateStatusBar();
+            }));
+        }
+
+        private void OnPreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            // Console.WriteLine("KeyUp: " + e.Key + " SystemKey: " + e.SystemKey + " Modifiers: " + System.Windows.Input.Keyboard.Modifiers);
+
+            if (_triggeringModifiers == System.Windows.Input.ModifierKeys.None) return;
+
+            // Resolve the key (handle System keys like Alt+A where Key is System but SystemKey is A)
+            var key = (e.Key == System.Windows.Input.Key.System) ? e.SystemKey : e.Key;
+
+            // Check if the released key corresponds to one of the triggering modifiers
+            bool modifierReleased = false;
+
+            if ((_triggeringModifiers & System.Windows.Input.ModifierKeys.Alt) != 0 && 
+                (key == System.Windows.Input.Key.LeftAlt || key == System.Windows.Input.Key.RightAlt))
+            {
+                modifierReleased = true;
+            }
+            else if ((_triggeringModifiers & System.Windows.Input.ModifierKeys.Control) != 0 && 
+                     (key == System.Windows.Input.Key.LeftCtrl || key == System.Windows.Input.Key.RightCtrl))
+            {
+                modifierReleased = true;
+            }
+            else if ((_triggeringModifiers & System.Windows.Input.ModifierKeys.Shift) != 0 && 
+                     (key == System.Windows.Input.Key.LeftShift || key == System.Windows.Input.Key.RightShift))
+            {
+                modifierReleased = true;
+            }
+            else if ((_triggeringModifiers & System.Windows.Input.ModifierKeys.Windows) != 0 && 
+                     (key == System.Windows.Input.Key.LWin || key == System.Windows.Input.Key.RWin))
+            {
+                modifierReleased = true;
+            }
+
+            if (modifierReleased)
+            {
+                // Console.WriteLine("Modifier released. Clearing ExModMode.");
+                SetExModMode("");
+            }
         }
 
         public void Show()
@@ -314,7 +375,7 @@ namespace ThinktankApp
 
         public void Close()
         {
-            MainWindow.Close();
+            MainWindow.Dispatcher.BeginInvoke(new Action(() => MainWindow.Close()));
         }
 
         // --- Logic ported from TTApplication.ps1 ---
@@ -519,6 +580,17 @@ namespace ThinktankApp
                     }
                 }
 
+                // Apply ExModMode triggering modifiers if applicable
+                // If the event targets the current ExModMode specifically (not wildcard),
+                // add the triggering modifiers of the current ExModMode to the expected modifiers.
+                if (!string.IsNullOrEmpty(_currentExModMode) && 
+                    !string.IsNullOrEmpty(pExMode) && 
+                    pExMode != "*" &&
+                    pExMode.Equals(_currentExModMode, StringComparison.OrdinalIgnoreCase))
+                {
+                    intm |= (int)_triggeringModifiers;
+                }
+
                 // Parse Key
                 int intk = 0;
                 System.Windows.Input.Key key;
@@ -582,7 +654,8 @@ namespace ThinktankApp
             }
 
             // Update status bar with key info
-            string keyStr = e.Key.ToString();
+            var key = (e.Key == System.Windows.Input.Key.System) ? e.SystemKey : e.Key;
+            string keyStr = key.ToString();
             string modStr = "";
             if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0) modStr += "Ctrl + ";
             if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Shift) != 0) modStr += "Shift + ";
