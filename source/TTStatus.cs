@@ -8,10 +8,10 @@ namespace ThinktankApp
         public TTStatus() : base()
         {
             Description = "Status";
-            _itemDisplayColumns = "Name:名前,Value:設定";
-            _itemNarrowProperties = "Name,Value";
-            _itemWideProperties = "Name,Value";
-            _itemMinimalProperties = "Name,Value";
+            _itemDisplayColumns = "ID:ID,Name:名前,Value:設定";
+            _itemNarrowProperties = "ID,Value";
+            _itemWideProperties = "Name,ID,Value";
+            _itemMinimalProperties = "ID,Value";
             _itemSaveProperties = "ID,Name,Value";
         }
 

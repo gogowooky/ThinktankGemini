@@ -110,7 +110,11 @@ namespace ThinktankApp
                 EditorKeyword.GotFocus += (s, e) => OnFocusChanged("Editor", "Keyword");
             }
 
-            if (TableMain != null) TableMain.GotFocus += (s, e) => OnFocusChanged("Table", "Main");
+            if (TableMain != null) 
+            {
+                TableMain.GotFocus += (s, e) => OnFocusChanged("Table", "Main");
+                TableMain.SizeChanged += (s, e) => UpdateTableColumns();
+            }
             if (TableKeyword != null) TableKeyword.GotFocus += (s, e) => OnFocusChanged("Table", "Keyword");
 
             if (WebViewMain != null) WebViewMain.GotFocus += (s, e) => OnFocusChanged("WebView", "Main");
@@ -280,6 +284,8 @@ namespace ThinktankApp
                         {
                             if (collection != null && TableMain != null)
                             {
+                                TableMain.AutoGenerateColumns = false;
+                                UpdateTableColumns();
                                 TableMain.ItemsSource = collection.Items;
                                 UpdateTitle();
                             }
@@ -301,6 +307,58 @@ namespace ThinktankApp
                             System.Console.WriteLine("Error in SetTableResource: " + ex.Message + "\n" + ex.StackTrace);
                         }
                     }));
+                }
+            }
+        }
+
+        private void UpdateTableColumns()
+        {
+            if (TableMain == null || _currentCollection == null) return;
+
+            string propertiesCsv = _currentCollection.GetDisplayProperties(TableMain.ActualWidth);
+            if (string.IsNullOrEmpty(propertiesCsv)) return;
+
+            // Check if columns need update to avoid flickering
+            // Simple check: compare property names
+            bool needsUpdate = false;
+            var props = propertiesCsv.Split(',');
+            if (TableMain.Columns.Count != props.Length)
+            {
+                needsUpdate = true;
+            }
+            else
+            {
+                for (int i = 0; i < props.Length; i++)
+                {
+                    var col = TableMain.Columns[i] as System.Windows.Controls.DataGridTextColumn;
+                    var binding = col != null ? col.Binding as System.Windows.Data.Binding : null;
+                    if (binding == null || binding.Path.Path != props[i].Trim())
+                    {
+                        needsUpdate = true;
+                        break;
+                    }
+                }
+            }
+
+            if (needsUpdate)
+            {
+                TableMain.Columns.Clear();
+                for (int i = 0; i < props.Length; i++)
+                {
+                    var prop = props[i];
+                    var pName = prop.Trim();
+                    var header = _currentCollection.GetColumnHeader(pName);
+                    
+                    var col = new System.Windows.Controls.DataGridTextColumn();
+                    col.Header = header;
+                    col.Binding = new System.Windows.Data.Binding(pName);
+
+                    if (i == props.Length - 1)
+                    {
+                        col.Width = new System.Windows.Controls.DataGridLength(1, System.Windows.Controls.DataGridLengthUnitType.Star);
+                    }
+
+                    TableMain.Columns.Add(col);
                 }
             }
         }

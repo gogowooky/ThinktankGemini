@@ -16,9 +16,9 @@ namespace ThinktankApp
             Description = "コレクション一覧";
 
             _itemDisplayColumns = "Description:説明,Count:件数,Name:名前,UpdateDate:更新日";
-            _itemNarrowProperties = "Name,Count";
-            _itemWideProperties = "Description,Count,Name,UpdateDate";
-            _itemMinimalProperties = "Name";
+            _itemNarrowProperties = "ID,Name,Count";
+            _itemWideProperties = "ID,Name,Count,Description,UpdateDate";
+            _itemMinimalProperties = "ID,Name";
             _itemSaveProperties = "ID,Name,Description";
 
             Status = new TTStatus();

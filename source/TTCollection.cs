@@ -88,5 +88,28 @@ namespace ThinktankApp
         {
             Items.Clear();
         }
+
+        public string GetDisplayProperties(double width)
+        {
+            if (width < 300) return _itemMinimalProperties;
+            if (width < 600) return _itemNarrowProperties;
+            return _itemWideProperties;
+        }
+
+        public string GetColumnHeader(string propertyName)
+        {
+            if (string.IsNullOrEmpty(_itemDisplayColumns)) return propertyName;
+            
+            var parts = _itemDisplayColumns.Split(',');
+            foreach (var part in parts)
+            {
+                var kv = part.Split(':');
+                if (kv.Length == 2 && kv[0].Trim() == propertyName)
+                {
+                    return kv[1].Trim();
+                }
+            }
+            return propertyName;
+        }
     }
 }
