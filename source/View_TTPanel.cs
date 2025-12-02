@@ -126,6 +126,7 @@ namespace ThinktankApp
         }
 
         private bool _isFocused = false;
+        private TTCollection _currentCollection;
 
         private void UpdateTitle()
         {
@@ -137,6 +138,10 @@ namespace ThinktankApp
             if (mode == "Table" && !string.IsNullOrEmpty(TableResource))
             {
                 titleText += " [" + TableResource + "]";
+                if (_currentCollection != null)
+                {
+                    titleText += " (" + _currentCollection.Count + ")";
+                }
             }
 
             if (_isFocused)
@@ -251,7 +256,20 @@ namespace ThinktankApp
             TableResource = resourceId;
             if (Models != null)
             {
+                // Unsubscribe from previous collection
+                if (_currentCollection != null)
+                {
+                    _currentCollection.PropertyChanged -= OnCollectionPropertyChanged;
+                }
+
                 var collection = Models.GetCollection(resourceId);
+                _currentCollection = collection;
+
+                // Subscribe to new collection
+                if (_currentCollection != null)
+                {
+                    _currentCollection.PropertyChanged += OnCollectionPropertyChanged;
+                }
                 
                 // Ensure UI updates happen on the UI thread using View's Dispatcher asynchronously to avoid deadlock
                 if (View != null)
@@ -283,6 +301,17 @@ namespace ThinktankApp
                             System.Console.WriteLine("Error in SetTableResource: " + ex.Message + "\n" + ex.StackTrace);
                         }
                     }));
+                }
+            }
+        }
+
+        private void OnCollectionPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Count")
+            {
+                if (View != null)
+                {
+                    View.Dispatcher.BeginInvoke(new Action(() => UpdateTitle()));
                 }
             }
         }
