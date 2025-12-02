@@ -1,23 +1,24 @@
 
-function Add-TTAction ($ID, $Description, [ScriptBlock]$Script) {
+function Add-TTAction ($ActionID, $Description, [ScriptBlock]$Script) {
     $action = [ThinktankApp.TTAction]::new()
-    $action.ID = $ID
+    $action.ID = $ActionID
     $action.Name = $Description
     $action.Script = $Script
     $global:Application.Actions.AddItem($action)
 }
 
-function New-TTState ($ID, $Description, $Scripts) {
-    if ($ID -match '^\[Panels\]') {
+function New-TTState ($StateID, $Description, $Scripts) {
+    if ($StateID -match '^\[Panels\]') {
         'Library', 'Index', 'Shelf', 'Desk', 'System' | ForEach-Object {
-            $realID = $ID -replace '\[Panels\]', $_
-            New-TTState $realID $Description $Scripts
+            $realID = $StateID -replace '\[Panels\]', $_
+            $realDesc = $Description -replace '\[Panels\]', $_
+            New-TTState $realID $realDesc $Scripts
         }
         return
     }
 
     $state = [ThinktankApp.TTState]::new()
-    $state.ID = $ID
+    $state.ID = $StateID
     $state.Name = $Description
 
     if ($Scripts -is [string]) {
@@ -32,7 +33,7 @@ function New-TTState ($ID, $Description, $Scripts) {
         
         if ($state.Default -ne $null) {
             if ($state.Default -is [ScriptBlock]) {
-                $state.Value = $state.Default.Invoke($ID)
+                $state.Value = $state.Default.Invoke($StateID)
             }
             else {
                 $state.Value = $state.Default

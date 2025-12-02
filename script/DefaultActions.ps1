@@ -1,5 +1,6 @@
 ﻿
 #region ::: ExMode Actions
+# 251202 このActionは、Apply-TTState ID Value に展開して自動登録されるようにする。
 Add-TTAction    Application.Current.ExMode:ExApp 'Switch to ExApp mode' {
     $global:Application.SetExModMode('ExApp')
     return $true
