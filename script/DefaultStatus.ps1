@@ -10,21 +10,14 @@ New-TTState     Application.Product.Mail            '連絡先'                 
 New-TTState     Application.Product.Site            '開発サイト'                    'https://github.com/gogowooky'
 New-TTState     Application.Product.Version         'バージョン'                    @{
     Default = {
-        $branch = 'unknown'
-        $message = ''
-        $timestamp = Get-Date
         $infoPath = "$global:ScriptPath\branch_info.txt"
         
         if (Test-Path $infoPath) {
-            ( Get-Content -Path $infoPath -Raw ).split("`n").foreach{
-                switch -regex ($_) {
-                    'BranchName:([^:]+):' { $branch = $matches[1] }
-                    'CommitMessage:([^:]+):' { $message = $matches[1] }
-                    'CommitTimestamp:([^:]+)T(\d\d\:\d\d\:\d\d)' { $timestamp = [DateTime]($matches[1] + ' ' + $matches[2]) }
-                }
-            }
+            return ( Get-Content -Path $infoPath -Raw ).Trim()
         }
-        "ver.$($timestamp.tostring('yyyy-MM-dd-HHmmss')) (comm.$branch)"
+        
+        $timestamp = Get-Date
+        "ver.$($timestamp.tostring('yyMMdd- HHmm')) unknown on $($Env:Computername)"
     }
     Apply   = {
         Param($id, $val)
