@@ -86,6 +86,15 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
         return
     }
 
+    if ($ActionID -match '^(.+):(.+)$') {
+        $stateID = $matches[1]
+        $stateValue = $matches[2]
+        
+        if ($null -eq $global:Application.Actions.GetItem($ActionID)) {
+            Add-TTAction $ActionID "Set $stateID to $stateValue" { Apply-TTState $stateID $stateValue $PCName }.GetNewClosure()
+        }
+    }
+
     $evnt = [ThinktankApp.TTEvent]::new()
     $evnt.Name = $ActionID
     $evnt.Context = $Context

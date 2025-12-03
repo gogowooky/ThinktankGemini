@@ -1,40 +1,40 @@
 ﻿
 #region ::: ExMode Actions
 # 251202 このActionは、Apply-TTState ID Value に展開して自動登録されるようにする。
-Add-TTAction    Application.Current.ExMode:ExApp 'Switch to ExApp mode' {
-    $global:Application.SetExModMode('ExApp')
-    return $true
-}
+# Add-TTAction    Application.Current.ExMode:ExApp 'Switch to ExApp mode' {
+#     $global:Application.SetExModMode('ExApp')
+#     return $true
+# }
 
-Add-TTAction    Application.Current.ExMode:ExLibrary 'Switch to ExLibrary mode' {
-    $global:Application.SetExModMode('ExLibrary')
-    return $true
-}
+# Add-TTAction    Application.Current.ExMode:ExLibrary 'Switch to ExLibrary mode' {
+#     $global:Application.SetExModMode('ExLibrary')
+#     return $true
+# }
 
-Add-TTAction    Application.Current.ExMode:ExIndex 'Switch to ExIndex mode' {
-    $global:Application.SetExModMode('ExIndex')
-    return $true
-}
+# Add-TTAction    Application.Current.ExMode:ExIndex 'Switch to ExIndex mode' {
+#     $global:Application.SetExModMode('ExIndex')
+#     return $true
+# }
 
-Add-TTAction    Application.Current.ExMode:ExShelf 'Switch to ExShelf mode' {
-    $global:Application.SetExModMode('ExShelf')
-    return $true
-}
+# Add-TTAction    Application.Current.ExMode:ExShelf 'Switch to ExShelf mode' {
+#     $global:Application.SetExModMode('ExShelf')
+#     return $true
+# }
 
-Add-TTAction    Application.Current.ExMode:ExDesk 'Switch to ExDesk mode' {
-    $global:Application.SetExModMode('ExDesk')
-    return $true
-}
+# Add-TTAction    Application.Current.ExMode:ExDesk 'Switch to ExDesk mode' {
+#     $global:Application.SetExModMode('ExDesk')
+#     return $true
+# }
 
-Add-TTAction    Application.Current.ExMode:ExSystem 'Switch to ExSystem mode' {
-    $global:Application.SetExModMode('ExSystem')
-    return $true
-}
+# Add-TTAction    Application.Current.ExMode:ExSystem 'Switch to ExSystem mode' {
+#     $global:Application.SetExModMode('ExSystem')
+#     return $true
+# }
 
-Add-TTAction    Application.Current.ExMode:Normal 'Switch to Normal mode' {
-    $global:Application.SetExModMode('')
-    return $true
-}
+# Add-TTAction    Application.Current.ExMode:Normal 'Switch to Normal mode' {
+#     $global:Application.SetExModMode('')
+#     return $true
+# }
 #endregion
 
 #region ::: Thinktank2 からの登録

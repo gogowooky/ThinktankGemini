@@ -33,8 +33,8 @@ New-TTState     Application.Product.Version         'バージョン'           
 }
 #endregion
 #region Application.System.*
-New-TTState     Application.System.RootPath         'ルートディレクトリ'            $global:RootPath
-New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        $global:ScriptPath
+New-TTState     Application.System.RootPath         'ルートディレクトリ'            $PSScriptRoot
+New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        "$PSScriptRoot/script"
 New-TTState     Application.System.PCName           'PC名'                          $Env:Computername
 New-TTState     Application.System.UserName         'User名'                        $([System.Environment]::UserName)
 New-TTState     Application.System.MemoPath         'メモディレクトリ'                  @{
@@ -264,17 +264,9 @@ New-TTState     Application.Current.ExMode          '排他モード'           
         switch ($val) {
             'Panel' { $val = 'Ex{0}' -f [TTExModMode]::FdPanel().Name }
         }
-        [TTExModMode]::Start( $val )
-    }
-    Watch   = {
-        [TTExModMode]::OnClear = {
-            $global:Application.UpdateTitle()
-            $global:Models.Status.SetValue( 'Application.Current.ExMode', '' )
-        }
-        [TTExModMode]::OnStart = {
-            $global:Application.UpdateTitle()
-            $global:Models.Status.SetValue( 'Application.Current.ExMode', [TTExModMode]::Name )
-        }
+        $global:Application.SetExModMode( $val )
+        $global:Application.UpdateTitle()
+        $global:Models.Status.SetValue( 'Application.Current.ExMode', $val )
     }
 }
 New-TTState     Application.Border.Style            'パネル分割スタイル'            @{
@@ -381,7 +373,7 @@ New-TTState     [Panels].Current.Mode               '[Panels]のモード'      
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.Tools.foreach{
+        $global:Application.PanelMap[$pname].Tools.foreach{
             $_.Add_IsVisibleChanged({ #::: Visibility変更時　Focusではない
                     Param($ctrl, $evnt)
                     if ( $ctrl.IsVisible ) {
@@ -403,7 +395,7 @@ $global:tool_gotfocus = {
     $tname = $ctrl.Name -replace '(Editor|Table|WebView)(Keyword|Main)', '$2'
 
     $global:Application.PostFocused( $ctrl )
-    $global:Application.$pname.RestoreCurrentTool( $ctrl )
+    $global:Application.PanelMap[$pname].RestoreCurrentTool( $ctrl )
 
     $global:Application.SwitchKeyTable( $pname + $ctrl.Name )
 
@@ -425,7 +417,7 @@ New-TTState     [Panels].Current.Tool               '[Panels]のツール'      
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
 
-        $global:Application.$pname.Tools.foreach{
+        $global:Application.PanelMap[$pname].Tools.foreach{
             $_.Add_PreviewTouchDown($global:tool_gotfocus)
             $_.Add_PreviewMouseDown($global:tool_gotfocus)
             $_.Add_GotFocus($global:tool_gotfocus)
@@ -440,7 +432,7 @@ New-TTState     [Panels].Title.Visible              '[Panels]タイトル表示'
     Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.$p.SetTitleVisible( $val ) }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.Title.Add_IsVisibleChanged({
+        $global:Application.PanelMap[$pname].Title.Add_IsVisibleChanged({
                 Param($ttl, $evnt)
                 $pname = $ttl.TTPanel.Name
                 $global:Models.Status.SetValue( "$pname.Title.Visible", $ttl.IsVisible )
@@ -452,7 +444,7 @@ New-TTState     [Panels].Title.Text                 '[Panels]タイトル文字'
     Default = { Param($id); return $id.split('.')[0] }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.Title.Content = $val
+        $global:Application.PanelMap[$pname].Title.Content = $val
         $global:Models.Status.SetValue( $id, $val )
     }
 }
@@ -463,11 +455,11 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
     Default = { '' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.SetKeyword( 'Editor', $val )
+        $global:Application.PanelMap[$pname].SetKeyword( 'Editor', $val )
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.EditorKeyword.Add_TextChanged({
+        $global:Application.PanelMap[$pname].EditorKeyword.Add_TextChanged({
                 Param($kwd, $evnt)
                 $pn = $kwd.TTPanel.Name
                 $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
@@ -476,7 +468,7 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
                     $global:Application.$script:pn.UpdateHighlight()
                 }.GetNewClosure()
             })
-        $global:Application.$pname.EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
+        $global:Application.PanelMap[$pname].EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
                 param($tv, $e)
                 $edit = $tv.EditorComponent
                 $currentVerticalOffset = $tv.VerticalOffset
@@ -495,7 +487,7 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
 
                 $global:previousVerticalOffset = $currentVerticalOffset
             })
-        $global:Application.$pname.EditorKeyword.TextArea.Caret.Add_PositionChanged({
+        $global:Application.PanelMap[$pname].EditorKeyword.TextArea.Caret.Add_PositionChanged({
                 Param( $crt, $evnt ) 
                 $crt.TTPanel.CenterKeywordCaret()
                 $pn = $crt.TTPanel.Name
@@ -515,14 +507,14 @@ New-TTState     [Panels].Editor.Memo                '[Panels]メモID'          
     Default = { 'thinktank' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $panel = $global:Application.$pname
+        $panel = $global:Application.PanelMap[$pname]
         if ( $val -in @( '', $panel.MemoID ) ) { return }
         $panel.MemoID = $val
         $global:Controller.LoadMemo( $panel, $val )
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.EditorMain.Add_DocumentChanged({
+        $global:Application.PanelMap[$pname].EditorMain.Add_DocumentChanged({
                 Param($edt, $evnt)
                 $pname = $edt.TTPanel.Name
                 $global:Models.Status.SetValue( "$pname.Editor.Memo", $edt.TTPanel.MemoID )
@@ -535,9 +527,9 @@ New-TTState     [Panels].Editor.Wordwrap            '[Panels]メモWordwrap'    
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
         if ( $val -eq 'toggle' ) {
-            $val = @( 'true', 'false')[ $global:Application.$pname.EditorMain.Wordwrap ]
+            $val = @( 'true', 'false')[ $global:Application.PanelMap[$pname].EditorMain.Wordwrap ]
         }
-        $global:Application.$pname.EditorMain.Wordwrap = [bool]$val
+        $global:Application.PanelMap[$pname].EditorMain.Wordwrap = [bool]$val
     }
 }
 #endregion
@@ -555,11 +547,11 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
     }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.SetKeyword( 'Table', $val )
+        $global:Application.PanelMap[$pname].SetKeyword( 'Table', $val )
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.TableKeyword.Add_TextChanged({
+        $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({
                 Param($kwd, $evnt)
                 $pn = $kwd.TTPanel.Name
                 $global:Models.Status.SetValue( "$pn.Table.Keyword", $kwd.TTPanel.GetKeyword('Table') )
@@ -567,7 +559,7 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
                     $global:Application.$script:pn.UpdateTableFilter()
                 }.GetNewClosure()
             })
-        $global:Application.$pname.TableKeyword.TextArea.Caret.Add_PositionChanged({
+        $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({
                 Param( $crt, $evnt ) 
                 $pn = $crt.TTPanel.Name
                 $global:Models.Status.SetValue( "$pn.Table.Keyword", $crt.TTPanel.GetKeyword('Table') )
@@ -587,7 +579,7 @@ New-TTState     [Panels].Table.Resource             '[Panels]リソース名'   
     Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.$p.SetTableResource( $val ) }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.TableMain.Add_SourceUpdated({
+        $global:Application.PanelMap[$pname].TableMain.Add_SourceUpdated({
                 Param($tbl, $evnt)
                 $pname = $tbl.TTPanel.Name
                 $global:Models.Status.SetValue( "$pname.Table.Resource", $tbl.TTPanel.TableResource )
@@ -608,12 +600,12 @@ New-TTState     [Panels].Table.Sort                 '[Panels]ソート'         
     Test    = { Param($id, $val); $val -match '.+\|(Ascending|Descending)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.SetTableSort( $val )
+        $global:Application.PanelMap[$pname].SetTableSort( $val )
         $global:Models.Status.SetValue( $id, $val )
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.TableMain.Add_Sorting({
+        $global:Application.PanelMap[$pname].TableMain.Add_Sorting({
                 Param($tbl, $evnt)
                 $pname = $tbl.TTPanel.Name
                 $sort = [System.Windows.Data.CollectionViewSource]::GetDefaultView( $tbl.ItemsSource ).SortDescriptions[0]
@@ -631,17 +623,17 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
             Index   = ''
             Shelf   = ''
             Desk    = ''
-            System  = 'http://google.com'
+            System  = 'https://www.google.com'
         }
         $map[ $id.split('.')[0] ]
     }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.SetKeyword( 'WebView', $val )
+        $global:Application.PanelMap[$pname].SetKeyword( 'WebView', $val )
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.TableKeyword.Add_TextChanged({
+        $global:Application.PanelMap[$pname].WebViewKeyword.Add_TextChanged({
                 Param($kwd, $evnt)
                 $panel = $kwd.TTPanel
                 $pn = $panel.Name
@@ -649,7 +641,7 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
                 $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
                 # $panel.UpdateMarker('WebView')
             })
-        $global:Application.$pname.TableKeyword.TextArea.Caret.Add_PositionChanged({
+        $global:Application.PanelMap[$pname].WebViewKeyword.TextArea.Caret.Add_PositionChanged({
                 Param($kwd, $evnt)
                 $panel = $kwd.TTPanel
                 $pn = $panel.Name
@@ -667,11 +659,11 @@ New-TTState     [Panels].Keyword.Visible            '[Panels]キーワード表�
     Test    = { Param($id, $val); $val -match '(true|false)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.SetKeywordVisible( $val )
+        $global:Application.PanelMap[$pname].SetKeywordVisible( $val )
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.EditorKeyword.Add_IsVisibleChanged({
+        $global:Application.PanelMap[$pname].EditorKeyword.Add_IsVisibleChanged({
                 Param($kwd, $evnt)
                 $pname = $kwd.TTPanel.Name
                 $global:Models.Status.SetValue( "$pname.Keyword.Visible", $kwd.IsVisible )
@@ -683,8 +675,8 @@ New-TTState     [Panels].ColumnHeader.Visible       '[Panels]カラムヘッダ�
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.SetColumnHeaderVisible( $val )
-        $newval = $global:Application.$pname.GetColumnHeaderVisible()
+        $global:Application.PanelMap[$pname].SetColumnHeaderVisible( $val )
+        $newval = $global:Application.PanelMap[$pname].GetColumnHeaderVisible()
         $global:Models.Status.SetValue( $id, $newval )
     }
 }
@@ -693,8 +685,8 @@ New-TTState     [Panels].RowHeader.Visible          '[Panels]ロウヘッダー'
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.SetRowHeaderVisible( $val )
-        $newval = $global:Application.$pname.GetRowHeaderVisible()
+        $global:Application.PanelMap[$pname].SetRowHeaderVisible( $val )
+        $newval = $global:Application.PanelMap[$pname].GetRowHeaderVisible()
         $global:Models.Status.SetValue( $id, $newval )
     }
 }
@@ -703,7 +695,7 @@ New-TTState     [Panels].Panel.FontSize             '[Panels]フォントサイ�
     Test    = { Param($id, $val); $val -match '(\d{1,2}|up|down)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.$pname.SetFontSize( $val )
+        $global:Application.PanelMap[$pname].SetFontSize( $val )
         $global:Models.Status.SetValue( "$pname.Panel.FontSize", $val )
     }
 }

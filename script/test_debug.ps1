@@ -102,7 +102,7 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
             Index   = ''
             Shelf   = ''
             Desk    = ''
-            System  = 'http://google.com'
+            System  = 'https://www.google.com'
         }
         $map[ $id.split('.')[0] ]
     }
