@@ -11,7 +11,7 @@ namespace ThinktankApp
         {
             _actionMap = new Dictionary<string, TTAction>();
             Description = "Actions";
-            _itemDisplayColumns = "ID:ID,Name:名前";
+            _itemDisplayColumns = "ID:アクションID,Name:名前";
             _itemNarrowProperties = "ID,Name";
             _itemWideProperties = "ID,Name";
             _itemMinimalProperties = "ID,Name";
