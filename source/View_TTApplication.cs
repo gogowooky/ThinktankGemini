@@ -686,7 +686,19 @@ namespace ThinktankApp
                 args.Add("UIKey", e.Key.ToString());
                 args.Add("UIIntKey", intk);
 
-                return action.Invoke(args, _runspace);
+                bool result = action.Invoke(args, _runspace);
+
+                // If we are in ExModMode, check return value to decide persistence
+                if (!string.IsNullOrEmpty(_currentExModMode))
+                {
+                    if (!result)
+                    {
+                        SetExModMode("");
+                    }
+                    return true; // Always handle the key in ExModMode if action matched
+                }
+
+                return result;
             }
 
             return false;

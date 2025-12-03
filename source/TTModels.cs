@@ -9,6 +9,7 @@ namespace ThinktankApp
         public TTEvents Events { get; private set; }
         public TTMemos Memos { get; private set; }
 
+
         public TTModels() : base()
         {
             ID = "Thinktank";

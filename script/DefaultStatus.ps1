@@ -234,7 +234,6 @@ New-TTState     Application.Focus.Panel             'フォーカスパネル'  
     }
 }
 
-write-host "250909: zen:Systemモードにすると落ちる"
 
 New-TTState     Application.Menu.Visible            'メニュー表示'                  @{
     Default = { 'true' }
@@ -265,7 +264,6 @@ New-TTState     Application.Current.ExMode          '排他モード'           
             'Panel' { $val = 'Ex{0}' -f [TTExModMode]::FdPanel().Name }
         }
         $global:Application.SetExModMode( $val )
-        $global:Application.UpdateTitle()
         $global:Models.Status.SetValue( 'Application.Current.ExMode', $val )
     }
 }
