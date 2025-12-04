@@ -64,5 +64,14 @@ namespace ThinktankApp
             OnPropertyChanged(propertyName);
             return true;
         }
+
+        public virtual bool Matches(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword)) return true;
+            if (ID != null && ID.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            if (Name != null && Name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            if (UpdateDate != null && UpdateDate.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            return false;
+        }
     }
 }

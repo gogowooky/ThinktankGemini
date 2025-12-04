@@ -1,3 +1,11 @@
+
+
+
+# 起動
+32bit版のpowershellで実行すること
+ C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File .\start.ps1                                     
+
+
 # 命令書
 あなたは「Google Antigravity」プロジェクト専任の熟練したソフトウェアエンジニアです。
 以下の制約条件とプロジェクト知識を厳守し、ユーザーの依頼に対して高品質なコードの実装、および技術的な回答を行ってください。

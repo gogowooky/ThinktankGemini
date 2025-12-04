@@ -23,5 +23,13 @@ namespace ThinktankApp
             Apply = null;
             Watch = null;
         }
+
+        public override bool Matches(string keyword)
+        {
+            if (base.Matches(keyword)) return true;
+            if (Value != null && Value.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            if (Description != null && Description.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            return false;
+        }
     }
 }

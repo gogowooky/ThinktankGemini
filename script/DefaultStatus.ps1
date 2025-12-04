@@ -217,13 +217,13 @@ New-TTState     Application.Focus.Panel             'フォーカスパネル'  
             $val = [TTExModMode]::FdPanel().Name
         }
 
-        Register-DelayedRun Application.Focus.Panel 1 {
-            $global:Application.$script:val.Focus()
-            $curstyle = (Get-TTState Application.Border.Style)
-            if ( $curstyle -like 'zen*' ) {
-                Apply-TTState Application.Border.Style "zen:$script:val"
-            }
-        }.GetNewClosure()
+        # Register-DelayedRun Application.Focus.Panel 1 {
+        $global:Application.$val.Focus()
+        $curstyle = (Get-TTState Application.Border.Style)
+        if ( $curstyle -like 'zen*' ) {
+            Apply-TTState Application.Border.Style "zen:$val"
+        }
+        # }.GetNewClosure()
     }
 }
 
@@ -454,10 +454,10 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
                 Param($kwd, $evnt)
                 $pn = $kwd.TTPanel.Name
                 $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
-                Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
-                    $global:Application.$script:pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
-                    $global:Application.$script:pn.UpdateHighlight()
-                }.GetNewClosure()
+                # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
+                $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
+                $global:Application.$pn.UpdateHighlight()
+                # }.GetNewClosure()
             })
         $global:Application.PanelMap[$pname].EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
                 param($tv, $e)
@@ -546,17 +546,17 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
                 Param($kwd, $evnt)
                 $pn = $kwd.TTPanel.Name
                 $global:Models.Status.SetValue( "$pn.Table.Keyword", $kwd.TTPanel.GetKeyword('Table') )
-                Register-DelayedRun "$pn.TableKeyword.TextChanged" 3 {
-                    $global:Application.$script:pn.UpdateTableFilter()
-                }.GetNewClosure()
+                # Register-DelayedRun "$pn.TableKeyword.TextChanged" 3 {
+                $global:Application.$pn.UpdateTableFilter()
+                # }.GetNewClosure()
             })
         $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({
                 Param( $crt, $evnt ) 
                 $pn = $crt.TTPanel.Name
                 $global:Models.Status.SetValue( "$pn.Table.Keyword", $crt.TTPanel.GetKeyword('Table') )
-                Register-DelayedRun "$pn.TableKeyword.TextArea.Caret.PositionChanged" 3 {
-                    $global:Application.$script:pn.UpdateTableFilter()
-                }.GetNewClosure()
+                # Register-DelayedRun "$pn.TableKeyword.TextArea.Caret.PositionChanged" 3 {
+                $global:Application.$pn.UpdateTableFilter()
+                # }.GetNewClosure()
             })
     }
 }

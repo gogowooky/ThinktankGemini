@@ -177,7 +177,55 @@ namespace ThinktankApp
                     _resizeTimer.Start();
                 };
             }
-            if (TableKeyword != null) TableKeyword.GotFocus += (s, e) => OnFocusChanged("Table", "Keyword");
+            if (TableKeyword != null) 
+            {
+                TableKeyword.GotFocus += (s, e) => OnFocusChanged("Table", "Keyword");
+                TableKeyword.TextChanged += (s, e) => ApplyFilter();
+            }
+        }
+
+        private void ApplyFilter()
+        {
+            if (TableMain == null || TableMain.ItemsSource == null) return;
+
+            string filterText = TableKeyword != null ? TableKeyword.Text : "";
+            System.Windows.Data.CollectionView view = (System.Windows.Data.CollectionView)System.Windows.Data.CollectionViewSource.GetDefaultView(TableMain.ItemsSource);
+            
+            if (string.IsNullOrWhiteSpace(filterText))
+            {
+                view.Filter = null;
+            }
+            else
+            {
+                var orGroups = filterText.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                
+                view.Filter = (obj) =>
+                {
+                    var item = obj as TTObject;
+                    if (item == null) return false;
+
+                    // OR logic: if any group matches, return true
+                    foreach (var group in orGroups)
+                    {
+                        var andKeywords = group.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        bool groupMatch = true;
+
+                        // AND logic: all keywords in group must match
+                        foreach (var keyword in andKeywords)
+                        {
+                            if (!item.Matches(keyword.Trim()))
+                            {
+                                groupMatch = false;
+                                break;
+                            }
+                        }
+
+                        if (groupMatch) return true;
+                    }
+
+                    return false;
+                };
+            }
         }
 
         public override void SetFontSize(string size)
@@ -522,6 +570,11 @@ namespace ThinktankApp
         {
             _isFocused = isFocused;
             UpdateTitle();
+        }
+
+        public void Focus()
+        {
+            SetTool("Main");
         }
 
         public void Focus(string mode, string tool)
