@@ -214,7 +214,7 @@ New-TTState     Application.Focus.Panel             'フォーカスパネル'  
     Default = { 'Desk' }
     Apply   = { Param( $id, $val )
         if ( $val -notmatch '^(Library|Index|Shelf|Desk|System)$' ) { 
-            $val = [TTExModMode]::FdPanel().Name
+            $val = $global:Application.GetFdPanel().Name
         }
 
         # Register-DelayedRun Application.Focus.Panel 1 {
@@ -254,7 +254,7 @@ New-TTState     Application.Current.ExMode          '排他モード'           
     Test    = { Param($id, $val); $val -match '(Ex.+|)' }
     Apply   = { Param($id, $val)
         switch ($val) {
-            'Panel' { $val = 'Ex{0}' -f [TTExModMode]::FdPanel().Name }
+            'Panel' { $val = 'Ex{0}' -f $global:Application.GetFdPanel().Name }
         }
         $global:Application.SetExModMode( $val )
         $global:Models.Status.SetValue( 'Application.Current.ExMode', $val )

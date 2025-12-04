@@ -23,6 +23,7 @@ namespace ThinktankApp
         // Dictionary to access panels by name
         public Dictionary<string, TTPanel> PanelMap { get; private set; }
 
+        public string CurrentPanelName { get { return _currentPanelName; } }
         private string _currentPanelName = "";
         private string _currentMode = "";
         private string _currentTool = "";
@@ -54,6 +55,8 @@ namespace ThinktankApp
             try
             {
                 _runspace = RunspaceFactory.CreateRunspace();
+                _runspace.ApartmentState = System.Threading.ApartmentState.STA;
+                _runspace.ThreadOptions = PSThreadOptions.ReuseThread;
                 _runspace.Open();
                 
                 // Expose TTApplication instance as $global:Application
@@ -302,6 +305,16 @@ namespace ThinktankApp
             UpdateStatusBar();
 
             RebuildCurrentKeyTable();
+        }
+
+        public TTPanel GetFdPanel()
+        {
+            if (string.IsNullOrEmpty(_currentPanelName)) return null;
+            if (PanelMap.ContainsKey(_currentPanelName))
+            {
+                return PanelMap[_currentPanelName];
+            }
+            return null;
         }
 
         private System.Windows.Input.ModifierKeys _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
@@ -588,7 +601,8 @@ namespace ThinktankApp
                 if (!string.IsNullOrEmpty(evnt.Mods) && evnt.Mods != "None")
                 {
                     System.Windows.Input.ModifierKeys modKey;
-                    if (Enum.TryParse(evnt.Mods.Replace("None", "").Trim(), out modKey))
+                    string modStr = evnt.Mods.Replace("None", "").Replace("+", ",").Trim();
+                    if (Enum.TryParse(modStr, out modKey))
                     {
                         intm = (int)modKey;
                     }
