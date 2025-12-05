@@ -193,7 +193,11 @@ namespace ThinktankApp
             
             if (string.IsNullOrWhiteSpace(filterText))
             {
-                view.Filter = null;
+                view.Filter = (obj) =>
+                {
+                    var item = obj as TTObject;
+                    return item != null && item.IsVisible;
+                };
             }
             else
             {
@@ -203,6 +207,7 @@ namespace ThinktankApp
                 {
                     var item = obj as TTObject;
                     if (item == null) return false;
+                    if (!item.IsVisible) return false;
 
                     // OR logic: if any group matches, return true
                     foreach (var group in orGroups)
@@ -267,6 +272,7 @@ namespace ThinktankApp
                                 TableMain.AutoGenerateColumns = false;
                                 UpdateTableColumns();
                                 TableMain.ItemsSource = collection.Items;
+                                ApplyFilter();
                                 // UpdateTitle() is in TTPanel, but we can't call it easily from here if it's not virtual/abstract.
                                 // However, TTPanel controls the title. 
                                 // We might need an event or virtual method for TitleUpdate?

@@ -1,4 +1,4 @@
-# start.ps1
+# thinktank.ps1
 
 $ScriptPath = $PSScriptRoot
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8

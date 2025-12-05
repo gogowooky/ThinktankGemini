@@ -20,6 +20,8 @@ namespace ThinktankApp
         public System.Windows.Controls.Primitives.StatusBar StatusBar { get; private set; }
         public System.Windows.Controls.Menu Menu { get; private set; }
 
+        public string BaseDirectory { get; private set; }
+
         // Dictionary to access panels by name
         public Dictionary<string, TTPanel> PanelMap { get; private set; }
 
@@ -67,6 +69,7 @@ namespace ThinktankApp
 
                 // Set RootPath and ScriptPath
                 string rootDir = Path.GetDirectoryName(scriptDir); // Assuming scriptDir is .../ThinktankApp/script
+                BaseDirectory = rootDir;
                 _runspace.SessionStateProxy.SetVariable("global:RootPath", rootDir);
                 _runspace.SessionStateProxy.SetVariable("global:ScriptPath", scriptDir);
 

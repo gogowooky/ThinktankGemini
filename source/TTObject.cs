@@ -10,6 +10,13 @@ namespace ThinktankApp
         private string _name;
         private string _updateDate;
         private TTObject _parent;
+        private bool _isVisible;
+
+        public bool IsVisible
+        {
+            get { return _isVisible; }
+            set { SetProperty(ref _isVisible, value); }
+        }
 
         public string ID
         {
@@ -39,6 +46,7 @@ namespace ThinktankApp
         {
             ID = "";
             Name = "";
+            IsVisible = true;
             UpdateDate = DateTime.Now.ToString("yyyy-MM-dd-HHmmss");
         }
 

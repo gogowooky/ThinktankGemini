@@ -1,9 +1,10 @@
 
-function Add-TTAction ($ActionID, $Description, [ScriptBlock]$Script) {
+function Add-TTAction ($ActionID, $Description, [ScriptBlock]$Script, $IsVisible = $true) {
     $action = [ThinktankApp.TTAction]::new()
     $action.ID = $ActionID
     $action.Name = $Description
     $action.Script = $Script
+    $action.IsVisible = $IsVisible
     $global:Application.Actions.AddItem($action)
 }
 
@@ -91,7 +92,7 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
         $stateValue = $matches[2]
         
         if ($null -eq $global:Application.Actions.GetItem($ActionID)) {
-            Add-TTAction $ActionID "Set $stateID to $stateValue" { Apply-TTState $stateID $stateValue $PCName }.GetNewClosure()
+            Add-TTAction $ActionID "Set $stateID to $stateValue" { Apply-TTState $stateID $stateValue $PCName }.GetNewClosure() $false
         }
     }
 

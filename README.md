@@ -3,7 +3,7 @@
 
 # 起動
 32bit版のpowershellで実行すること
- C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File .\start.ps1                                     
+ C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File .\thinktank.ps1                                     
 
 
 # 命令書

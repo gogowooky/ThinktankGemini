@@ -10,14 +10,11 @@ New-TTState     Application.Product.Mail            '連絡先'                 
 New-TTState     Application.Product.Site            '開発サイト'                    'https://github.com/gogowooky'
 New-TTState     Application.Product.Version         'バージョン'                    @{
     Default = {
-        $infoPath = "$global:ScriptPath\branch_info.txt"
+        $infoPath = "$global:ScriptPath\version.txt"
         
         if (Test-Path $infoPath) {
             return ( Get-Content -Path $infoPath -Raw ).Trim()
-        }
-        
-        $timestamp = Get-Date
-        "ver.$($timestamp.tostring('yyMMdd- HHmm')) unknown on $($Env:Computername)"
+        }        
     }
     Apply   = {
         Param($id, $val)
@@ -202,7 +199,11 @@ New-TTState     Application.Window.FontSize         'アプリ全体のフォン
     }
 }
 New-TTState     Application.Window.Title            'ウインドウタイトル'            @{
-    Default = { 'Thinktank' }
+    Default = { 
+        $name = Get-TTState 'Application.Product.Name'
+        $ver = Get-TTState 'Application.Product.Version'
+        "$name $ver"
+    }
     Apply   = { Param($id, $val)
         $global:Application.SetTitle($val)
         $global:Models.Status.SetValue('Application.Window.Title', $val)
