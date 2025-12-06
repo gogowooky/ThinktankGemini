@@ -10,18 +10,24 @@ New-TTState     Application.Product.Mail            '連絡先'                 
 New-TTState     Application.Product.Site            '開発サイト'                    'https://github.com/gogowooky'
 New-TTState     Application.Product.Version         'バージョン'                    @{
     Default = {
-        $infoPath = "$global:ScriptPath\branch_info.txt"
+        $versionFile = "$global:ScriptPath\version.txt"
         
-        if (Test-Path $infoPath) {
-            return ( Get-Content -Path $infoPath -Raw ).Trim()
+        if (Test-Path $versionFile) {
+            $content = Get-Content -Path $versionFile -Raw
+            if ($content -match 'LastComment:\s*(.+)') {
+                return "ver." + $matches[1].Trim()
+            }
         }
         
         $timestamp = Get-Date
-        "ver.$($timestamp.tostring('yyMMdd- HHmm')) unknown on $($Env:Computername)"
+        "ver.$($timestamp.tostring('yyMMdd-HHmm')) unknown on $($Env:Computername)"
     }
     Apply   = {
         Param($id, $val)
         $global:Models.Status.SetValue( $id, $val )
+        
+        $appName = (Get-TTState 'Application.Product.Name')
+        $global:Application.SetTitle("$appName $val")
     }
 }
 #endregion
