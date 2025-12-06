@@ -13,14 +13,11 @@ New-TTState     Application.Product.Version         'バージョン'           
         $versionFile = "$global:ScriptPath\version.txt"
         
         if (Test-Path $versionFile) {
-            $content = Get-Content -Path $versionFile -Raw
-            if ($content -match 'LastComment:\s*(.+)') {
-                return "ver." + $matches[1].Trim()
-            }
+            return (Get-Content -Path $versionFile -Raw).Trim()
         }
         
         $timestamp = Get-Date
-        "ver.$($timestamp.tostring('yyMMdd-HHmm')) unknown on $($Env:Computername)"
+        "ver.$($timestamp.tostring('yyMMdd-HHmm')) on unknownPC"
     }
     Apply   = {
         Param($id, $val)
@@ -33,7 +30,7 @@ New-TTState     Application.Product.Version         'バージョン'           
 #endregion
 #region Application.System.*
 New-TTState     Application.System.RootPath         'ルートディレクトリ'            $PSScriptRoot
-New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        "$PSScriptRoot/script"
+New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        "$PSScriptRoot / script"
 New-TTState     Application.System.PCName           'PC名'                          $Env:Computername
 New-TTState     Application.System.UserName         'User名'                        $([System.Environment]::UserName)
 New-TTState     Application.System.MemoPath         'メモディレクトリ'                  @{
