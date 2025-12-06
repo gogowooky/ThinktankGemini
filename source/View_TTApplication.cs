@@ -33,10 +33,12 @@ namespace ThinktankApp
         public TTActions Actions { get; private set; }
         public TTStatus Status { get; private set; }
         public TTModels Models { get; private set; }
+        public string BaseDir { get; private set; }
         private Runspace _runspace;
 
         public TTApplication(string xamlPath, string stylePath, string panelXamlPath, string scriptDir)
         {
+            BaseDir = Path.GetDirectoryName(scriptDir);
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Panels = new List<TTPanel>();
             PanelMap = new Dictionary<string, TTPanel>();
@@ -66,8 +68,8 @@ namespace ThinktankApp
                 _runspace.SessionStateProxy.SetVariable("global:Models", Models);
 
                 // Set RootPath and ScriptPath
-                string rootDir = Path.GetDirectoryName(scriptDir); // Assuming scriptDir is .../ThinktankApp/script
-                _runspace.SessionStateProxy.SetVariable("global:RootPath", rootDir);
+                // Set RootPath and ScriptPath
+                _runspace.SessionStateProxy.SetVariable("global:RootPath", BaseDir);
                 _runspace.SessionStateProxy.SetVariable("global:ScriptPath", scriptDir);
 
                 using (PowerShell ps = PowerShell.Create())
