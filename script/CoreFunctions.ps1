@@ -92,6 +92,8 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
         
         if ($null -eq $global:Application.Actions.GetItem($ActionID)) {
             Add-TTAction $ActionID "Set $stateID to $stateValue" { Apply-TTState $stateID $stateValue $PCName }.GetNewClosure()
+            $action = $global:Application.Actions.GetItem($ActionID)
+            if ($action) { $action.IsHidden = $true }
         }
     }
 
