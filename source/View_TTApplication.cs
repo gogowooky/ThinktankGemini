@@ -61,7 +61,9 @@ namespace ThinktankApp
                 Menu = (System.Windows.Controls.Menu)MainWindow.FindName("Menu");
 
                 MainWindow.PreviewKeyDown += OnPreviewKeyDown;
+                MainWindow.PreviewKeyDown += OnPreviewKeyDown;
                 MainWindow.PreviewKeyUp += OnPreviewKeyUp;
+                MainWindow.Loaded += OnWindowLoaded;
             }
             catch (Exception ex)
             {
@@ -87,6 +89,10 @@ namespace ThinktankApp
             {
                 e.Handled = true;
             }
+        }
+
+        protected virtual void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
         }
 
         public abstract bool InvokeActionOnKey(System.Windows.Input.KeyEventArgs e);
@@ -318,12 +324,61 @@ namespace ThinktankApp
         public TTStatus Status { get; private set; }
         public TTModels Models { get; private set; }
         public string BaseDir { get; private set; }
+
+        private string _memoDir;
+        public string MemoDir
+        {
+            get { return _memoDir; }
+            set
+            {
+                _memoDir = value;
+                if (!string.IsNullOrEmpty(_memoDir))
+                {
+                    if (!Directory.Exists(_memoDir)) Directory.CreateDirectory(_memoDir);
+                    string cacheDir = Path.Combine(_memoDir, "cache");
+                    if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
+                    string backupDir = Path.Combine(_memoDir, "backup");
+                    if (!Directory.Exists(backupDir)) Directory.CreateDirectory(backupDir);
+                }
+            }
+        }
+
+        private string _linkDir;
+        public string LinkDir
+        {
+            get { return _linkDir; }
+            set
+            {
+                _linkDir = value;
+                if (!string.IsNullOrEmpty(_linkDir) && !Directory.Exists(_linkDir))
+                {
+                    Directory.CreateDirectory(_linkDir);
+                }
+            }
+        }
+
+        private string _chatDir;
+        public string ChatDir
+        {
+            get { return _chatDir; }
+            set
+            {
+                _chatDir = value;
+                if (!string.IsNullOrEmpty(_chatDir) && !Directory.Exists(_chatDir))
+                {
+                    Directory.CreateDirectory(_chatDir);
+                }
+            }
+        }
         private Runspace _runspace;
 
         public TTApplication(string xamlPath, string stylePath, string panelXamlPath, string scriptDir)
             : base(xamlPath, stylePath)
         {
             BaseDir = Path.GetDirectoryName(scriptDir);
+            MemoDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Memo"));
+            LinkDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Link"));
+            ChatDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Chat"));
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             
             Models = new TTModels();
@@ -332,6 +387,26 @@ namespace ThinktankApp
 
             InitializePanels(panelXamlPath, stylePath);
             InitializePowerShell(scriptDir);
+        }
+
+        protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            if (_runspace != null)
+            {
+                try
+                {
+                    using (PowerShell ps = PowerShell.Create())
+                    {
+                        ps.Runspace = _runspace;
+                        ps.AddScript("Initialize-TTStatus");
+                        ps.Invoke();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show("Error initializing TTStatus: " + ex.Message);
+                }
+            }
         }
 
         private void InitializePowerShell(string scriptDir)

@@ -29,7 +29,15 @@ New-TTState     Application.Product.Version         'バージョン'           
 }
 #endregion
 #region Application.System.*
-New-TTState     Application.System.RootPath         'ルートディレクトリ'            $PSScriptRoot
+New-TTState     Application.System.RootPath         'ルートディレクトリ'            @{
+    Default = { $global:Application.BaseDir }
+    Apply   = {
+        Param($id, $val)
+        $global:Models.Status.SetValue( $id, $val )
+
+        $global:Application.BaseDir = $val
+    }
+}
 New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        "$PSScriptRoot / script"
 New-TTState     Application.System.PCName           'PC名'                          $Env:Computername
 New-TTState     Application.System.UserName         'User名'                        $([System.Environment]::UserName)
