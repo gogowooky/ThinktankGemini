@@ -1,1 +1,1 @@
-﻿ver.251206.2342 on E15
+﻿ver.251208.0921,ThinktankGemini on VENENO-02 Merge branch 'main' of https://github.com/gogowooky/ThinktankGemini
