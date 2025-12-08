@@ -10,21 +10,27 @@ New-TTState     Application.Product.Mail            '連絡先'                 
 New-TTState     Application.Product.Site            '開発サイト'                    'https://github.com/gogowooky'
 New-TTState     Application.Product.Version         'バージョン'                    @{
     Default = {
-        $infoPath = "$global:ScriptPath\version.txt"
+        $versionFile = "$global:ScriptPath\version.txt"
         
-        if (Test-Path $infoPath) {
-            return ( Get-Content -Path $infoPath -Raw ).Trim()
-        }        
+        if (Test-Path $versionFile) {
+            return (Get-Content -Path $versionFile -Raw).Trim()
+        }
+        
+        $timestamp = Get-Date
+        "ver.$($timestamp.tostring('yyMMdd-HHmm')) on unknownPC"
     }
     Apply   = {
         Param($id, $val)
         $global:Models.Status.SetValue( $id, $val )
+        
+        $appName = (Get-TTState 'Application.Product.Name')
+        $global:Application.SetTitle("$appName $val")
     }
 }
 #endregion
 #region Application.System.*
 New-TTState     Application.System.RootPath         'ルートディレクトリ'            $PSScriptRoot
-New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        "$PSScriptRoot/script"
+New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        "$PSScriptRoot / script"
 New-TTState     Application.System.PCName           'PC名'                          $Env:Computername
 New-TTState     Application.System.UserName         'User名'                        $([System.Environment]::UserName)
 New-TTState     Application.System.MemoPath         'メモディレクトリ'                  @{

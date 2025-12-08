@@ -7,10 +7,12 @@ namespace ThinktankApp
     public class TTAction : TTObject
     {
         public object Script { get; set; }
+        public bool IsHidden { get; set; }
 
         public TTAction() : base()
         {
             Script = null;
+            IsHidden = false;
         }
 
         public bool Invoke(object tag, Runspace runspace)
