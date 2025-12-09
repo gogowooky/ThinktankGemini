@@ -92,7 +92,7 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
         $stateValue = $matches[2]
         
         if ($null -eq $global:Application.Actions.GetItem($ActionID)) {
-            Add-TTAction $ActionID "Set $stateID to $stateValue" { Apply-TTState $stateID $stateValue $PCName }.GetNewClosure()
+            Add-TTAction $ActionID "Set $stateID to $stateValue" { Apply-TTState $stateID $stateValue $PCName; return $true }.GetNewClosure()
             $action = $global:Application.Actions.GetItem($ActionID)
             if ($action) { $action.IsHidden = $true }
         }
@@ -125,6 +125,7 @@ function Initialize-TTStatus {
                     "Error applying default for $($_.ID): $_" | Out-File $logFile -Append
                 }
             }
+            "1. Apply Defaults FINISHED." | Out-File $logFile -Append
         }
 
         # 2. Load from Cache

@@ -400,21 +400,24 @@ namespace ThinktankApp
             {
                 await System.Threading.Tasks.Task.Run(() => 
                 {
-                    try
+                    lock(_runspaceLock)
                     {
-                        using (PowerShell ps = PowerShell.Create())
+                        try
                         {
-                            ps.Runspace = _runspace;
-                            try { File.AppendAllText(debugPath, "Invoking Initialize-TTStatus\n"); } catch {}
-                            ps.AddScript("Initialize-TTStatus");
-                            ps.Invoke();
-                            try { File.AppendAllText(debugPath, "Initialize-TTStatus completed\n"); } catch {}
+                            using (PowerShell ps = PowerShell.Create())
+                            {
+                                ps.Runspace = _runspace;
+                                try { File.AppendAllText(debugPath, "Invoking Initialize-TTStatus\n"); } catch {}
+                                ps.AddScript("Initialize-TTStatus");
+                                ps.Invoke();
+                                try { File.AppendAllText(debugPath, "Initialize-TTStatus completed\n"); } catch {}
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        try { File.AppendAllText(debugPath, "Error in OnWindowLoaded: " + ex.ToString() + "\n"); } catch {}
-                        System.Windows.MessageBox.Show("Error initializing TTStatus: " + ex.Message);
+                        catch (Exception ex)
+                        {
+                            try { File.AppendAllText(debugPath, "Error in OnWindowLoaded: " + ex.ToString() + "\n"); } catch {}
+                            System.Windows.MessageBox.Show("Error initializing TTStatus: " + ex.Message);
+                        }
                     }
                 });
             }
@@ -751,6 +754,9 @@ namespace ThinktankApp
             return string.Equals(pattern, value, StringComparison.OrdinalIgnoreCase);
         }
 
+        // Lock object to prevent deadlock between UI thread (keys) and Background thread (Init)
+        private object _runspaceLock = new object();
+
         public override bool InvokeActionOnKey(System.Windows.Input.KeyEventArgs e)
         {
             if (CurrentKeyTable == null) return false;
@@ -781,42 +787,47 @@ namespace ThinktankApp
 
             if (action != null)
             {
-                // Invoke Action
-                var args = new System.Collections.Hashtable();
-                args.Add("UIMods", System.Windows.Input.Keyboard.Modifiers);
-                args.Add("UIKey", e.Key.ToString());
-                args.Add("UIIntKey", intk);
-
-                // Execute action asynchronously to avoid blocking UI thread and deadlocks
-                System.Threading.Tasks.Task.Run(() =>
+                // Try to acquire lock. If failed, it means Init is running. Return immediately to keep UI responsive.
+                if (System.Threading.Monitor.TryEnter(_runspaceLock))
                 {
                     try
                     {
-                        bool result = action.Invoke(args, _runspace);
+                        // Invoke Action
+                        var args = new System.Collections.Hashtable();
+                        args.Add("UIMods", System.Windows.Input.Keyboard.Modifiers);
+                        args.Add("UIKey", e.Key.ToString());
+                        args.Add("UIIntKey", intk);
 
-                        // ExModMode handling: Exit mode if action returns false
-                        if (!string.IsNullOrEmpty(_currentExModMode))
+                        try
                         {
-                            if (!result)
+                            bool result = action.Invoke(args, _runspace);
+
+                            // ExModMode handling: Exit mode if action returns false
+                            if (!string.IsNullOrEmpty(_currentExModMode))
                             {
-                                // Ensure UI updates are on the UI thread
-                                MainWindow.Dispatcher.BeginInvoke(new Action(() =>
+                                if (!result)
                                 {
                                     SetExModMode("");
-                                }));
+                                }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                         MainWindow.Dispatcher.BeginInvoke(new Action(() =>
+                        catch (Exception ex)
                         {
                             System.Windows.MessageBox.Show("Error executing action: " + ex.Message);
-                        }));
+                        }
                     }
-                });
-
-                return true; // Assume event handled if action exists
+                    finally
+                    {
+                        System.Threading.Monitor.Exit(_runspaceLock);
+                    }
+                    return true;
+                }
+                else
+                {
+                    // Lock busy (Init running). Ignore key to prevent freeze.
+                    // optionally play a sound or flash status bar
+                    return true; // We handled it by ignoring it
+                }
             }
 
             return false;

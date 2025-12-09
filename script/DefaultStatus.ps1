@@ -23,7 +23,7 @@ New-TTState     Application.Product.Version         'バージョン'           
         Param($id, $val)
         $global:Models.Status.SetValue( $id, $val )
         
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $appName = (Get-TTState 'Application.Product.Name')
                 $global:Application.SetTitle("$appName $val")
             })
@@ -36,8 +36,6 @@ New-TTState     Application.System.RootPath         'ルートディレクトリ
     Apply   = {
         Param($id, $val)
         $global:Models.Status.SetValue( $id, $val )
-
-        $global:Application.BaseDir = $val
     }
 }
 New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        "$PSScriptRoot/script"
@@ -112,7 +110,7 @@ New-TTState     Application.System.LinkPath         'リンクディレクトリ
 # New-TTState     Application.Window.State            'ウインドウ状態'                @{
 #     Default = { 'Normal' }
 #     Test    = { Param($id, $val); $val -match '(Minimized|Maximized|Normal)' }
-#     Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.InvokeAsync([Action]{ $global:Application.MainWindow.WindowState = $val }) }
+#     Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.Invoke([Action]{ $global:Application.MainWindow.WindowState = $val }) }
 #     Watch   = {
 #         $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
 #                 $global:Application.MainWindow.Add_StateChanged({
@@ -126,7 +124,7 @@ New-TTState     Application.Window.Width            'ウインドウ幅'        
     Default = { '1200' }
     Test    = { Param($id, $val); $val -match '(\d{1,4}|inc|dec)' }
     Apply   = { Param($id, $val)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 switch -regex ($val) {
                     'inc' { $val = $global:Application.MainWindow.Width + 10 }
                     'dec' { $val = $global:Application.MainWindow.Width - 10 }
@@ -154,7 +152,7 @@ New-TTState     Application.Window.Height           'ウインドウ高'        
     Default = { '600' }
     Test    = { Param($id, $val); $val -match '(\d{1,4}|inc|dec)' }
     Apply   = { Param($id, $val)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 switch -regex ($val) {
                     'inc' { $val = $global:Application.MainWindow.Height + 10 }
                     'dec' { $val = $global:Application.MainWindow.Height - 10 }
@@ -168,7 +166,7 @@ New-TTState     Application.Window.XPos             'ウインドウ横位置'  
     Default = { '100' }
     Test    = { Param($id, $val); $val -match '(\d{1,4}|right|left)' }
     Apply   = { Param($id, $val)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 switch -regex ($val) {
                     'right' { $val = $global:Application.MainWindow.Left + 10 }
                     'left' { $val = $global:Application.MainWindow.Left - 10 }
@@ -196,7 +194,7 @@ New-TTState     Application.Window.YPos             'ウインドウ縦位置'  
     Default = { '50' }
     Test    = { Param($id, $val); $val -match '(\d{1,4}|down|up)' }
     Apply   = { Param($id, $val)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 switch -regex ($val) {
                     'down' { $val = $global:Application.MainWindow.Top + 10 }
                     'up' { $val = $global:Application.MainWindow.Top - 10 }
@@ -210,7 +208,7 @@ New-TTState     Application.Window.FontSize         'アプリ全体のフォン
     Default = { 12 }
     Test    = { Param($id, $val); $val -match '(\d{1,2}|up|down)' }
     Apply   = { Param($id, $val)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 switch ( $val ) {
                     'up' { $val = ( $global:Application.MainWindow.FontSize + 1 ) }
                     'down' { $val = ( $global:Application.MainWindow.FontSize - 1 ) }
@@ -220,7 +218,7 @@ New-TTState     Application.Window.FontSize         'アプリ全体のフォン
             })
         $global:Models.Status.SetValue( 'Application.Window.FontSize', $val )
         
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 @(  
                     'Library.Panel.FontSize', 
                     'Index.Panel.FontSize', 
@@ -239,7 +237,7 @@ New-TTState     Application.Window.Title            'ウインドウタイトル
         "$name $ver"
     }
     Apply   = { Param($id, $val)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.SetTitle($val)
             })
         $global:Models.Status.SetValue('Application.Window.Title', $val)
@@ -255,7 +253,7 @@ New-TTState     Application.Focus.Panel             'フォーカスパネル'  
         }
 
         # Register-DelayedRun Application.Focus.Panel 1 {
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.$val.Focus()
             })
         $curstyle = (Get-TTState Application.Border.Style)
@@ -271,7 +269,7 @@ New-TTState     Application.Menu.Visible            'メニュー表示'        
     Default = { 'true' }
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
     Apply   = { Param($id, $val)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 switch ( [string]$val ) {
                     'true' { $global:Application.Menu.Visibility = [Visibility]::Visible }
                     'false' { $global:Application.Menu.Visibility = [Visibility]::Collapsed }
@@ -301,7 +299,7 @@ New-TTState     Application.Current.ExMode          '排他モード'           
         switch ($val) {
             'Panel' { $val = 'Ex{0}' -f $global:Application.GetFdPanel().Name }
         }
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.SetExModMode( $val )
             })
         $global:Models.Status.SetValue( 'Application.Current.ExMode', $val )
@@ -338,7 +336,7 @@ New-TTState     Application.Border.Style            'パネル分割スタイル
 New-TTState     Application.Border.User             'User境界位置'                  @{
     Default = { '20' }
     Test    = { Param($id, $val); $val -match '((\+|\-)?\d{1,2}|100)' }
-    Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] { $global:Application.SetBorderPosition('User', $val) }) }
+    Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.Invoke([Action] { $global:Application.SetBorderPosition('User', $val) }) }
     Watch   = {
         try {
             $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
@@ -370,7 +368,7 @@ New-TTState     Application.Border.User             'User境界位置'          
 New-TTState     Application.Border.LibraryIndex     'LibraryIndex境界位置'          @{
     Default = { '20' }
     Test    = { Param($id, $val); $val -match '((\+|\-)?\d{1,2}|100)' }
-    Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] { $global:Application.SetBorderPosition('LibraryIndex', $val) }) }
+    Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.Invoke([Action] { $global:Application.SetBorderPosition('LibraryIndex', $val) }) }
     Watch   = {
         $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $status = $global:Models.Status
@@ -393,7 +391,7 @@ New-TTState     Application.Border.LibraryIndex     'LibraryIndex境界位置'  
 New-TTState     Application.Border.ShelfDesk        'ShelfDesk境界位置'             @{
     Default = { '20' }
     Test    = { Param($id, $val); $val -match '((\+|\-)?\d{1,2}|100)' }
-    Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] { $global:Application.SetBorderPosition('ShelfDesk', $val) }) }
+    Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.Invoke([Action] { $global:Application.SetBorderPosition('ShelfDesk', $val) }) }
     Watch   = {
         $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $status = $global:Models.Status
@@ -416,7 +414,7 @@ New-TTState     Application.Border.ShelfDesk        'ShelfDesk境界位置'     
 New-TTState     Application.Border.UserSystem       'UserSystem境界位置'            @{
     Default = { '80' }
     Test    = { Param($id, $val); $val -match '((\+|\-)?\d{1,2}|100)' }
-    Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] { $global:Application.SetBorderPosition('UserSystem', $val) }) }
+    Apply   = { Param($id, $val); $global:Application.MainWindow.Dispatcher.Invoke([Action] { $global:Application.SetBorderPosition('UserSystem', $val) }) }
     Watch   = {
         $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $status = $global:Models.Status
@@ -448,15 +446,16 @@ New-TTState     [Panels].Current.Mode               '[Panels]のモード'      
     Test    = { Param($id, $val); $val -match '^(Editor|Table|WebView|next|prev)$' }
     Apply   = { Param($id, $val); 
         $p = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.$p.SetMode( $val )
             })
     }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
-                $global:Application.PanelMap[$pname].Tools.foreach{
-                    $_.Add_IsVisibleChanged({ #::: Visibility変更時　Focusではない
+                $tools = $global:Application.PanelMap[$pname].Tools
+                foreach ($tool in $tools) {
+                    $tool.Add_IsVisibleChanged({ #::: Visibility変更時　Focusではない
                             Param($ctrl, $evnt)
                             try {
                                 if ( $ctrl -ne $null -and $ctrl.Tag -ne $null -and $ctrl.IsVisible ) {
@@ -512,14 +511,15 @@ New-TTState     [Panels].Current.Tool               '[Panels]のツール'      
     }
     Test    = { Param($id, $val); $val -match '^(Editor|Table|WebView)?(Keyword|Main|toggle)$' }
     Apply   = { Param($id, $val);
-        $p = $id.split('.')[0]; $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] { $global:Application.$p.SetTool( $val ) }) }
+        $p = $id.split('.')[0]; $global:Application.MainWindow.Dispatcher.Invoke([Action] { $global:Application.$p.SetTool( $val ) }) }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
-                $global:Application.PanelMap[$pname].Tools.foreach{
-                    $_.Add_PreviewTouchDown($global:tool_gotfocus)
-                    $_.Add_PreviewMouseDown($global:tool_gotfocus)
-                    $_.Add_GotFocus($global:tool_gotfocus)
+                $tools = $global:Application.PanelMap[$pname].Tools
+                foreach ($tool in $tools) {
+                    $tool.Add_PreviewTouchDown($global:tool_gotfocus)
+                    $tool.Add_PreviewMouseDown($global:tool_gotfocus)
+                    $tool.Add_GotFocus($global:tool_gotfocus)
                 }
             } )
     }
@@ -529,14 +529,19 @@ New-TTState     [Panels].Current.Tool               '[Panels]のツール'      
 New-TTState     [Panels].Title.Visible              '[Panels]タイトル表示'          @{
     Default = { 'true' }
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
-    Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] { $global:Application.$p.SetTitleVisible( $val ) }) }
+    Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.MainWindow.Dispatcher.Invoke([Action] { $global:Application.$p.SetTitleVisible( $val ) }) }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
                 $global:Application.PanelMap[$pname].Title.Add_IsVisibleChanged({
                         Param($ttl, $evnt)
-                        $pname = $ttl.Tag.Name
-                        $global:Models.Status.SetValue( "$pname.Title.Visible", $ttl.IsVisible )
+                        try {
+                            $pname = $ttl.Tag.Name
+                            $global:Models.Status.SetValue( "$pname.Title.Visible", $ttl.IsVisible )
+                        }
+                        catch {
+                            "ERROR in [Panels].Title.Visible Watch: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append
+                        }
                     }
                 )
             } )
@@ -546,7 +551,7 @@ New-TTState     [Panels].Title.Text                 '[Panels]タイトル文字'
     Default = { Param($id); return $id.split('.')[0] }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].Title.Content = $val
             })
         $global:Models.Status.SetValue( $id, $val )
@@ -559,42 +564,51 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
     Default = { '' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].SetKeyword( 'Editor', $val )
             })
     }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
                 $global:Application.PanelMap[$pname].EditorKeyword.Add_TextChanged({
                         Param($kwd, $evnt)
-                        $pn = $kwd.Tag.Name
-                        $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.Tag.GetKeyword('Editor') )
+                        try {
+                            $pn = $kwd.Tag.Name
+                            $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.Tag.GetKeyword('Editor') )
+                        }
+                        catch { "ERROR in [Panels].Editor.Keyword TextChanged: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append }
                     })
                 $global:Application.PanelMap[$pname].EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
                         param($tv, $e)
-                        $edit = $tv.EditorComponent
-                        $currentVerticalOffset = $tv.VerticalOffset
-                        $isCaretAtFirstLine = $edit.Document.GetLineByOffset( $edit.CaretOffset ).LineNumber -eq 1
-    
-                        $halfLineHeight = $tv.DefaultLineHeight / 2
-    
-                        $scrollDifference = [Math]::Abs($currentVerticalOffset - $global:previousVerticalOffset)
-    
-                        if (    $isCaretAtFirstLine -and
-                            $currentVerticalOffset -ne 0 -and
-                            $scrollDifference -ge ($halfLineHeight - 0.1) -and
-                            $scrollDifference -le ($halfLineHeight + 0.1) ) {
-                            $edit.ScrollToVerticalOffset(0)
+                        try {
+                            $edit = $tv.EditorComponent
+                            $currentVerticalOffset = $tv.VerticalOffset
+                            $isCaretAtFirstLine = $edit.Document.GetLineByOffset( $edit.CaretOffset ).LineNumber -eq 1
+        
+                            $halfLineHeight = $tv.DefaultLineHeight / 2
+        
+                            $scrollDifference = [Math]::Abs($currentVerticalOffset - $global:previousVerticalOffset)
+        
+                            if (    $isCaretAtFirstLine -and
+                                $currentVerticalOffset -ne 0 -and
+                                $scrollDifference -ge ($halfLineHeight - 0.1) -and
+                                $scrollDifference -le ($halfLineHeight + 0.1) ) {
+                                $edit.ScrollToVerticalOffset(0)
+                            }
+        
+                            $global:previousVerticalOffset = $currentVerticalOffset
                         }
-    
-                        $global:previousVerticalOffset = $currentVerticalOffset
+                        catch { "ERROR in [Panels].Editor.Keyword Scroll: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append }
                     })
                 $global:Application.PanelMap[$pname].EditorKeyword.TextArea.Caret.Add_PositionChanged({
                         Param( $crt, $evnt ) 
-                        $pn = $pname
-                        $panel = $global:Application.PanelMap[$pn]
-                        $global:Models.Status.SetValue( "$pn.Editor.Keyword", $panel.GetKeyword('Editor') )
+                        try {
+                            $pn = $pname
+                            $panel = $global:Application.PanelMap[$pn]
+                            $global:Models.Status.SetValue( "$pn.Editor.Keyword", $panel.GetKeyword('Editor') )
+                        }
+                        catch { "ERROR in [Panels].Editor.Keyword Caret: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append }
                     }.GetNewClosure())
             } )
     }
@@ -609,7 +623,7 @@ New-TTState     [Panels].Editor.Memo                '[Panels]メモID'          
         $global:Controller.LoadMemo( $panel, $val )
     }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
                 $global:Application.PanelMap[$pname].EditorMain.Add_DocumentChanged({
                         Param($edt, $evnt)
@@ -624,7 +638,7 @@ New-TTState     [Panels].Editor.Wordwrap            '[Panels]メモWordwrap'    
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 if ( $val -eq 'toggle' ) {
                     $val = @( 'true', 'false')[ $global:Application.PanelMap[$pname].EditorMain.Wordwrap ]
                 }
@@ -647,17 +661,23 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
     }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].SetKeyword( 'Table', $val )
             })
     }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
                 $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({
                         Param($kwd, $evnt)
-                        $pn = $kwd.Tag.Name
-                        $global:Models.Status.SetValue( "$pn.Table.Keyword", $panel.GetKeyword('Table') )
+                        try {
+                            $panel = $kwd.Tag
+                            $pn = $panel.Name
+                            $global:Models.Status.SetValue( "$pn.Table.Keyword", $panel.GetKeyword('Table') )
+                        }
+                        catch {
+                            "ERROR in [Panels].Table.Keyword Watch: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append
+                        }
                     }.GetNewClosure())
             } )
     }
@@ -669,14 +689,17 @@ New-TTState     [Panels].Table.Resource             '[Panels]リソース名'   
         }
         $map[ $id.split('.')[0] ]
     }
-    Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] { $global:Application.$p.SetTableResource( $val ) }) }
+    Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.MainWindow.Dispatcher.Invoke([Action] { $global:Application.$p.SetTableResource( $val ) }) }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
                 $global:Application.PanelMap[$pname].TableMain.Add_SourceUpdated({
                         Param($tbl, $evnt)
-                        $pname = $tbl.Tag.Name
-                        $global:Models.Status.SetValue( "$pname.Table.Resource", $tbl.Tag.TableResource )
+                        try {
+                            $pname = $tbl.Tag.Name
+                            $global:Models.Status.SetValue( "$pname.Table.Resource", $tbl.Tag.TableResource )
+                        }
+                        catch { "ERROR in [Panels].Table.Resource Watch: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append }
                     })
             } )
     }
@@ -695,20 +718,23 @@ New-TTState     [Panels].Table.Sort                 '[Panels]ソート'         
     Test    = { Param($id, $val); $val -match '.+\|(Ascending|Descending)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].SetTableSort( $val )
             })
         $global:Models.Status.SetValue( $id, $val )
     }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
                 $global:Application.PanelMap[$pname].TableMain.Add_Sorting({
                         Param($tbl, $evnt)
-                        $pname = $tbl.Tag.Name
-                        $sort = [System.Windows.Data.CollectionViewSource]::GetDefaultView( $tbl.ItemsSource ).SortDescriptions[0]
-                        $sortval = ('{0}|{1}' -f $sort.PropertyName, $sort.Direction)
-                        $global:Models.Status.SetValue( "$pname.Table.Sort", $sortval )
+                        try {
+                            $pname = $tbl.Tag.Name
+                            $sort = [System.Windows.Data.CollectionViewSource]::GetDefaultView( $tbl.ItemsSource ).SortDescriptions[0]
+                            $sortval = ('{0}|{1}' -f $sort.PropertyName, $sort.Direction)
+                            $global:Models.Status.SetValue( "$pname.Table.Sort", $sortval )
+                        }
+                        catch { "ERROR in [Panels].Table.Sort Watch: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append }
                     })
             } )
     }
@@ -728,26 +754,32 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
     }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].SetKeyword( 'WebView', $val )
             })
     }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
                 $global:Application.PanelMap[$pname].WebViewKeyword.Add_TextChanged({
                         Param($kwd, $evnt)
-                        $panel = $kwd.Tag
-                        $pn = $panel.Name
-                        $md = $panel.GetMode()
-                        $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+                        try {
+                            $panel = $kwd.Tag
+                            $pn = $panel.Name
+                            $md = $panel.GetMode()
+                            $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+                        }
+                        catch { "ERROR in [Panels].WebView.Keyword Watch: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append }
                     })
                 $global:Application.PanelMap[$pname].WebViewKeyword.TextArea.Caret.Add_PositionChanged({
                         Param($crt, $evnt)
-                        $pn = $pname
-                        $panel = $global:Application.PanelMap[$pn]
-                        $md = $panel.GetMode()
-                        $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+                        try {
+                            $pn = $pname
+                            $panel = $global:Application.PanelMap[$pn]
+                            $md = $panel.GetMode()
+                            $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+                        }
+                        catch { "ERROR in [Panels].WebView.Keyword Caret: $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_watch.txt" -Append }
                     }.GetNewClosure())
             } )
     }
@@ -760,12 +792,12 @@ New-TTState     [Panels].Keyword.Visible            '[Panels]キーワード表�
     Test    = { Param($id, $val); $val -match '(true|false)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].SetKeywordVisible( $val )
             })
     }
     Watch   = { Param($id)
-        $global:Application.MainWindow.Dispatcher.InvokeAsync( [Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
                 $global:Application.PanelMap[$pname].EditorKeyword.Add_IsVisibleChanged({
                         Param($kwd, $evnt)
@@ -780,7 +812,7 @@ New-TTState     [Panels].ColumnHeader.Visible       '[Panels]カラムヘッダ�
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].SetColumnHeaderVisible( $val )
                 $newval = $global:Application.PanelMap[$pname].GetColumnHeaderVisible()
                 $global:Models.Status.SetValue( $id, $newval )
@@ -792,7 +824,7 @@ New-TTState     [Panels].RowHeader.Visible          '[Panels]ロウヘッダー'
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].SetRowHeaderVisible( $val )
                 $newval = $global:Application.PanelMap[$pname].GetRowHeaderVisible()
                 $global:Models.Status.SetValue( $id, $newval )
@@ -804,11 +836,10 @@ New-TTState     [Panels].Panel.FontSize             '[Panels]フォントサイ�
     Test    = { Param($id, $val); $val -match '(\d{1,2}|up|down)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
+        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
                 $global:Application.PanelMap[$pname].SetFontSize( $val )
             })
         $global:Models.Status.SetValue( "$pname.Panel.FontSize", $val )
     }
 }
 #endregion
-```
