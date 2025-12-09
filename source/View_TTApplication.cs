@@ -179,6 +179,7 @@ namespace ThinktankApp
 
         public void Show()
         {
+            try { File.AppendAllText(@"c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\c_debug.txt", "Show() called\n"); } catch {}
             MainWindow.ShowDialog();
         }
 
@@ -375,6 +376,7 @@ namespace ThinktankApp
         public TTApplication(string xamlPath, string stylePath, string panelXamlPath, string scriptDir)
             : base(xamlPath, stylePath)
         {
+            try { File.WriteAllText(@"c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\c_debug.txt", "Constructor started\n"); } catch {}
             BaseDir = Path.GetDirectoryName(scriptDir);
             MemoDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Memo"));
             LinkDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Link"));
@@ -389,23 +391,36 @@ namespace ThinktankApp
             InitializePowerShell(scriptDir);
         }
 
-        protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
+        protected override async void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
+            string debugPath = @"c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\c_debug.txt";
+            try { File.AppendAllText(debugPath, "OnWindowLoaded started (Async)\n"); } catch {}
+
             if (_runspace != null)
             {
-                try
+                await System.Threading.Tasks.Task.Run(() => 
                 {
-                    using (PowerShell ps = PowerShell.Create())
+                    try
                     {
-                        ps.Runspace = _runspace;
-                        ps.AddScript("Initialize-TTStatus");
-                        ps.Invoke();
+                        using (PowerShell ps = PowerShell.Create())
+                        {
+                            ps.Runspace = _runspace;
+                            try { File.AppendAllText(debugPath, "Invoking Initialize-TTStatus\n"); } catch {}
+                            ps.AddScript("Initialize-TTStatus");
+                            ps.Invoke();
+                            try { File.AppendAllText(debugPath, "Initialize-TTStatus completed\n"); } catch {}
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    System.Windows.MessageBox.Show("Error initializing TTStatus: " + ex.Message);
-                }
+                    catch (Exception ex)
+                    {
+                        try { File.AppendAllText(debugPath, "Error in OnWindowLoaded: " + ex.ToString() + "\n"); } catch {}
+                        System.Windows.MessageBox.Show("Error initializing TTStatus: " + ex.Message);
+                    }
+                });
+            }
+            else
+            {
+                try { File.AppendAllText(debugPath, "_runspace is null\n"); } catch {}
             }
         }
 

@@ -525,6 +525,23 @@ namespace ThinktankApp
     public class TTPanel : TTWebViewPanel
     {
         private bool _isFocused = false;
+        
+        public string MemoID { get; set; }
+
+        public System.Collections.Generic.List<System.Windows.FrameworkElement> Tools
+        {
+            get
+            {
+                var list = new System.Collections.Generic.List<System.Windows.FrameworkElement>();
+                if (EditorKeyword != null) list.Add(EditorKeyword);
+                if (EditorMain != null) list.Add(EditorMain);
+                if (TableKeyword != null) list.Add(TableKeyword);
+                if (TableMain != null) list.Add(TableMain);
+                if (WebViewKeyword != null) list.Add(WebViewKeyword);
+                if (WebViewMain != null) list.Add(WebViewMain);
+                return list;
+            }
+        }
 
         public TTPanel(string name, string xamlPath, string stylePath, TTModels models) 
             : base(name, xamlPath, stylePath, models)
@@ -690,6 +707,16 @@ namespace ThinktankApp
                     return WebViewKeyword != null ? WebViewKeyword.Text : "";
             }
             return "";
+        }
+
+        public override void Setup()
+        {
+            base.Setup();
+            if (Title != null) Title.Tag = this;
+            foreach(var tool in Tools)
+            {
+                if (tool != null) tool.Tag = this;
+            }
         }
 
         public void SetTitleVisible(string visible)
