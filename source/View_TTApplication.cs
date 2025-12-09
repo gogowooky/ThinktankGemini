@@ -344,6 +344,33 @@ namespace ThinktankApp
             }
         }
 
+        public string ScriptDir
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(BaseDir)) return "";
+                return Path.Combine(BaseDir, "script");
+            }
+        }
+
+        public string CacheDir
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(MemoDir)) return "";
+                return Path.Combine(MemoDir, "cache");
+            }
+        }
+
+        public string BackupDir
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(MemoDir)) return "";
+                return Path.Combine(MemoDir, "backup");
+            }
+        }
+
         private string _linkDir;
         public string LinkDir
         {

@@ -1,4 +1,33 @@
 
+function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
+    if ( $PCName -notin @( $null, $Env:Computername, '*' ) ) { return }
+    
+    if ($Key.Contains(',')) {
+        $Key.Split(',') | ForEach-Object { Add-TTEvent $Context $Mods $_.Trim() $ActionID $PCName }
+        return
+    }
+
+    if ($ActionID -match '^(.+):(.+)$') {
+        $stateID = $matches[1]
+        $stateValue = $matches[2]
+        
+        if ($null -eq $global:Application.Actions.GetItem($ActionID)) {
+            Add-TTAction $ActionID "Set $stateID to $stateValue" { Apply-TTState $stateID $stateValue $PCName }.GetNewClosure()
+            $action = $global:Application.Actions.GetItem($ActionID)
+            if ($action) { $action.IsHidden = $true }
+        }
+    }
+
+    $evnt = [ThinktankApp.TTEvent]::new()
+    $evnt.Name = $ActionID
+    $evnt.Context = $Context
+    $evnt.Mods = $Mods
+    $evnt.Key = $Key
+    $evnt.ID = "$Context|$Mods|$Key"
+    
+    $global:Application.Models.Events.AddItem($evnt)
+}
+
 function Add-TTAction ($ActionID, $Description, [ScriptBlock]$Script, $IsVisible = $true) {
     $action = [ThinktankApp.TTAction]::new()
     $action.ID = $ActionID
@@ -77,35 +106,6 @@ function Get-TTState ($ID) {
         return $state.Value
     }
     return $null
-}
-
-function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
-    if ( $PCName -notin @( $null, $Env:Computername, '*' ) ) { return }
-    
-    if ($Key.Contains(',')) {
-        $Key.Split(',') | ForEach-Object { Add-TTEvent $Context $Mods $_.Trim() $ActionID $PCName }
-        return
-    }
-
-    if ($ActionID -match '^(.+):(.+)$') {
-        $stateID = $matches[1]
-        $stateValue = $matches[2]
-        
-        if ($null -eq $global:Application.Actions.GetItem($ActionID)) {
-            Add-TTAction $ActionID "Set $stateID to $stateValue" { Apply-TTState $stateID $stateValue $PCName }.GetNewClosure()
-            $action = $global:Application.Actions.GetItem($ActionID)
-            if ($action) { $action.IsHidden = $true }
-        }
-    }
-
-    $evnt = [ThinktankApp.TTEvent]::new()
-    $evnt.Name = $ActionID
-    $evnt.Context = $Context
-    $evnt.Mods = $Mods
-    $evnt.Key = $Key
-    $evnt.ID = "$Context|$Mods|$Key"
-    
-    $global:Application.Models.Events.AddItem($evnt)
 }
 
 function Initialize-TTStatus {
