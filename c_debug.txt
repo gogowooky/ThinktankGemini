@@ -1,0 +1,5 @@
+Constructor started
+Show() called
+OnWindowLoaded started (Async)
+Invoking Initialize-TTStatus
+Initialize-TTStatus completed

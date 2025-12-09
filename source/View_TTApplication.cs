@@ -532,13 +532,13 @@ namespace ThinktankApp
                          System.Windows.MessageBox.Show("DefaultActions.ps1 not found at: " + scriptPath);
                     }
 
-                    // Apply all default statuses
-                    ps.AddScript(@"
-                        $global:Application.Status.Items | ForEach-Object {
-                            Apply-TTState $_.ID 'Default' $Env:Computername
-                        }
-                    ");
-                    ps.Invoke();
+                    // Apply all default statuses - MOVED to Initialize-TTStatus (CoreFunctions.ps1) to avoid constructor deadlock
+                    // ps.AddScript(@"
+                    //     $global:Application.Status.Items | ForEach-Object {
+                    //         Apply-TTState $_.ID 'Default' $Env:Computername
+                    //     }
+                    // ");
+                    // ps.Invoke();
                 }
 
                 // Setup KeyTables after loading all scripts and states
@@ -787,19 +787,20 @@ namespace ThinktankApp
                 args.Add("UIKey", e.Key.ToString());
                 args.Add("UIIntKey", intk);
 
-                bool result = action.Invoke(args, _runspace);
-
-                // If we are in ExModMode, check return value to decide persistence
                 if (!string.IsNullOrEmpty(_currentExModMode))
                 {
-                    if (!result)
+                    System.Threading.Tasks.Task.Run(() =>
                     {
-                        SetExModMode("");
-                    }
+                        bool res = action.Invoke(args, _runspace);
+                        if (!res)
+                        {
+                            SetExModMode("");
+                        }
+                    });
                     return true; // Always handle the key in ExModMode if action matched
                 }
 
-                return result;
+                return action.Invoke(args, _runspace);
             }
 
             return false;

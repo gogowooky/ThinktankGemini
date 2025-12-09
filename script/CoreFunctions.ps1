@@ -114,8 +114,18 @@ function Initialize-TTStatus {
     
     try {
 
-        # 1. Apply Defaults - SKIPPED (Already done in C# InitializePowerShell)
-        # This prevents running Apply logic twice.
+        # 1. Apply Defaults
+        "1. Apply Defaults..." | Out-File $logFile -Append
+        if ($global:Application.Status.Items) {
+            $global:Application.Status.Items | ForEach-Object {
+                try {
+                    Apply-TTState $_.ID 'Default' $Env:Computername
+                }
+                catch {
+                    "Error applying default for $($_.ID): $_" | Out-File $logFile -Append
+                }
+            }
+        }
 
         # 2. Load from Cache
         "2. Loading Cache..." | Out-File $logFile -Append
@@ -170,24 +180,22 @@ function Initialize-TTStatus {
         # 4. Activate Watchers
         "4. Activating Watchers..." | Out-File $logFile -Append
         if ($global:Application.Status.Items) {
-            "Dispatcher.Invoke starting..." | Out-File $logFile -Append
-            $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
-                    "Dispatcher.Invoke entered." | Out-File (Join-Path $global:Application.BaseDir "debug_init.txt") -Append
-                    $global:Application.Status.Items | ForEach-Object {
-                        $state = $_
-                        if ($state.Watch -ne $null -and $state.Watch -is [ScriptBlock]) {
-                            try {
-                                #    "  Watching: $($state.ID)" | Out-File $logFile -Append
-                                $state.Watch.Invoke($state.ID)
-                            }
-                            catch {
-                                "Failed to run Watch script for $($state.ID): $_" | Out-File (Join-Path $global:Application.BaseDir "debug_init.txt") -Append
-                            }
-                        }
+            "Activating Watchers starting..." | Out-File (Join-Path $global:Application.BaseDir "debug_init.txt") -Append -Encoding ASCII
+            $items = $global:Application.Status.Items
+                
+            foreach ($state in $items) {
+                if ($state.Watch -ne $null -and $state.Watch -is [ScriptBlock]) {
+                    try {
+                        "  Watching: $($state.ID)" | Out-File (Join-Path $global:Application.BaseDir "debug_init.txt") -Append -Encoding ASCII
+                        $state.Watch.Invoke($state.ID)
+                        "  Finished: $($state.ID)" | Out-File (Join-Path $global:Application.BaseDir "debug_init.txt") -Append -Encoding ASCII
                     }
-                    "Dispatcher.Invoke finishing." | Out-File (Join-Path $global:Application.BaseDir "debug_init.txt") -Append
-                })
-            "Dispatcher.Invoke returned." | Out-File $logFile -Append
+                    catch {
+                        "Failed to run Watch script for $($state.ID): $_" | Out-File (Join-Path $global:Application.BaseDir "debug_init.txt") -Append -Encoding ASCII
+                    }
+                }
+            }
+            "Activating Watchers finished." | Out-File (Join-Path $global:Application.BaseDir "debug_init.txt") -Append -Encoding ASCII
         }
     
         "TTStatus Initialization Complete." | Out-File $logFile -Append
