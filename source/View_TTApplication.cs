@@ -787,20 +787,36 @@ namespace ThinktankApp
                 args.Add("UIKey", e.Key.ToString());
                 args.Add("UIIntKey", intk);
 
-                if (!string.IsNullOrEmpty(_currentExModMode))
+                // Execute action asynchronously to avoid blocking UI thread and deadlocks
+                System.Threading.Tasks.Task.Run(() =>
                 {
-                    System.Threading.Tasks.Task.Run(() =>
+                    try
                     {
-                        bool res = action.Invoke(args, _runspace);
-                        if (!res)
-                        {
-                            SetExModMode("");
-                        }
-                    });
-                    return true; // Always handle the key in ExModMode if action matched
-                }
+                        bool result = action.Invoke(args, _runspace);
 
-                return action.Invoke(args, _runspace);
+                        // ExModMode handling: Exit mode if action returns false
+                        if (!string.IsNullOrEmpty(_currentExModMode))
+                        {
+                            if (!result)
+                            {
+                                // Ensure UI updates are on the UI thread
+                                MainWindow.Dispatcher.BeginInvoke(new Action(() =>
+                                {
+                                    SetExModMode("");
+                                }));
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                         MainWindow.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            System.Windows.MessageBox.Show("Error executing action: " + ex.Message);
+                        }));
+                    }
+                });
+
+                return true; // Assume event handled if action exists
             }
 
             return false;
