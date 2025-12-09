@@ -319,12 +319,9 @@ namespace ThinktankApp
         }
     }
 
-    public class TTApplication : TTApplicationBase
+    public class TTApplicationConfig : TTApplicationBase
     {
-        public TTActions Actions { get; private set; }
-        public TTStatus Status { get; private set; }
-        public TTModels Models { get; private set; }
-        public string BaseDir { get; private set; }
+        public string BaseDir { get; protected set; }
 
         private string _memoDir;
         public string MemoDir
@@ -358,7 +355,7 @@ namespace ThinktankApp
             get
             {
                 if (string.IsNullOrEmpty(MemoDir)) return "";
-                return Path.Combine(MemoDir, "cache");
+                return Path.Combine(MemoDir, "gcache");
             }
         }
 
@@ -367,7 +364,7 @@ namespace ThinktankApp
             get
             {
                 if (string.IsNullOrEmpty(MemoDir)) return "";
-                return Path.Combine(MemoDir, "backup");
+                return Path.Combine(MemoDir, "gbackup");
             }
         }
 
@@ -398,16 +395,42 @@ namespace ThinktankApp
                 }
             }
         }
-        private Runspace _runspace;
 
-        public TTApplication(string xamlPath, string stylePath, string panelXamlPath, string scriptDir)
+        public TTApplicationConfig(string xamlPath, string stylePath, string scriptDir)
             : base(xamlPath, stylePath)
         {
-            try { File.WriteAllText(@"c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\c_debug.txt", "Constructor started\n"); } catch {}
             BaseDir = Path.GetDirectoryName(scriptDir);
             MemoDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Memo"));
             LinkDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Link"));
             ChatDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Chat"));
+        }
+
+        public override bool InvokeActionOnKey(System.Windows.Input.KeyEventArgs e)
+        {
+            // Placeholder - this should be overridden by concrete implementation if needed,
+            // or TTApplicationConfig could itself be abstract if it doesn't implement this.
+            return false;
+        }
+        
+        protected override void RebuildCurrentKeyTable()
+        {
+            // Placeholder
+        }
+    }
+
+    public class TTApplication : TTApplicationConfig
+    {
+        public TTActions Actions { get; private set; }
+        public TTStatus Status { get; private set; }
+        public TTModels Models { get; private set; }
+        
+        private Runspace _runspace;
+
+        public TTApplication(string xamlPath, string stylePath, string panelXamlPath, string scriptDir)
+            : base(xamlPath, stylePath, scriptDir)
+        {
+            try { File.WriteAllText(@"c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\c_debug.txt", "Constructor started\n"); } catch {}
+            
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             
             Models = new TTModels();
