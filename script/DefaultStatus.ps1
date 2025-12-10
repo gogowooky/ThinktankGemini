@@ -38,61 +38,43 @@ New-TTState     Application.System.RootPath         'ルートディレクトリ
         $global:Application.BaseDir = $val
     }
 }
-New-TTState     Application.System.ScriptPath       'スクリプトディレクトリ'        "$PSScriptRoot / script"
-New-TTState     Application.System.PCName           'PC名'                          $Env:Computername
-New-TTState     Application.System.UserName         'User名'                        $([System.Environment]::UserName)
+New-TTState     Application.System.PCName           'PC名'                          $global:Application.PCName
+New-TTState     Application.System.UserName         'User名'                        $global:Application.UserName
 New-TTState     Application.System.MemoPath         'メモディレクトリ'                  @{
-    Default = { "$global:RootPath\..\Memo" }
+    Default = { $global:Application.MemoDir }
     Apply   = {   
         Param($id, $val)
-        if ( -not ( Test-Path $val )) {
-            New-Item $val -ItemType Directory -ErrorAction SilentlyContinue
-        }
-        $global:MemoPath = $val
+        $global:Application.MemoDir = $val
         $global:Models.Status.SetValue( $id, $val )
     }
 }
 New-TTState     Application.System.CachePath        'キャッシュディレクトリ'            @{
-    Default = { "$global:RootPath\..\Memo\cache" }
+    Default = { Join-Path $global:Application.MemoDir "gcache" }
     Apply   = {   
         Param($id, $val)
-        if ( -not ( Test-Path $val )) {
-            New-Item $val -ItemType Directory -ErrorAction SilentlyContinue
-        }
-        $global:CachePath = $val
         $global:Models.Status.SetValue( $id, $val )
     }
 }
 New-TTState     Application.System.BackupPath       'バックアップディレクトリ'          @{
-    Default = { "$global:RootPath\..\Memo\backup" }
+    Default = { Join-Path $global:Application.MemoDir "gbackup" }
     Apply   = {
         Param($id, $val)
-        if ( -not ( Test-Path $val )) {
-            New-Item $val -ItemType Directory -ErrorAction SilentlyContinue
-        }
-        $global:BackupPath = $val
-        $global:Models.Status.SetValue( $id, $val )
-    }
-}
-New-TTState     Application.System.PhotoPath        'フォトディレクトリ'                @{
-    Default = { "$global:RootPath\..\Photo" }
-    Apply   = {     
-        Param($id, $val)
-        if ( -not ( Test-Path $val )) {
-            New-Item $val -ItemType Directory -ErrorAction SilentlyContinue
-        }
-        $global:PhotoPath = $val
         $global:Models.Status.SetValue( $id, $val )
     }
 }
 New-TTState     Application.System.LinkPath         'リンクディレクトリ'                @{
-    Default = { "$global:RootPath\..\Link" }
+    Default = { $global:Application.LinkDir }
     Apply   = {
         Param($id, $val)
-        if ( -not ( Test-Path $val )) {
-            New-Item $val -ItemType Directory -ErrorAction SilentlyContinue
-        }
-        $global:LinkPath = $val
+        $global:Application.LinkDir = $val
+        $global:Models.Status.SetValue( $id, $val )
+    }
+}
+New-TTState     Application.System.ChatPath         'チャットディレクトリ'               @{
+    Default = { $global:Application.ChatDir }
+    Apply   = {
+        Param($id, $val)
+        $global:Application.ChatDir = $val
         $global:Models.Status.SetValue( $id, $val )
     }
 }
