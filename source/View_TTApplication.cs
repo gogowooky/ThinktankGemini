@@ -51,18 +51,35 @@ namespace ThinktankApp
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show("Error initializing TTStatus: " + ex.Message);
+                    System.Windows.MessageBox.Show(MainWindow, "Error initializing TTStatus: " + ex.Message);
                 }
             }
         }
 
         private void InitializePowerShell(string scriptDir)
         {
+            // Ensure PowerShell Runspace is created on the UI Thread to prevent deadlocks
+            if (MainWindow != null && MainWindow.Dispatcher != null)
+            {
+                MainWindow.Dispatcher.Invoke(new Action(() => 
+                {
+                    InitializePowerShellInternal(scriptDir);
+                }));
+            }
+            else
+            {
+                // Fallback (likely running on UI thread anyway if MainWindow is not set yet or something weird)
+                InitializePowerShellInternal(scriptDir);
+            }
+        }
+
+        private void InitializePowerShellInternal(string scriptDir)
+        {
             try
             {
                 _runspace = RunspaceFactory.CreateRunspace();
                 _runspace.ApartmentState = System.Threading.ApartmentState.STA;
-                _runspace.ThreadOptions = PSThreadOptions.ReuseThread;
+                _runspace.ThreadOptions = PSThreadOptions.UseCurrentThread;
                 _runspace.Open();
                 
                 // Expose TTApplication instance as $global:Application
@@ -94,12 +111,12 @@ namespace ThinktankApp
                             {
                                 errorMsg += error.ToString() + "\n";
                             }
-                            System.Windows.MessageBox.Show(errorMsg);
+                            System.Windows.MessageBox.Show(MainWindow, errorMsg);
                         }
                     }
                     else
                     {
-                        System.Windows.MessageBox.Show("CoreFunctions.ps1 not found at: " + coreScriptPath);
+                        System.Windows.MessageBox.Show(MainWindow, "CoreFunctions.ps1 not found at: " + coreScriptPath);
                     }
 
                     // Load DefaultEvents.ps1
@@ -117,7 +134,7 @@ namespace ThinktankApp
                             {
                                 errorMsg += error.ToString() + "\n";
                             }
-                            System.Windows.MessageBox.Show(errorMsg);
+                            System.Windows.MessageBox.Show(MainWindow, errorMsg);
                         }
                     }
 
@@ -136,7 +153,7 @@ namespace ThinktankApp
                             {
                                 errorMsg += error.ToString() + "\n";
                             }
-                            System.Windows.MessageBox.Show(errorMsg);
+                            System.Windows.MessageBox.Show(MainWindow, errorMsg);
                         }
                     }
 
@@ -156,12 +173,12 @@ namespace ThinktankApp
                             {
                                 errorMsg += error.ToString() + "\n";
                             }
-                            System.Windows.MessageBox.Show(errorMsg);
+                            System.Windows.MessageBox.Show(MainWindow, errorMsg);
                         }
                     }
                     else
                     {
-                         System.Windows.MessageBox.Show("DefaultActions.ps1 not found at: " + scriptPath);
+                         System.Windows.MessageBox.Show(MainWindow, "DefaultActions.ps1 not found at: " + scriptPath);
                     }
 
                     // Apply all default statuses
@@ -178,7 +195,7 @@ namespace ThinktankApp
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Error initializing PowerShell: " + ex.Message);
+                System.Windows.MessageBox.Show(MainWindow, "Error initializing PowerShell: " + ex.Message);
             }
         }
 

@@ -87,7 +87,26 @@ namespace ThinktankApp
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Error invoking TTAction: " + ex.Message);
+                try
+                {
+                    if (TTApplicationBase.Current != null)
+                    {
+                        TTApplicationBase.Current.ShowMessage("Error invoking TTAction: " + ex.Message);
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show("Error invoking TTAction: " + ex.Message);
+                    }
+                }
+                catch
+                {
+                    // Fallback if ShowMessage fails to avoid recursion/crash
+                    try
+                    {
+                         System.Windows.MessageBox.Show("Error invoking TTAction (Fallback): " + ex.Message);
+                    }
+                    catch { /* Worst case: do nothing or log to console */ }
+                }
                 return false;
             }
         }

@@ -32,8 +32,11 @@ namespace ThinktankApp
         
         protected System.Windows.Input.ModifierKeys _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
 
+        public static TTApplicationBase Current { get; private set; }
+
         public TTApplicationBase(string xamlPath, string stylePath)
         {
+            Current = this;
             Panels = new List<TTPanel>();
             PanelMap = new Dictionary<string, TTPanel>();
             LoadWindow(xamlPath, stylePath);
@@ -64,8 +67,39 @@ namespace ThinktankApp
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(string.Format("Error loading TTApplication: {0}\n{1}", ex.Message, ex.StackTrace));
+                System.Windows.MessageBox.Show(MainWindow, string.Format("Error loading TTApplication: {0}\n{1}", ex.Message, ex.StackTrace));
                 throw;
+            }
+        }
+
+        public MessageBoxResult ShowMessage(string messageBoxText, string caption = "Message", MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage icon = MessageBoxImage.None)
+        {
+            if (MainWindow != null)
+            {
+                if (MainWindow != null && MainWindow.CheckAccess())
+                {
+                    return System.Windows.MessageBox.Show(MainWindow, messageBoxText, caption, button, icon);
+                }
+                else
+                {
+                    // Call from background thread: Do NOT use Dispatcher.Invoke to avoid deadlock if UI thread is blocked.
+                    // Also do not use MainWindow as owner to avoid InvalidOperationException.
+                    return System.Windows.MessageBox.Show(messageBoxText, caption, button, icon);
+                }
+            }
+            else
+            {
+                // Fallback for when MainWindow is null (e.g. startup error) - might still need Dispatcher if application exists?
+                // But usually if MainWindow is null, we might be early or app is closing.
+                // Safest to just show it, or check Application.Current.Dispatcher if possible.
+                if (System.Windows.Application.Current != null && System.Windows.Application.Current.Dispatcher != null && !System.Windows.Application.Current.Dispatcher.CheckAccess())
+                {
+                     return (MessageBoxResult)System.Windows.Application.Current.Dispatcher.Invoke(new Func<MessageBoxResult>(() =>
+                    {
+                        return System.Windows.MessageBox.Show(messageBoxText, caption, button, icon);
+                    }));
+                }
+                return System.Windows.MessageBox.Show(messageBoxText, caption, button, icon);
             }
         }
 

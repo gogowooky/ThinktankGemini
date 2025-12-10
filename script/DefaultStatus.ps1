@@ -242,7 +242,6 @@ New-TTState     Application.Focus.Panel             'フォーカスパネル'  
     }
 }
 
-
 New-TTState     Application.Menu.Visible            'メニュー表示'                  @{
     Default = { 'true' }
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
@@ -455,90 +454,90 @@ New-TTState     [Panels].Title.Text                 '[Panels]タイトル文字'
     }
 }
 #endregion
-#region [Panels].Editor.*
-write-host "250620: [Panels].Editor.Keywordはメモ毎に設定されるものと切り替えて設定されるものがマージされるべき"
-New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキーワード'    @{
-    Default = { '' }
-    Apply   = { Param($id, $val)
-        $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].SetKeyword( 'Editor', $val )
-    }
-    Watch   = { Param($id)
-        $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].EditorKeyword.Add_TextChanged({
-                Param($kwd, $evnt)
-                $pn = $kwd.TTPanel.Name
-                $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
-                # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
-                $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
-                $global:Application.$pn.UpdateHighlight()
-                # }.GetNewClosure()
-            })
-        $global:Application.PanelMap[$pname].EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
-                param($tv, $e)
-                $edit = $tv.EditorComponent
-                $currentVerticalOffset = $tv.VerticalOffset
-                $isCaretAtFirstLine = $edit.Document.GetLineByOffset( $edit.CaretOffset ).LineNumber -eq 1
+# #region [Panels].Editor.*
+# write-host "250620: [Panels].Editor.Keywordはメモ毎に設定されるものと切り替えて設定されるものがマージされるべき"
+# New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキーワード'    @{
+#     Default = { '' }
+#     Apply   = { Param($id, $val)
+#         $pname = $id.split('.')[0]
+#         $global:Application.PanelMap[$pname].SetKeyword( 'Editor', $val )
+#     }
+#     Watch   = { Param($id)
+#         $pname = $id.split('.')[0]
+#         $global:Application.PanelMap[$pname].EditorKeyword.Add_TextChanged({
+#                 Param($kwd, $evnt)
+#                 $pn = $kwd.TTPanel.Name
+#                 $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
+#                 # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
+#                 $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
+#                 $global:Application.$pn.UpdateHighlight()
+#                 # }.GetNewClosure()
+#             })
+#         $global:Application.PanelMap[$pname].EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
+#                 param($tv, $e)
+#                 $edit = $tv.EditorComponent
+#                 $currentVerticalOffset = $tv.VerticalOffset
+#                 $isCaretAtFirstLine = $edit.Document.GetLineByOffset( $edit.CaretOffset ).LineNumber -eq 1
 
-                $halfLineHeight = $tv.DefaultLineHeight / 2
+#                 $halfLineHeight = $tv.DefaultLineHeight / 2
 
-                $scrollDifference = [Math]::Abs($currentVerticalOffset - $global:previousVerticalOffset)
+#                 $scrollDifference = [Math]::Abs($currentVerticalOffset - $global:previousVerticalOffset)
 
-                if (    $isCaretAtFirstLine -and
-                    $currentVerticalOffset -ne 0 -and
-                    $scrollDifference -ge ($halfLineHeight - 0.1) -and
-                    $scrollDifference -le ($halfLineHeight + 0.1) ) {
-                    $edit.ScrollToVerticalOffset(0)
-                }
+#                 if (    $isCaretAtFirstLine -and
+#                     $currentVerticalOffset -ne 0 -and
+#                     $scrollDifference -ge ($halfLineHeight - 0.1) -and
+#                     $scrollDifference -le ($halfLineHeight + 0.1) ) {
+#                     $edit.ScrollToVerticalOffset(0)
+#                 }
 
-                $global:previousVerticalOffset = $currentVerticalOffset
-            })
-        $global:Application.PanelMap[$pname].EditorKeyword.TextArea.Caret.Add_PositionChanged({
-                Param( $crt, $evnt ) 
-                $crt.TTPanel.CenterKeywordCaret()
-                $pn = $crt.TTPanel.Name
-                $global:Models.Status.SetValue( "$pn.Editor.Keyword", $crt.TTPanel.GetKeyword('Editor') )
+#                 $global:previousVerticalOffset = $currentVerticalOffset
+#             })
+#         $global:Application.PanelMap[$pname].EditorKeyword.TextArea.Caret.Add_PositionChanged({
+#                 Param( $crt, $evnt ) 
+#                 $crt.TTPanel.CenterKeywordCaret()
+#                 $pn = $crt.TTPanel.Name
+#                 $global:Models.Status.SetValue( "$pn.Editor.Keyword", $crt.TTPanel.GetKeyword('Editor') )
  
-                $crt.TTPanel.UpdateKeywordRegex()
-                $crt.TTPanel.UpdateHighlight()
+#                 $crt.TTPanel.UpdateKeywordRegex()
+#                 $crt.TTPanel.UpdateHighlight()
 
-                # Register-DelayedRun "$pn.EditorKeyword.TextArea.Caret.PositionChanged" 2 {
-                #     $global:Application.$script:pn.UpdateKeywordRegex()
-                #     $global:Application.$script:pn.UpdateHighlight()
-                # }.GetNewClosure()
-            })
-    }
-}
-New-TTState     [Panels].Editor.Memo                '[Panels]メモID'                @{
-    Default = { 'thinktank' }
-    Apply   = { Param($id, $val)
-        $pname = $id.split('.')[0]
-        $panel = $global:Application.PanelMap[$pname]
-        if ( $val -in @( '', $panel.MemoID ) ) { return }
-        $panel.MemoID = $val
-        $global:Controller.LoadMemo( $panel, $val )
-    }
-    Watch   = { Param($id)
-        $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].EditorMain.Add_DocumentChanged({
-                Param($edt, $evnt)
-                $pname = $edt.TTPanel.Name
-                $global:Models.Status.SetValue( "$pname.Editor.Memo", $edt.TTPanel.MemoID )
-            })
-    }
-}
-New-TTState     [Panels].Editor.Wordwrap            '[Panels]メモWordwrap'          @{
-    Default = { 'false' }
-    Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
-    Apply   = { Param($id, $val)
-        $pname = $id.split('.')[0]
-        if ( $val -eq 'toggle' ) {
-            $val = @( 'true', 'false')[ $global:Application.PanelMap[$pname].EditorMain.Wordwrap ]
-        }
-        $global:Application.PanelMap[$pname].EditorMain.Wordwrap = [bool]$val
-    }
-}
-#endregion
+#                 # Register-DelayedRun "$pn.EditorKeyword.TextArea.Caret.PositionChanged" 2 {
+#                 #     $global:Application.$script:pn.UpdateKeywordRegex()
+#                 #     $global:Application.$script:pn.UpdateHighlight()
+#                 # }.GetNewClosure()
+#             })
+#     }
+# }
+# New-TTState     [Panels].Editor.Memo                '[Panels]メモID'                @{
+#     Default = { 'thinktank' }
+#     Apply   = { Param($id, $val)
+#         $pname = $id.split('.')[0]
+#         $panel = $global:Application.PanelMap[$pname]
+#         if ( $val -in @( '', $panel.MemoID ) ) { return }
+#         $panel.MemoID = $val
+#         $global:Controller.LoadMemo( $panel, $val )
+#     }
+#     Watch   = { Param($id)
+#         $pname = $id.split('.')[0]
+#         $global:Application.PanelMap[$pname].EditorMain.Add_DocumentChanged({
+#                 Param($edt, $evnt)
+#                 $pname = $edt.TTPanel.Name
+#                 $global:Models.Status.SetValue( "$pname.Editor.Memo", $edt.TTPanel.MemoID )
+#             })
+#     }
+# }
+# New-TTState     [Panels].Editor.Wordwrap            '[Panels]メモWordwrap'          @{
+#     Default = { 'false' }
+#     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
+#     Apply   = { Param($id, $val)
+#         $pname = $id.split('.')[0]
+#         if ( $val -eq 'toggle' ) {
+#             $val = @( 'true', 'false')[ $global:Application.PanelMap[$pname].EditorMain.Wordwrap ]
+#         }
+#         $global:Application.PanelMap[$pname].EditorMain.Wordwrap = [bool]$val
+#     }
+# }
+# #endregion
 #region [Panels].Table.*
 New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキーワード'    @{
     Default = { Param($id)
