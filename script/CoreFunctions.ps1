@@ -34,7 +34,13 @@ function New-TTState ($StateID, $Description, $Scripts) {
         
         if ($state.Default -ne $null) {
             if ($state.Default -is [ScriptBlock]) {
-                $state.Value = $state.Default.Invoke($StateID)
+                try {
+                    $state.Value = $state.Default.Invoke($StateID)
+                }
+                catch {
+                    "ERROR invoking Default for $StateID : $_" | Out-File "c:\Users\shinichiro.egashira\Documents\ThinktankGemini\ThinktankGemini\debug_init.txt" -Append
+                    $state.Value = $null # Prevent crash
+                }
             }
             else {
                 $state.Value = $state.Default

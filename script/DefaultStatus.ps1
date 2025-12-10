@@ -299,9 +299,9 @@ New-TTState     Application.Current.ExMode          '排他モード'           
         switch ($val) {
             'Panel' { $val = 'Ex{0}' -f $global:Application.GetFdPanel().Name }
         }
-        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
+        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
                 $global:Application.SetExModMode( $val )
-            })
+            }.GetNewClosure())
         $global:Models.Status.SetValue( 'Application.Current.ExMode', $val )
     }
 }
@@ -446,9 +446,9 @@ New-TTState     [Panels].Current.Mode               '[Panels]のモード'      
     Test    = { Param($id, $val); $val -match '^(Editor|Table|WebView|next|prev)$' }
     Apply   = { Param($id, $val); 
         $p = $id.split('.')[0]
-        $global:Application.MainWindow.Dispatcher.Invoke([Action] {
+        $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] {
                 $global:Application.$p.SetMode( $val )
-            })
+            }.GetNewClosure())
     }
     Watch   = { Param($id)
         $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
@@ -511,7 +511,7 @@ New-TTState     [Panels].Current.Tool               '[Panels]のツール'      
     }
     Test    = { Param($id, $val); $val -match '^(Editor|Table|WebView)?(Keyword|Main|toggle)$' }
     Apply   = { Param($id, $val);
-        $p = $id.split('.')[0]; $global:Application.MainWindow.Dispatcher.Invoke([Action] { $global:Application.$p.SetTool( $val ) }) }
+        $p = $id.split('.')[0]; $global:Application.MainWindow.Dispatcher.InvokeAsync([Action] { $global:Application.$p.SetTool( $val ) }.GetNewClosure()) }
     Watch   = { Param($id)
         $global:Application.MainWindow.Dispatcher.Invoke( [Action] {
                 $pname = $id.split('.')[0]
