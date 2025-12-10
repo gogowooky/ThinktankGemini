@@ -17,7 +17,7 @@ New-TTState     Application.Product.Version         'バージョン'           
         }
         
         $timestamp = Get-Date
-        "ver.$($timestamp.tostring('yyMMdd-HHmm')) on unknownPC"
+        "Thinktank ver.$($timestamp.tostring('yyMMdd-HHmm')) on unknownPC"
     }
     Apply   = {
         Param($id, $val)
