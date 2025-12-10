@@ -123,11 +123,11 @@ New-TTState     Application.Window.State            'ウインドウ状態'     
     Test    = { Param($id, $val); $val -match '(Minimized|Maximized|Normal)' }
     Apply   = { Param($id, $val); $global:Application.Window.WindowState = $val }
     Watch   = {
-        # $global:Application.Window.Add_StateChanged({
-        #         Param( $win, $evnt )
-        #         $global:Models.Status.SetValue( 'Application.Window.State', [string]$global:Application.Window.WindowState )
-        #     })
-        $global:Application.Window.Add_StateChanged({})
+        $global:Application.Window.Add_StateChanged({
+                Param( $win, $evnt )
+                $global:Models.Status.SetValue( 'Application.Window.State', [string]$global:Application.Window.WindowState )
+            })
+        # $global:Application.Window.Add_StateChanged({})
     }
 }
 New-TTState     Application.Window.Width            'ウインドウ幅'                  @{
@@ -141,12 +141,12 @@ New-TTState     Application.Window.Width            'ウインドウ幅'        
         $global:Application.Window.Width = [int]$val
     }
     Watch   = {
-        # $global:Application.Window.Add_SizeChanged({
-        #         Param( $win, $evnt )
-        #         $global:Models.Status.SetValue( 'Application.Window.Width', $win.Width )
-        #         $global:Models.Status.SetValue( 'Application.Window.Height', $win.Height )
-        #     })
-        $global:Application.Window.Add_SizeChanged({})
+        $global:Application.Window.Add_SizeChanged({
+                Param( $win, $evnt )
+                $global:Models.Status.SetValue( 'Application.Window.Width', $win.Width )
+                $global:Models.Status.SetValue( 'Application.Window.Height', $win.Height )
+            })
+        # $global:Application.Window.Add_SizeChanged({})
     }
 }
 New-TTState     Application.Window.Height           'ウインドウ高'                  @{
@@ -172,12 +172,12 @@ New-TTState     Application.Window.XPos             'ウインドウ横位置'  
         $global:Application.Window.Left = $val
     }
     Watch   = {
-        # $global:Application.Window.Add_LocationChanged({
-        #         Param( $win, $evnt )
-        #         $global:Models.Status.SetValue( 'Application.Window.YPos', $win.Top )
-        #         $global:Models.Status.SetValue( 'Application.Window.XPos', $win.Left )
-        #     })
-        $global:Application.Window.Add_LocationChanged({})
+        $global:Application.Window.Add_LocationChanged({
+                Param( $win, $evnt )
+                $global:Models.Status.SetValue( 'Application.Window.YPos', $win.Top )
+                $global:Models.Status.SetValue( 'Application.Window.XPos', $win.Left )
+            })
+        # $global:Application.Window.Add_LocationChanged({})
     }
 }
 New-TTState     Application.Window.YPos             'ウインドウ縦位置'              @{
@@ -219,7 +219,7 @@ New-TTState     Application.Window.Title            'ウインドウタイトル
     Default = { 
         $name = Get-TTState 'Application.Product.Name'
         $ver = Get-TTState 'Application.Product.Version'
-        "$name $ver"
+        "$name/$ver"
     }
     Apply   = { Param($id, $val)
         $global:Application.SetTitle($val)
@@ -259,11 +259,11 @@ New-TTState     Application.Menu.Visible            'メニュー表示'        
         }
     }
     Watch   = {
-        # $global:Application.Menu.Add_IsVisibleChanged({
-        #         Param($menu, $evnt)
-        #         $global:Models.Status.SetValue('Application.Menu.Visible', $menu.IsVisible)
-        #     })
-        $global:Application.Menu.Add_IsVisibleChanged({})
+        $global:Application.Menu.Add_IsVisibleChanged({
+                Param($menu, $evnt)
+                $global:Models.Status.SetValue('Application.Menu.Visible', $menu.IsVisible)
+            })
+        # $global:Application.Menu.Add_IsVisibleChanged({})
     }
 }
 
@@ -313,13 +313,13 @@ New-TTState     Application.Border.User             'User境界位置'          
     Watch   = {
         $status = $global:Models.Status
         $app = $global:Application
-        # $app.LibraryIndexGrid.Add_SizeChanged({
-        #         $status.SetValue(   'Application.Border.User', $app.GetBorderPosition('User') )
-        #     }.GetNewClosure())
-        $app.LibraryIndexGrid.Add_SizeChanged({})
-        # $app.ShelfDeskGrid.Add_SizeChanged({
-        #         $status.SetValue(   'Application.Border.User', $app.GetBorderPosition('User') )
-        #     }.GetNewClosure())
+        $app.LibraryIndexGrid.Add_SizeChanged({
+                $status.SetValue(   'Application.Border.User', $app.GetBorderPosition('User') )
+            }.GetNewClosure())
+        # $app.LibraryIndexGrid.Add_SizeChanged({})
+        $app.ShelfDeskGrid.Add_SizeChanged({
+                $status.SetValue(   'Application.Border.User', $app.GetBorderPosition('User') )
+            }.GetNewClosure())
         $app.ShelfDeskGrid.Add_SizeChanged({})
     }
 }
@@ -330,14 +330,14 @@ New-TTState     Application.Border.LibraryIndex     'LibraryIndex境界位置'  
     Watch   = {
         $status = $global:Models.Status
         $app = $global:Application
-        # $app.LibraryGrid.Add_SizeChanged({
-        #         $status.SetValue(   'Application.Border.LibraryIndex', $app.GetBorderPosition('LibraryIndex') )
-        #     }.GetNewClosure())
-        $app.LibraryGrid.Add_SizeChanged({})
-        # $app.IndexGrid.Add_SizeChanged({
-        #         $status.SetValue(   'Application.Border.LibraryIndex', $app.GetBorderPosition('LibraryIndex') )
-        #     }.GetNewClosure())
-        $app.IndexGrid.Add_SizeChanged({})
+        $app.LibraryGrid.Add_SizeChanged({
+                $status.SetValue(   'Application.Border.LibraryIndex', $app.GetBorderPosition('LibraryIndex') )
+            }.GetNewClosure())
+        # $app.LibraryGrid.Add_SizeChanged({})
+        $app.IndexGrid.Add_SizeChanged({
+                $status.SetValue(   'Application.Border.LibraryIndex', $app.GetBorderPosition('LibraryIndex') )
+            }.GetNewClosure())
+        # $app.IndexGrid.Add_SizeChanged({})
     }
 }
 New-TTState     Application.Border.ShelfDesk        'ShelfDesk境界位置'             @{
@@ -347,14 +347,14 @@ New-TTState     Application.Border.ShelfDesk        'ShelfDesk境界位置'     
     Watch   = {
         $status = $global:Models.Status
         $app = $global:Application
-        # $app.ShelfGrid.Add_SizeChanged({
-        #         $status.SetValue(   'Application.Border.ShelfDesk', $app.GetBorderPosition('ShelfDesk') )
-        #     }.GetNewClosure())
-        $app.ShelfGrid.Add_SizeChanged({})
-        # $app.DeskGrid.Add_SizeChanged({
-        #         $status.SetValue(   'Application.Border.ShelfDesk', $app.GetBorderPosition('ShelfDesk') )
-        #     }.GetNewClosure())
-        $app.DeskGrid.Add_SizeChanged({})
+        $app.ShelfGrid.Add_SizeChanged({
+                $status.SetValue(   'Application.Border.ShelfDesk', $app.GetBorderPosition('ShelfDesk') )
+            }.GetNewClosure())
+        # $app.ShelfGrid.Add_SizeChanged({})
+        $app.DeskGrid.Add_SizeChanged({
+                $status.SetValue(   'Application.Border.ShelfDesk', $app.GetBorderPosition('ShelfDesk') )
+            }.GetNewClosure())
+        # $app.DeskGrid.Add_SizeChanged({})
     }
 }
 New-TTState     Application.Border.UserSystem       'UserSystem境界位置'            @{

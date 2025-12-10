@@ -13,8 +13,6 @@ using System.Management.Automation.Runspaces;
 
 namespace ThinktankApp
 {
-
-
     public class TTApplication : TTApplicationResource
     {
         public TTActions Actions { get; private set; }
