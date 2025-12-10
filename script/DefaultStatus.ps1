@@ -24,7 +24,7 @@ New-TTState     Application.Product.Version         'バージョン'           
         $global:Models.Status.SetValue( $id, $val )
         
         $appName = (Get-TTState 'Application.Product.Name')
-        $global:Application.SetTitle("$appName $val")
+        $global:Application.SetTitle("$appName/$val")
     }
 }
 #endregion
@@ -123,10 +123,11 @@ New-TTState     Application.Window.State            'ウインドウ状態'     
     Test    = { Param($id, $val); $val -match '(Minimized|Maximized|Normal)' }
     Apply   = { Param($id, $val); $global:Application.Window.WindowState = $val }
     Watch   = {
-        $global:Application.Window.Add_StateChanged({
-                Param( $win, $evnt )
-                $global:Models.Status.SetValue( 'Application.Window.State', [string]$global:Application.Window.WindowState )
-            })
+        # $global:Application.Window.Add_StateChanged({
+        #         Param( $win, $evnt )
+        #         $global:Models.Status.SetValue( 'Application.Window.State', [string]$global:Application.Window.WindowState )
+        #     })
+        $global:Application.Window.Add_StateChanged({})
     }
 }
 New-TTState     Application.Window.Width            'ウインドウ幅'                  @{
@@ -140,11 +141,12 @@ New-TTState     Application.Window.Width            'ウインドウ幅'        
         $global:Application.Window.Width = [int]$val
     }
     Watch   = {
-        $global:Application.Window.Add_SizeChanged({
-                Param( $win, $evnt )
-                $global:Models.Status.SetValue( 'Application.Window.Width', $win.Width )
-                $global:Models.Status.SetValue( 'Application.Window.Height', $win.Height )
-            })
+        # $global:Application.Window.Add_SizeChanged({
+        #         Param( $win, $evnt )
+        #         $global:Models.Status.SetValue( 'Application.Window.Width', $win.Width )
+        #         $global:Models.Status.SetValue( 'Application.Window.Height', $win.Height )
+        #     })
+        $global:Application.Window.Add_SizeChanged({})
     }
 }
 New-TTState     Application.Window.Height           'ウインドウ高'                  @{
@@ -170,11 +172,12 @@ New-TTState     Application.Window.XPos             'ウインドウ横位置'  
         $global:Application.Window.Left = $val
     }
     Watch   = {
-        $global:Application.Window.Add_LocationChanged({
-                Param( $win, $evnt )
-                $global:Models.Status.SetValue( 'Application.Window.YPos', $win.Top )
-                $global:Models.Status.SetValue( 'Application.Window.XPos', $win.Left )
-            })
+        # $global:Application.Window.Add_LocationChanged({
+        #         Param( $win, $evnt )
+        #         $global:Models.Status.SetValue( 'Application.Window.YPos', $win.Top )
+        #         $global:Models.Status.SetValue( 'Application.Window.XPos', $win.Left )
+        #     })
+        $global:Application.Window.Add_LocationChanged({})
     }
 }
 New-TTState     Application.Window.YPos             'ウインドウ縦位置'              @{
@@ -256,10 +259,11 @@ New-TTState     Application.Menu.Visible            'メニュー表示'        
         }
     }
     Watch   = {
-        $global:Application.Menu.Add_IsVisibleChanged({
-                Param($menu, $evnt)
-                $global:Models.Status.SetValue('Application.Menu.Visible', $menu.IsVisible)
-            })
+        # $global:Application.Menu.Add_IsVisibleChanged({
+        #         Param($menu, $evnt)
+        #         $global:Models.Status.SetValue('Application.Menu.Visible', $menu.IsVisible)
+        #     })
+        $global:Application.Menu.Add_IsVisibleChanged({})
     }
 }
 
@@ -309,12 +313,14 @@ New-TTState     Application.Border.User             'User境界位置'          
     Watch   = {
         $status = $global:Models.Status
         $app = $global:Application
-        $app.LibraryIndexGrid.Add_SizeChanged({
-                $status.SetValue(   'Application.Border.User', $app.GetBorderPosition('User') )
-            }.GetNewClosure())
-        $app.ShelfDeskGrid.Add_SizeChanged({
-                $status.SetValue(   'Application.Border.User', $app.GetBorderPosition('User') )
-            }.GetNewClosure())
+        # $app.LibraryIndexGrid.Add_SizeChanged({
+        #         $status.SetValue(   'Application.Border.User', $app.GetBorderPosition('User') )
+        #     }.GetNewClosure())
+        $app.LibraryIndexGrid.Add_SizeChanged({})
+        # $app.ShelfDeskGrid.Add_SizeChanged({
+        #         $status.SetValue(   'Application.Border.User', $app.GetBorderPosition('User') )
+        #     }.GetNewClosure())
+        $app.ShelfDeskGrid.Add_SizeChanged({})
     }
 }
 New-TTState     Application.Border.LibraryIndex     'LibraryIndex境界位置'          @{
@@ -324,12 +330,14 @@ New-TTState     Application.Border.LibraryIndex     'LibraryIndex境界位置'  
     Watch   = {
         $status = $global:Models.Status
         $app = $global:Application
-        $app.LibraryGrid.Add_SizeChanged({
-                $status.SetValue(   'Application.Border.LibraryIndex', $app.GetBorderPosition('LibraryIndex') )
-            }.GetNewClosure())
-        $app.IndexGrid.Add_SizeChanged({
-                $status.SetValue(   'Application.Border.LibraryIndex', $app.GetBorderPosition('LibraryIndex') )
-            }.GetNewClosure())
+        # $app.LibraryGrid.Add_SizeChanged({
+        #         $status.SetValue(   'Application.Border.LibraryIndex', $app.GetBorderPosition('LibraryIndex') )
+        #     }.GetNewClosure())
+        $app.LibraryGrid.Add_SizeChanged({})
+        # $app.IndexGrid.Add_SizeChanged({
+        #         $status.SetValue(   'Application.Border.LibraryIndex', $app.GetBorderPosition('LibraryIndex') )
+        #     }.GetNewClosure())
+        $app.IndexGrid.Add_SizeChanged({})
     }
 }
 New-TTState     Application.Border.ShelfDesk        'ShelfDesk境界位置'             @{
@@ -339,12 +347,14 @@ New-TTState     Application.Border.ShelfDesk        'ShelfDesk境界位置'     
     Watch   = {
         $status = $global:Models.Status
         $app = $global:Application
-        $app.ShelfGrid.Add_SizeChanged({
-                $status.SetValue(   'Application.Border.ShelfDesk', $app.GetBorderPosition('ShelfDesk') )
-            }.GetNewClosure())
-        $app.DeskGrid.Add_SizeChanged({
-                $status.SetValue(   'Application.Border.ShelfDesk', $app.GetBorderPosition('ShelfDesk') )
-            }.GetNewClosure())
+        # $app.ShelfGrid.Add_SizeChanged({
+        #         $status.SetValue(   'Application.Border.ShelfDesk', $app.GetBorderPosition('ShelfDesk') )
+        #     }.GetNewClosure())
+        $app.ShelfGrid.Add_SizeChanged({})
+        # $app.DeskGrid.Add_SizeChanged({
+        #         $status.SetValue(   'Application.Border.ShelfDesk', $app.GetBorderPosition('ShelfDesk') )
+        #     }.GetNewClosure())
+        $app.DeskGrid.Add_SizeChanged({})
     }
 }
 New-TTState     Application.Border.UserSystem       'UserSystem境界位置'            @{
@@ -354,12 +364,14 @@ New-TTState     Application.Border.UserSystem       'UserSystem境界位置'    
     Watch   = {
         $status = $global:Models.Status
         $app = $global:Application
-        $app.UserGrid.Add_SizeChanged({
-                $status.SetValue(   'Application.Border.UserSystem', $app.GetBorderPosition('UserSystem') )
-            }.GetNewClosure())
-        $app.SystemGrid.Add_SizeChanged({
-                $status.SetValue(   'Application.Border.UserSystem', $app.GetBorderPosition('UserSystem') )
-            }.GetNewClosure())
+        # $app.UserGrid.Add_SizeChanged({
+        #         $status.SetValue(   'Application.Border.UserSystem', $app.GetBorderPosition('UserSystem') )
+        #     }.GetNewClosure())
+        $app.UserGrid.Add_SizeChanged({})
+        # $app.SystemGrid.Add_SizeChanged({
+        #         $status.SetValue(   'Application.Border.UserSystem', $app.GetBorderPosition('UserSystem') )
+        #     }.GetNewClosure())
+        $app.SystemGrid.Add_SizeChanged({})
     }
 }
 #endregion
@@ -379,16 +391,17 @@ New-TTState     [Panels].Current.Mode               '[Panels]のモード'      
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
         $global:Application.PanelMap[$pname].Tools.foreach{
-            $_.Add_IsVisibleChanged({ #::: Visibility変更時　Focusではない
-                    Param($ctrl, $evnt)
-                    if ( $ctrl.IsVisible ) {
-                        $panel = $ctrl.TTPanel
-                        $pname = $panel.Name
-                        $mname = $ctrl.Name -replace '(Editor|Table|WebView)(Keyword|Main)', '$1'
-                        $panel.CurrentTool = $panel."CurrentTool$mname"
-                        $global:Models.Status.SetValue( "$pname.Current.Mode", $mname )
-                    }
-                })
+            # $_.Add_IsVisibleChanged({ #::: Visibility変更時　Focusではない
+            #         Param($ctrl, $evnt)
+            #         if ( $ctrl.IsVisible ) {
+            #             $panel = $ctrl.TTPanel
+            #             $pname = $panel.Name
+            #             $mname = $ctrl.Name -replace '(Editor|Table|WebView)(Keyword|Main)', '$1'
+            #             $panel.CurrentTool = $panel."CurrentTool$mname"
+            #             $global:Models.Status.SetValue( "$pname.Current.Mode", $mname )
+            #         }
+            #     })
+            $_.Add_IsVisibleChanged({})
         }
     }
 }
@@ -423,9 +436,12 @@ New-TTState     [Panels].Current.Tool               '[Panels]のツール'      
         $pname = $id.split('.')[0]
 
         $global:Application.PanelMap[$pname].Tools.foreach{
-            $_.Add_PreviewTouchDown($global:tool_gotfocus)
-            $_.Add_PreviewMouseDown($global:tool_gotfocus)
-            $_.Add_GotFocus($global:tool_gotfocus)
+            # $_.Add_PreviewTouchDown($global:tool_gotfocus)
+            $_.Add_PreviewTouchDown({})
+            # $_.Add_PreviewMouseDown($global:tool_gotfocus)
+            $_.Add_PreviewMouseDown({})
+            # $_.Add_GotFocus($global:tool_gotfocus)
+            $_.Add_GotFocus({})
         }
     }
 }
@@ -437,12 +453,13 @@ New-TTState     [Panels].Title.Visible              '[Panels]タイトル表示'
     Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.$p.SetTitleVisible( $val ) }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].Title.Add_IsVisibleChanged({
-                Param($ttl, $evnt)
-                $pname = $ttl.TTPanel.Name
-                $global:Models.Status.SetValue( "$pname.Title.Visible", $ttl.IsVisible )
-            }
-        )
+        # $global:Application.PanelMap[$pname].Title.Add_IsVisibleChanged({
+        #         Param($ttl, $evnt)
+        #         $pname = $ttl.TTPanel.Name
+        #         $global:Models.Status.SetValue( "$pname.Title.Visible", $ttl.IsVisible )
+        #     }
+        # )
+        $global:Application.PanelMap[$pname].Title.Add_IsVisibleChanged({})
     }
 }
 New-TTState     [Panels].Title.Text                 '[Panels]タイトル文字'          @{
@@ -556,22 +573,24 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({
-                Param($kwd, $evnt)
-                $pn = $kwd.TTPanel.Name
-                $global:Models.Status.SetValue( "$pn.Table.Keyword", $kwd.TTPanel.GetKeyword('Table') )
-                # Register-DelayedRun "$pn.TableKeyword.TextChanged" 3 {
-                $global:Application.$pn.UpdateTableFilter()
-                # }.GetNewClosure()
-            })
-        $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({
-                Param( $crt, $evnt ) 
-                $pn = $crt.TTPanel.Name
-                $global:Models.Status.SetValue( "$pn.Table.Keyword", $crt.TTPanel.GetKeyword('Table') )
-                # Register-DelayedRun "$pn.TableKeyword.TextArea.Caret.PositionChanged" 3 {
-                $global:Application.$pn.UpdateTableFilter()
-                # }.GetNewClosure()
-            })
+        # $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({
+        #         Param($kwd, $evnt)
+        #         $pn = $kwd.TTPanel.Name
+        #         $global:Models.Status.SetValue( "$pn.Table.Keyword", $kwd.TTPanel.GetKeyword('Table') )
+        #         # Register-DelayedRun "$pn.TableKeyword.TextChanged" 3 {
+        #         $global:Application.$pn.UpdateTableFilter()
+        #         # }.GetNewClosure()
+        #     })
+        $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({})
+        # $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({
+        #         Param( $crt, $evnt ) 
+        #         $pn = $crt.TTPanel.Name
+        #         $global:Models.Status.SetValue( "$pn.Table.Keyword", $crt.TTPanel.GetKeyword('Table') )
+        #         # Register-DelayedRun "$pn.TableKeyword.TextArea.Caret.PositionChanged" 3 {
+        #         $global:Application.$pn.UpdateTableFilter()
+        #         # }.GetNewClosure()
+        #     })
+        $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({})
     }
 }
 New-TTState     [Panels].Table.Resource             '[Panels]リソース名'            @{
@@ -584,11 +603,12 @@ New-TTState     [Panels].Table.Resource             '[Panels]リソース名'   
     Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.$p.SetTableResource( $val ) }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].TableMain.Add_SourceUpdated({
-                Param($tbl, $evnt)
-                $pname = $tbl.TTPanel.Name
-                $global:Models.Status.SetValue( "$pname.Table.Resource", $tbl.TTPanel.TableResource )
-            })
+        # $global:Application.PanelMap[$pname].TableMain.Add_SourceUpdated({
+        #         Param($tbl, $evnt)
+        #         $pname = $tbl.TTPanel.Name
+        #         $global:Models.Status.SetValue( "$pname.Table.Resource", $tbl.TTPanel.TableResource )
+        #     })
+        $global:Application.PanelMap[$pname].TableMain.Add_SourceUpdated({})
     }
 }
 New-TTState     [Panels].Table.Sort                 '[Panels]ソート'                @{
@@ -610,13 +630,14 @@ New-TTState     [Panels].Table.Sort                 '[Panels]ソート'         
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].TableMain.Add_Sorting({
-                Param($tbl, $evnt)
-                $pname = $tbl.TTPanel.Name
-                $sort = [System.Windows.Data.CollectionViewSource]::GetDefaultView( $tbl.ItemsSource ).SortDescriptions[0]
-                $sortval = ('{0}|{1}' -f $sort.PropertyName, $sort.Direction)
-                $global:Models.Status.SetValue( "$pname.Table.Sort", $sortval )
-            })
+        # $global:Application.PanelMap[$pname].TableMain.Add_Sorting({
+        #         Param($tbl, $evnt)
+        #         $pname = $tbl.TTPanel.Name
+        #         $sort = [System.Windows.Data.CollectionViewSource]::GetDefaultView( $tbl.ItemsSource ).SortDescriptions[0]
+        #         $sortval = ('{0}|{1}' -f $sort.PropertyName, $sort.Direction)
+        #         $global:Models.Status.SetValue( "$pname.Table.Sort", $sortval )
+        #     })
+        $global:Application.PanelMap[$pname].TableMain.Add_Sorting({})
     }
 }
 #endregion
@@ -638,22 +659,24 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].WebViewKeyword.Add_TextChanged({
-                Param($kwd, $evnt)
-                $panel = $kwd.TTPanel
-                $pn = $panel.Name
-                $md = $panel.GetMode()
-                $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
-                # $panel.UpdateMarker('WebView')
-            })
-        $global:Application.PanelMap[$pname].WebViewKeyword.TextArea.Caret.Add_PositionChanged({
-                Param($kwd, $evnt)
-                $panel = $kwd.TTPanel
-                $pn = $panel.Name
-                $md = $panel.GetMode()
-                $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
-                # $panel.UpdateMarker('WebView')
-            })
+        # $global:Application.PanelMap[$pname].WebViewKeyword.Add_TextChanged({
+        #         Param($kwd, $evnt)
+        #         $panel = $kwd.TTPanel
+        #         $pn = $panel.Name
+        #         $md = $panel.GetMode()
+        #         $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+        #         # $panel.UpdateMarker('WebView')
+        #     })
+        $global:Application.PanelMap[$pname].WebViewKeyword.Add_TextChanged({})
+        # $global:Application.PanelMap[$pname].WebViewKeyword.TextArea.Caret.Add_PositionChanged({
+        #         Param($kwd, $evnt)
+        #         $panel = $kwd.TTPanel
+        #         $pn = $panel.Name
+        #         $md = $panel.GetMode()
+        #         $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+        #         # $panel.UpdateMarker('WebView')
+        #     })
+        $global:Application.PanelMap[$pname].WebViewKeyword.TextArea.Caret.Add_PositionChanged({})
     }
 }
 #endregion
@@ -668,11 +691,12 @@ New-TTState     [Panels].Keyword.Visible            '[Panels]キーワード表�
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].EditorKeyword.Add_IsVisibleChanged({
-                Param($kwd, $evnt)
-                $pname = $kwd.TTPanel.Name
-                $global:Models.Status.SetValue( "$pname.Keyword.Visible", $kwd.IsVisible )
-            })
+        # $global:Application.PanelMap[$pname].EditorKeyword.Add_IsVisibleChanged({
+        #         Param($kwd, $evnt)
+        #         $pname = $kwd.TTPanel.Name
+        #         $global:Models.Status.SetValue( "$pname.Keyword.Visible", $kwd.IsVisible )
+        #     })
+        $global:Application.PanelMap[$pname].EditorKeyword.Add_IsVisibleChanged({})
     }
 }
 New-TTState     [Panels].ColumnHeader.Visible       '[Panels]カラムヘッダー'        @{

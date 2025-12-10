@@ -17,9 +17,9 @@ namespace ThinktankApp
                 if (!string.IsNullOrEmpty(_memoDir))
                 {
                     if (!Directory.Exists(_memoDir)) Directory.CreateDirectory(_memoDir);
-                    string cacheDir = Path.Combine(_memoDir, "cache");
+                    string cacheDir = Path.Combine(_memoDir, "gcache");
                     if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
-                    string backupDir = Path.Combine(_memoDir, "backup");
+                    string backupDir = Path.Combine(_memoDir, "gbackup");
                     if (!Directory.Exists(backupDir)) Directory.CreateDirectory(backupDir);
                 }
             }

@@ -111,6 +111,16 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
 function Initialize-TTStatus {
     Write-Host "Initializing TTStatus..."
 
+    # 0. Apply Watch
+    if ($global:Application.Status.Items) {
+        $global:Application.Status.Items | ForEach-Object {
+            if ($_.Watch -is [ScriptBlock]) {
+                $_.Watch.Invoke($_.ID)
+                return
+            }
+        }
+    }
+
     # 1. Apply Defaults
     if ($global:Application.Status.Items) {
         $global:Application.Status.Items | ForEach-Object {

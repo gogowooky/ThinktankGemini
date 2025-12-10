@@ -27,7 +27,7 @@ catch {
 }
 
 # フォーマット: ver.Timestamp,ProjectName on PCName CommitMsg
-$VersionString = "{0} ver.{1} on {2} {3}" -f $ProjectName, $Timestamp, $PCName, $CommitMsg
+$VersionString = "{0} ver.{1} on {2}[{3}]" -f $ProjectName, $Timestamp, $PCName, $CommitMsg
 
 # ファイル書き込み
 Set-Content -Path $VersionFile -Value $VersionString -Encoding UTF8 -NoNewline
