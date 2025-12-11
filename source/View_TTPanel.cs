@@ -16,6 +16,9 @@ namespace ThinktankApp
 
     public class TTPanel : TTPanelWebView
     {
+        private string _currentPanelMode = "";
+        private string _currentPanelTool = "";
+
         public TTPanel(string name, string xamlPath, string stylePath, TTModels models) 
             : base(name, xamlPath, stylePath, models)
         {
@@ -33,13 +36,17 @@ namespace ThinktankApp
 
         public void Focus(string mode, string tool)
         {
-            SetMode(mode);
-            SetTool(tool);
+            string targetMode = string.IsNullOrEmpty(mode) ? _currentPanelMode : mode;
+            string targetTool = string.IsNullOrEmpty(tool) ? _currentPanelTool : tool;
+
+            SetMode(targetMode);
+            SetTool(targetTool);
         }
 
         public void SetMode(string mode)
         {
             if (string.IsNullOrEmpty(mode)) return;
+            _currentPanelMode = mode;
 
             if (EditorPanel != null) EditorPanel.Visibility = Visibility.Collapsed;
             if (TablePanel != null) TablePanel.Visibility = Visibility.Collapsed;
@@ -63,6 +70,7 @@ namespace ThinktankApp
         public void SetTool(string tool)
         {
             if (string.IsNullOrEmpty(tool)) return;
+            _currentPanelTool = tool;
 
             if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible)
             {
