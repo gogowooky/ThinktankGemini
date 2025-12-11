@@ -444,7 +444,7 @@ namespace ThinktankApp
                 {
                     if (!result)
                     {
-                        SetExModMode("");
+                        ExModMode = "";
                     }
                     return true; // Always handle the key in ExModMode if action matched
                 }

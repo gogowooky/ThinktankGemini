@@ -147,26 +147,30 @@ namespace ThinktankApp
             return null;
         }
 
-        public void SetExModMode(string mode)
+        public string ExModMode
         {
-            MainWindow.Dispatcher.BeginInvoke(new Action(() =>
+            get { return _currentExModMode; }
+            set
             {
-                _currentExModMode = mode;
-                
-                // Capture current modifiers when setting a non-empty mode
-                if (!string.IsNullOrEmpty(mode))
+                MainWindow.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    _triggeringModifiers = System.Windows.Input.Keyboard.Modifiers;
-                }
-                else
-                {
-                    _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
-                    _currentKeyInfo = "";
-                }
+                    _currentExModMode = value;
+                    
+                    // Capture current modifiers when setting a non-empty mode
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        _triggeringModifiers = System.Windows.Input.Keyboard.Modifiers;
+                    }
+                    else
+                    {
+                        _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
+                        _currentKeyInfo = "";
+                    }
 
-                RebuildCurrentKeyTable();
-                UpdateStatusBar();
-            }));
+                    RebuildCurrentKeyTable();
+                    UpdateStatusBar();
+                }));
+            }
         }
         
         protected abstract void RebuildCurrentKeyTable();
@@ -204,7 +208,7 @@ namespace ThinktankApp
 
             if (modifierReleased)
             {
-                SetExModMode("");
+                ExModMode = "";
             }
         }
 
@@ -318,9 +322,22 @@ namespace ThinktankApp
             }
         }
 
-        public void SetTitle(string title)
+        public string Title
         {
-            MainWindow.Title = title;
+            get 
+            {
+                if (MainWindow.Dispatcher.CheckAccess())
+                    return MainWindow.Title;
+                else
+                    return (string)MainWindow.Dispatcher.Invoke(new Func<string>(() => MainWindow.Title));
+            }
+            set
+            {
+                if (MainWindow.Dispatcher.CheckAccess())
+                    MainWindow.Title = value;
+                else
+                    MainWindow.Dispatcher.Invoke(new Action(() => MainWindow.Title = value));
+            }
         }
 
         public void Focus(TTPanel panel)

@@ -56,7 +56,7 @@ $StyleXamlPath = Join-Path $StylePath "Style.xaml"
 
 try {
     $App = [ThinktankApp.TTApplication]::new($XamlPath, $StyleXamlPath, $PanelXamlPath, $AppScriptPath)
-    $App.SetTitle("Thinktank Recreated")
+    $App.Title = "Thinktank Recreated"
     $App.Show()
 }
 catch {

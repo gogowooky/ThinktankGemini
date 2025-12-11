@@ -32,6 +32,8 @@ Add-TTEvent     '*-*-*-ExApp'           'None'              B                   
 Add-TTEvent     '*-*-*-ExApp'           'None'              Q                       Application.Operation.Quit
 Add-TTEvent     '*-*-*-ExApp'           'None'              Left                    Application.Window.Screen:prev
 Add-TTEvent     '*-*-*-ExApp'           'None'              Right                   Application.Window.Screen:next
+Add-TTEvent     '*-*-*-ExApp'           'None'              Up                      Application.Window.State:max
+Add-TTEvent     '*-*-*-ExApp'           'None'              Down                    Application.Window.State:norm
 #endregion
 #endregion
 

@@ -12,21 +12,34 @@ namespace ThinktankApp
             _mainWindow = window;
         }
 
-        public WindowState State
+        public string State
         {
             get 
             {
+                WindowState s;
                 if (_mainWindow.Dispatcher.CheckAccess())
-                    return _mainWindow.WindowState;
+                    s = _mainWindow.WindowState;
                 else
-                    return (WindowState)_mainWindow.Dispatcher.Invoke(new Func<WindowState>(() => _mainWindow.WindowState));
+                    s = (WindowState)_mainWindow.Dispatcher.Invoke(new Func<WindowState>(() => _mainWindow.WindowState));
+
+                switch (s)
+                {
+                    case WindowState.Maximized: return "max";
+                    case WindowState.Minimized: return "min";
+                    default: return "norm";
+                }
             }
             set 
             {
+                WindowState s = WindowState.Normal;
+                string v = value != null ? value.ToString().ToLower() : "norm";
+                if (v.StartsWith("max")) s = WindowState.Maximized;
+                else if (v.StartsWith("min")) s = WindowState.Minimized;
+                
                 if (_mainWindow.Dispatcher.CheckAccess())
-                    _mainWindow.WindowState = value;
+                    _mainWindow.WindowState = s;
                 else
-                    _mainWindow.Dispatcher.Invoke(new Action(() => _mainWindow.WindowState = value));
+                    _mainWindow.Dispatcher.Invoke(new Action(() => _mainWindow.WindowState = s));
             }
         }
 

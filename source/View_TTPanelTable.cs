@@ -57,11 +57,11 @@ namespace ThinktankApp
             if (TableKeyword != null) 
             {
                 TableKeyword.GotFocus += (s, e) => OnFocusChanged("Table", "Keyword");
-                TableKeyword.TextChanged += (s, e) => ApplyFilter();
+                TableKeyword.TextChanged += (s, e) => UpdateTableFilter();
             }
         }
 
-        private void ApplyFilter()
+        public void UpdateTableFilter()
         {
             if (TableMain == null || TableMain.ItemsSource == null) return;
 
@@ -152,8 +152,8 @@ namespace ThinktankApp
                             {
                                 TableMain.AutoGenerateColumns = false;
                                 UpdateTableColumns();
-                                TableMain.ItemsSource = collection.Items;
-                                ApplyFilter(); // Ensure filter is applied
+                                TableMain.ItemsSource = new System.Windows.Data.ListCollectionView(collection.Items);
+                                UpdateTableFilter(); // Ensure filter is applied
                                 // UpdateTitle() is in TTPanel, but we can't call it easily from here if it's not virtual/abstract.
                                 // However, TTPanel controls the title. 
                                 // We might need an event or virtual method for TitleUpdate?

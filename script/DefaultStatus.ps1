@@ -24,7 +24,7 @@ New-TTState     Application.Product.Version         'バージョン'           
         $global:Models.Status.SetValue( $id, $val )
         
         $appName = (Get-TTState 'Application.Product.Name')
-        $global:Application.SetTitle("$appName/$val")
+        $global:Application.Title = "$appName/$val"
     }
 }
 #endregion
@@ -89,15 +89,14 @@ New-TTState     Application.Window.Screen           'ウインドウ表示スク
     }
 }
 New-TTState     Application.Window.State            'ウインドウ状態'                @{
-    Default = { 'Normal' }
-    Test    = { Param($id, $val); $val -match '(Minimized|Maximized|Normal)' }
+    Default = { 'norm' }
+    Test    = { Param($id, $val); $val -match '(min|max|norm)' }
     Apply   = { Param($id, $val); $global:Application.Window.State = $val }
     Watch   = {
         $global:Application.Window.Add_StateChanged({
                 Param( $win, $evnt )
                 $global:Models.Status.SetValue( 'Application.Window.State', [string]$global:Application.Window.State )
             })
-        # $global:Application.Window.Add_StateChanged({})
     }
 }
 New-TTState     Application.Window.Width            'ウインドウ幅'                  @{
@@ -116,7 +115,6 @@ New-TTState     Application.Window.Width            'ウインドウ幅'        
                 $global:Models.Status.SetValue( 'Application.Window.Width', $win.Width )
                 $global:Models.Status.SetValue( 'Application.Window.Height', $win.Height )
             })
-        # $global:Application.Window.Add_SizeChanged({})
     }
 }
 New-TTState     Application.Window.Height           'ウインドウ高'                  @{
@@ -129,7 +127,6 @@ New-TTState     Application.Window.Height           'ウインドウ高'        
         }
         $global:Application.Window.Height = [int]$val
     }
-    # Watch = {}  #::: Application.Window.Width の Watchと共用 
 }
 New-TTState     Application.Window.Left             'ウインドウ横位置'              @{
     Default = { '100' }
@@ -147,7 +144,6 @@ New-TTState     Application.Window.Left             'ウインドウ横位置'  
                 $global:Models.Status.SetValue( 'Application.Window.Top', $win.Top )
                 $global:Models.Status.SetValue( 'Application.Window.Left', $win.Left )
             })
-        # $global:Application.Window.Add_LocationChanged({})
     }
 }
 New-TTState     Application.Window.Top              'ウインドウ縦位置'              @{
@@ -160,9 +156,9 @@ New-TTState     Application.Window.Top              'ウインドウ縦位置'  
         }
         $global:Application.Window.Top = $val
     }
-    # Watch = {}  #::: Application.Window.Left の Watchと共用 
 }
-New-TTState     Application.Window.FontSize         'アプリ全体のフォントサイズ'    @{
+New-TTState     Application.Window.FontSize         'アプリ全体のフォントサイズ'    @{ # Panel対応後に修正
+    # パネルごとのFontSize制御ができてから
     Default = { 12 }
     Test    = { Param($id, $val); $val -match '(\d{1,2}|up|down)' }
     Apply   = { Param($id, $val)
@@ -192,7 +188,7 @@ New-TTState     Application.Window.Title            'ウインドウタイトル
         "$name/$ver"
     }
     Apply   = { Param($id, $val)
-        $global:Application.SetTitle($val)
+        $global:Application.Title = $val
         $global:Models.Status.SetValue('Application.Window.Title', $val)
     }
 }
@@ -244,7 +240,7 @@ New-TTState     Application.Current.ExMode          '排他モード'           
         switch ($val) {
             'Panel' { $val = 'Ex{0}' -f $global:Application.GetFdPanel().Name }
         }
-        $global:Application.SetExModMode( $val )
+        $global:Application.ExModMode = $val
         $global:Models.Status.SetValue( 'Application.Current.ExMode', $val )
     }
 }
@@ -543,15 +539,14 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        # $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({
-        #         Param($kwd, $evnt)
-        #         $pn = $kwd.TTPanel.Name
-        #         $global:Models.Status.SetValue( "$pn.Table.Keyword", $kwd.TTPanel.GetKeyword('Table') )
-        #         # Register-DelayedRun "$pn.TableKeyword.TextChanged" 3 {
-        #         $global:Application.$pn.UpdateTableFilter()
-        #         # }.GetNewClosure()
-        #     })
-        $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({})
+        $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({
+                Param($kwd, $evnt)
+                $pn = $pname
+                $global:Models.Status.SetValue( "$pn.Table.Keyword", $global:Application.PanelMap[$pn].GetKeyword('Table') )
+                $global:Application.Panels | ForEach-Object {
+                    if ($_.GetMode() -eq 'Table') { $_.UpdateTableFilter() }
+                }
+            }.GetNewClosure())
         # $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({
         #         Param( $crt, $evnt ) 
         #         $pn = $crt.TTPanel.Name
