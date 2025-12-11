@@ -192,22 +192,12 @@ New-TTState     Application.Window.Title            'ウインドウタイトル
         $global:Models.Status.SetValue('Application.Window.Title', $val)
     }
 }
-#endregion
-#region Application.*
 New-TTState     Application.Focus.Panel             'フォーカスパネル'              @{
     Default = { 'Desk' }
     Apply   = { Param( $id, $val )
         if ( $val -notmatch '^(Library|Index|Shelf|Desk|System)$' ) { 
             $val = $global:Application.GetFdPanel().Name
         }
-
-        # Register-DelayedRun Application.Focus.Panel 1 {
-        $global:Application.$val.Focus()
-        $curstyle = (Get-TTState Application.Border.Style)
-        if ( $curstyle -like 'zen*' ) {
-            Apply-TTState Application.Border.Style "zen:$val"
-        }
-        # }.GetNewClosure()
     }
 }
 

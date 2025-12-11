@@ -39,6 +39,7 @@ namespace ThinktankApp
 
         protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
+            base.OnWindowLoaded(sender, e);
             if (_runspace != null)
             {
                 try

@@ -27,11 +27,6 @@ namespace ThinktankApp
         protected string _currentPanelName = "";
         protected string _currentMode = "";
         protected string _currentTool = "";
-        protected string _currentExModMode = "";
-        protected string _currentKeyInfo = "";
-        
-        protected System.Windows.Input.ModifierKeys _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
-
         public static TTApplicationBase Current { get; private set; }
 
         public TTApplicationBase(string xamlPath, string stylePath)
@@ -61,8 +56,6 @@ namespace ThinktankApp
                 StatusBar = (System.Windows.Controls.Primitives.StatusBar)MainWindow.FindName("StatusBar");
                 Menu = (System.Windows.Controls.Menu)MainWindow.FindName("Menu");
 
-                MainWindow.PreviewKeyDown += OnPreviewKeyDown;
-                MainWindow.PreviewKeyUp += OnPreviewKeyUp;
                 MainWindow.Loaded += OnWindowLoaded;
             }
             catch (Exception ex)
@@ -70,6 +63,10 @@ namespace ThinktankApp
                 System.Windows.MessageBox.Show(MainWindow, string.Format("Error loading TTApplication: {0}\n{1}", ex.Message, ex.StackTrace));
                 throw;
             }
+        }
+
+        protected virtual void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
         }
 
         public MessageBoxResult ShowMessage(string messageBoxText, string caption = "Message", MessageBoxButton button = MessageBoxButton.OK, MessageBoxImage icon = MessageBoxImage.None)
@@ -103,38 +100,8 @@ namespace ThinktankApp
             }
         }
 
-        private void OnPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        protected virtual void UpdateStatusBar()
         {
-            var key = (e.Key == System.Windows.Input.Key.System) ? e.SystemKey : e.Key;
-
-            // Ignore modifier keys themselves
-            if (key == System.Windows.Input.Key.LeftCtrl || key == System.Windows.Input.Key.RightCtrl ||
-                key == System.Windows.Input.Key.LeftAlt || key == System.Windows.Input.Key.RightAlt ||
-                key == System.Windows.Input.Key.LeftShift || key == System.Windows.Input.Key.RightShift ||
-                key == System.Windows.Input.Key.LWin || key == System.Windows.Input.Key.RWin)
-            {
-                return;
-            }
-
-            if (InvokeActionOnKey(e))
-            {
-                e.Handled = true;
-            }
-        }
-
-        protected virtual void OnWindowLoaded(object sender, RoutedEventArgs e)
-        {
-        }
-
-        public abstract bool InvokeActionOnKey(System.Windows.Input.KeyEventArgs e);
-
-        protected void UpdateStatusBar()
-        {
-            if (StatusBar != null)
-            {
-                StatusBar.Items.Clear();
-                StatusBar.Items.Add(string.Format("{0} : {1} : {2} : {3}   {4}", _currentPanelName, _currentMode, _currentTool, _currentExModMode, _currentKeyInfo));
-            }
         }
 
         public TTPanel GetFdPanel()
@@ -145,71 +112,6 @@ namespace ThinktankApp
                 return PanelMap[_currentPanelName];
             }
             return null;
-        }
-
-        public string ExModMode
-        {
-            get { return _currentExModMode; }
-            set
-            {
-                MainWindow.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    _currentExModMode = value;
-                    
-                    // Capture current modifiers when setting a non-empty mode
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        _triggeringModifiers = System.Windows.Input.Keyboard.Modifiers;
-                    }
-                    else
-                    {
-                        _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
-                        _currentKeyInfo = "";
-                    }
-
-                    RebuildCurrentKeyTable();
-                    UpdateStatusBar();
-                }));
-            }
-        }
-        
-        protected abstract void RebuildCurrentKeyTable();
-
-        private void OnPreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (_triggeringModifiers == System.Windows.Input.ModifierKeys.None) return;
-
-            // Resolve the key (handle System keys like Alt+A where Key is System but SystemKey is A)
-            var key = (e.Key == System.Windows.Input.Key.System) ? e.SystemKey : e.Key;
-
-            // Check if the released key corresponds to one of the triggering modifiers
-            bool modifierReleased = false;
-
-            if ((_triggeringModifiers & System.Windows.Input.ModifierKeys.Alt) != 0 && 
-                (key == System.Windows.Input.Key.LeftAlt || key == System.Windows.Input.Key.RightAlt))
-            {
-                modifierReleased = true;
-            }
-            else if ((_triggeringModifiers & System.Windows.Input.ModifierKeys.Control) != 0 && 
-                     (key == System.Windows.Input.Key.LeftCtrl || key == System.Windows.Input.Key.RightCtrl))
-            {
-                modifierReleased = true;
-            }
-            else if ((_triggeringModifiers & System.Windows.Input.ModifierKeys.Shift) != 0 && 
-                     (key == System.Windows.Input.Key.LeftShift || key == System.Windows.Input.Key.RightShift))
-            {
-                modifierReleased = true;
-            }
-            else if ((_triggeringModifiers & System.Windows.Input.ModifierKeys.Windows) != 0 && 
-                     (key == System.Windows.Input.Key.LWin || key == System.Windows.Input.Key.RWin))
-            {
-                modifierReleased = true;
-            }
-
-            if (modifierReleased)
-            {
-                ExModMode = "";
-            }
         }
 
         public void Show()
@@ -342,7 +244,6 @@ namespace ThinktankApp
 
         public void Focus(TTPanel panel)
         {
-            Display(panel);
             panel.Focus("", "");
         }
 
@@ -353,16 +254,6 @@ namespace ThinktankApp
                 var panel = PanelMap[panelName];
                 panel.Focus(mode, tool);
             }
-        }
-
-        public void Display(TTPanel panel)
-        {
-            // Placeholder
-        }
-
-        public void Display(string panelName, string mode)
-        {
-             // Placeholder
         }
     }
 }

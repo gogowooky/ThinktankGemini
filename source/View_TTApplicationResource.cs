@@ -3,7 +3,7 @@ using System.IO;
 
 namespace ThinktankApp
 {
-    public abstract class TTApplicationResource : TTApplicationBase
+    public abstract class TTApplicationResource : TTApplicationKeyBinding
     {
         public string BaseDir { get; private set; }
 
