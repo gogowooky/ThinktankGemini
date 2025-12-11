@@ -6,13 +6,13 @@ using ICSharpCode.AvalonEdit;
 
 namespace ThinktankApp
 {
-    public class TTEditorPanel : TTBasePanel
+    public class TTPanelEditor : TTPanelBase
     {
         public DockPanel EditorPanel { get; private set; }
         public TextEditor EditorKeyword { get; private set; }
         public TextEditor EditorMain { get; private set; }
 
-        public TTEditorPanel(string name, string xamlPath, string stylePath, TTModels models) 
+        public TTPanelEditor(string name, string xamlPath, string stylePath, TTModels models) 
             : base(name, xamlPath, stylePath, models)
         {
         }

@@ -8,7 +8,7 @@ using ICSharpCode.AvalonEdit;
 
 namespace ThinktankApp
 {
-    public class TTTablePanel : TTEditorPanel
+    public class TTPanelTable : TTPanelEditor
     {
         public DockPanel TablePanel { get; private set; }
         public TextEditor TableKeyword { get; private set; }
@@ -18,7 +18,7 @@ namespace ThinktankApp
         protected TTCollection _currentCollection;
         private DispatcherTimer _resizeTimer;
 
-        public TTTablePanel(string name, string xamlPath, string stylePath, TTModels models) 
+        public TTPanelTable(string name, string xamlPath, string stylePath, TTModels models) 
             : base(name, xamlPath, stylePath, models)
         {
             _resizeTimer = new DispatcherTimer();

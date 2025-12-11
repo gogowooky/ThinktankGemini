@@ -14,7 +14,7 @@ using System.ComponentModel;
 namespace ThinktankApp
 {
 
-    public class TTPanel : TTWebViewPanel
+    public class TTPanel : TTPanelWebView
     {
         public TTPanel(string name, string xamlPath, string stylePath, TTModels models) 
             : base(name, xamlPath, stylePath, models)

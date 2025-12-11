@@ -9,7 +9,7 @@ using Microsoft.Web.WebView2.Core;
 
 namespace ThinktankApp
 {
-    public class TTWebViewPanel : TTTablePanel
+    public class TTPanelWebView : TTPanelTable
     {
         public DockPanel WebViewPanel { get; private set; }
         public TextEditor WebViewKeyword { get; private set; }
@@ -17,7 +17,7 @@ namespace ThinktankApp
         
         private string _pendingUrl = "";
 
-        public TTWebViewPanel(string name, string xamlPath, string stylePath, TTModels models) 
+        public TTPanelWebView(string name, string xamlPath, string stylePath, TTModels models) 
             : base(name, xamlPath, stylePath, models)
         {
         }

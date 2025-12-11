@@ -18,6 +18,7 @@ namespace ThinktankApp
         public TTActions Actions { get; private set; }
         public TTStatus Status { get; private set; }
         public TTModels Models { get; private set; }
+        public TTWindow Window { get; private set; }
 
         private Runspace _runspace;
 
@@ -29,8 +30,10 @@ namespace ThinktankApp
             Models = new TTModels();
             Actions = Models.Actions;
             Status = Models.Status;
+            Window = new TTWindow(MainWindow);
 
             InitializePanels(panelXamlPath, stylePath);
+
             InitializePowerShell(scriptDir);
         }
 

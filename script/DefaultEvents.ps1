@@ -1,23 +1,23 @@
 ﻿
-Add-TTEvent     '*-*-*-*'             'Control'     O                  Application.Run.Break
+Add-TTEvent     '*-*-*-*'               'Control'           O                       Application.Run.Break
 
 #region === App/Panel
 #region A
-Add-TTEvent     '*-*-*-*'             'Alt'           A                   Application.Current.ExMode:ExApp
+Add-TTEvent     '*-*-*-*'               'Alt'               A                       Application.Current.ExMode:ExApp
 #endregion
 #region L/S/I/D/@
-Add-TTEvent     '*-*-*-*'             'Alt'           L                   Application.Current.ExMode:ExLibrary
-Add-TTEvent     '*-*-*-*'             'Alt'           I                   Application.Current.ExMode:ExIndex
-Add-TTEvent     '*-*-*-*'             'Alt'           S                   Application.Current.ExMode:ExShelf
-Add-TTEvent     '*-*-*-*'             'Alt'           D                   Application.Current.ExMode:ExDesk
-Add-TTEvent     '*-*-*-*'             'Alt'           ImeProcessed        Application.Current.ExMode:ExSystem          #   @ / `
+Add-TTEvent     '*-*-*-*'               'Alt'               L                       Application.Current.ExMode:ExLibrary
+Add-TTEvent     '*-*-*-*'               'Alt'               I                       Application.Current.ExMode:ExIndex
+Add-TTEvent     '*-*-*-*'               'Alt'               S                       Application.Current.ExMode:ExShelf
+Add-TTEvent     '*-*-*-*'               'Alt'               D                       Application.Current.ExMode:ExDesk
+Add-TTEvent     '*-*-*-*'               'Alt'               ImeProcessed            Application.Current.ExMode:ExSystem          #   @ / `
 
 
-Add-TTEvent     '*-*-*-*'             'Alt+Shift'     L                   Application.Focus.Panel:Library
-Add-TTEvent     '*-*-*-*'             'Alt+Shift'     I                   Application.Focus.Panel:Index
-Add-TTEvent     '*-*-*-*'             'Alt+Shift'     S                   Application.Focus.Panel:Shelf
-Add-TTEvent     '*-*-*-*'             'Alt+Shift'     D                   Application.Focus.Panel:Desk
-Add-TTEvent     '*-*-*-*'             'Alt+Shift'     ImeProcessed        Application.Focus.Panel:System              #  @ / `
+Add-TTEvent     '*-*-*-*'               'Alt+Shift'         L                       Application.Focus.Panel:Library
+Add-TTEvent     '*-*-*-*'               'Alt+Shift'         I                       Application.Focus.Panel:Index
+Add-TTEvent     '*-*-*-*'               'Alt+Shift'         S                       Application.Focus.Panel:Shelf
+Add-TTEvent     '*-*-*-*'               'Alt+Shift'         D                       Application.Focus.Panel:Desk
+Add-TTEvent     '*-*-*-*'               'Alt+Shift'         ImeProcessed            Application.Focus.Panel:System              #  @ / `
 
 # Add-TTEvent     App             'Alt+Shift'     L                   Application.Focus.Panel:Library
 # ... (Other focus actions need to be defined or mapped)
@@ -28,8 +28,10 @@ Add-TTEvent     '*-*-*-*'             'Alt+Shift'     ImeProcessed        Applic
 # Add-TTEvent     '*-*-*-ExApp'           'None'          A                   Application.Menu.Visible:toggle
 #endregion
 #region B/Q
-Add-TTEvent     '*-*-*-ExApp'           'None'          B                   Application.Run.Break
-Add-TTEvent     '*-*-*-ExApp'           'None'          Q                   Application.Operation.Quit
+Add-TTEvent     '*-*-*-ExApp'           'None'              B                       Application.Run.Break
+Add-TTEvent     '*-*-*-ExApp'           'None'              Q                       Application.Operation.Quit
+Add-TTEvent     '*-*-*-ExApp'           'None'              Left                    Application.Window.Screen:prev
+Add-TTEvent     '*-*-*-ExApp'           'None'              Right                   Application.Window.Screen:next
 #endregion
 #endregion
 

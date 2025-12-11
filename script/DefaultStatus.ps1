@@ -78,18 +78,6 @@ New-TTState     Application.System.ChatPath         'チャットディレクト
         $global:Models.Status.SetValue( $id, $val )
     }
 }
-New-TTState     Application.System.OutlookBackupFolder  '引用メールの保存先フォルダ'    @{
-    Default = { '' }
-    Apply   = { Param($id, $val)
-        $global:Models.Status.SetValue( $id, $val )
-    }
-}
-New-TTState     Application.System.OutlookMainFolder  'メール確認先フォルダ'            @{
-    Default = { '' }
-    Apply   = { Param($id, $val)
-        $global:Models.Status.SetValue( $id, $val )
-    }
-}
 #endregion  
 #region Application.Window.*
 New-TTState     Application.Window.Screen           'ウインドウ表示スクリーン'      @{
@@ -103,11 +91,11 @@ New-TTState     Application.Window.Screen           'ウインドウ表示スク
 New-TTState     Application.Window.State            'ウインドウ状態'                @{
     Default = { 'Normal' }
     Test    = { Param($id, $val); $val -match '(Minimized|Maximized|Normal)' }
-    Apply   = { Param($id, $val); $global:Application.Window.WindowState = $val }
+    Apply   = { Param($id, $val); $global:Application.Window.State = $val }
     Watch   = {
         $global:Application.Window.Add_StateChanged({
                 Param( $win, $evnt )
-                $global:Models.Status.SetValue( 'Application.Window.State', [string]$global:Application.Window.WindowState )
+                $global:Models.Status.SetValue( 'Application.Window.State', [string]$global:Application.Window.State )
             })
         # $global:Application.Window.Add_StateChanged({})
     }
@@ -143,7 +131,7 @@ New-TTState     Application.Window.Height           'ウインドウ高'        
     }
     # Watch = {}  #::: Application.Window.Width の Watchと共用 
 }
-New-TTState     Application.Window.XPos             'ウインドウ横位置'              @{
+New-TTState     Application.Window.Left             'ウインドウ横位置'              @{
     Default = { '100' }
     Test    = { Param($id, $val); $val -match '(\d{1,4}|right|left)' }
     Apply   = { Param($id, $val)
@@ -156,13 +144,13 @@ New-TTState     Application.Window.XPos             'ウインドウ横位置'  
     Watch   = {
         $global:Application.Window.Add_LocationChanged({
                 Param( $win, $evnt )
-                $global:Models.Status.SetValue( 'Application.Window.YPos', $win.Top )
-                $global:Models.Status.SetValue( 'Application.Window.XPos', $win.Left )
+                $global:Models.Status.SetValue( 'Application.Window.Top', $win.Top )
+                $global:Models.Status.SetValue( 'Application.Window.Left', $win.Left )
             })
         # $global:Application.Window.Add_LocationChanged({})
     }
 }
-New-TTState     Application.Window.YPos             'ウインドウ縦位置'              @{
+New-TTState     Application.Window.Top              'ウインドウ縦位置'              @{
     Default = { '50' }
     Test    = { Param($id, $val); $val -match '(\d{1,4}|down|up)' }
     Apply   = { Param($id, $val)

@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace ThinktankApp
 {
-    public class TTBasePanel
+    public class TTPanelBase
     {
         public string Name { get; private set; }
         public UserControl View { get; private set; }
@@ -17,7 +17,7 @@ namespace ThinktankApp
 
         public event Action<string, string, string> FocusChanged;
 
-        public TTBasePanel(string name, string xamlPath, string stylePath, TTModels models)
+        public TTPanelBase(string name, string xamlPath, string stylePath, TTModels models)
         {
             Name = name;
             Models = models;
