@@ -23,9 +23,17 @@ namespace ThinktankApp
         // Dictionary to access panels by name
         public Dictionary<string, TTPanel> PanelMap { get; protected set; }
 
-        public string CurrentPanelName { get { return _currentPanelName; } }
+        public string CurrentPanel
+        {
+            get { return _currentPanelName; }
+            set { Focus(value, "", ""); }
+        }
         protected string _currentPanelName = "";
+
+        public string CurrentMode { get { return _currentMode; } }
         protected string _currentMode = "";
+
+        public string CurrentTool { get { return _currentTool; } }
         protected string _currentTool = "";
         public static TTApplicationBase Current { get; private set; }
 

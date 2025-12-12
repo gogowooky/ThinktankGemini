@@ -15,6 +15,49 @@ namespace ThinktankApp
         public ContextMenu Menu { get; private set; }
         public TTModels Models { get; private set; }
 
+        protected string _currentPanelMode = "";
+        protected string _currentPanelTool = "";
+
+        public virtual void Focus(string mode, string tool) { }
+        public virtual void SetMode(string mode) { _currentPanelMode = mode; }
+        public virtual void SetTool(string tool) { _currentPanelTool = tool; }
+
+        public string PanelMode
+        {
+            get { return _currentPanelMode; }
+            set
+            {
+                if (_isFocused)
+                {
+                    Focus(value, "");
+                }
+                else
+                {
+                    SetMode(value);
+                    if (GetMode() != value) // If inherited GetMode logic relies on visibility which SetMode sets, this check ensures consistency, but primarily we just want to ensure mode is set. 
+                    {
+                        // Some basic logic if needed, but SetMode virtual call should handle it.
+                    }
+                }
+            }
+        }
+
+        public string PanelTool
+        {
+            get { return _currentPanelTool; }
+            set
+            {
+                if (_isFocused)
+                {
+                    Focus("", value);
+                }
+                else
+                {
+                    SetTool(value);
+                }
+            }
+        }
+
         public event Action<string, string, string> FocusChanged;
 
         public TTPanelBase(string name, string xamlPath, string stylePath, TTModels models)
