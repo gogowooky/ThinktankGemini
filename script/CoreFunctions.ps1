@@ -95,6 +95,18 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
         return
     }
 
+    if ($Context -match 'Panel') {
+        'Library', 'Index', 'Shelf', 'Desk', 'System' | ForEach-Object {
+            $pName = $_
+            
+            $realContext = $Context -replace 'Panel', $pName
+            $realActionID = $ActionID -replace '\[Panel\]', $pName
+            
+            Add-TTEvent $realContext $Mods $Key $realActionID $PCName
+        }
+        return
+    }
+
     if ($Key.Contains(',')) {
         $Key.Split(',') | ForEach-Object { Add-TTEvent $Context $Mods $_.Trim() $ActionID $PCName }
         return

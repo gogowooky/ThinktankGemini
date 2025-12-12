@@ -12,15 +12,19 @@ Add-TTEvent     '*-*-*-*'               'Alt'               S                   
 Add-TTEvent     '*-*-*-*'               'Alt'               D                       Application.Current.ExMode:ExDesk
 Add-TTEvent     '*-*-*-*'               'Alt'               Oem3                    Application.Current.ExMode:ExSystem          #   @ / `
 
-
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         L                       Application.Focus.Panel:Library
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         I                       Application.Focus.Panel:Index
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         S                       Application.Focus.Panel:Shelf
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         D                       Application.Focus.Panel:Desk
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         Oem3                    Application.Focus.Panel:System              #  @ / `
+#endregion
 
-# Add-TTEvent     App             'Alt+Shift'     L                   Application.Focus.Panel:Library
-# ... (Other focus actions need to be defined or mapped)
+#region Q/E/W
+Add-TTEvent     'Panel-*-*-*'           'Alt'               Q                       [Panel].Current.Mode:Table
+Add-TTEvent     'Panel-*-*-*'           'Alt'               E                       [Panel].Current.Mode:Editor
+Add-TTEvent     'Panel-*-*-*'           'Alt'               W                       [Panel].Current.Mode:WebView
+#endregion
+
 #endregion
 
 #region === ExMode ExApp
