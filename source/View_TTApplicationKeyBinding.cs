@@ -11,7 +11,7 @@ namespace ThinktankApp
 {
     public abstract class TTApplicationKeyBinding : TTApplicationBase
     {
-        protected string _currentExModMode = "";
+        protected string _currentExMode = "";
         protected string _currentKeyInfo = "";
         protected System.Windows.Input.ModifierKeys _triggeringModifiers = System.Windows.Input.ModifierKeys.None;
 
@@ -20,14 +20,14 @@ namespace ThinktankApp
         {
         }
 
-        public string ExModMode
+        public string ExMode
         {
-            get { return _currentExModMode; }
+            get { return _currentExMode; }
             set
             {
                 MainWindow.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    _currentExModMode = value;
+                    _currentExMode = value;
                     
                     // Capture current modifiers when setting a non-empty mode
                     if (!string.IsNullOrEmpty(value))
@@ -105,18 +105,34 @@ namespace ThinktankApp
 
             if (modifierReleased)
             {
-                ExModMode = "";
+                ExMode = "";
             }
         }
 
         public abstract bool InvokeActionOnKey(System.Windows.Input.KeyEventArgs e);
         protected abstract void RebuildCurrentKeyTable();
+        protected string _lastActionId = "";
+
         protected override void UpdateStatusBar()
         {
             if (StatusBar != null)
             {
                 StatusBar.Items.Clear();
-                StatusBar.Items.Add(string.Format("{0} : {1} : {2} : {3}   {4}", _currentPanelName, _currentMode, _currentTool, _currentExModMode, _currentKeyInfo));
+                // Add spacer or use DockPanel in StatusBarItem if alignment needed, but simple string concatenation request.
+                // Assuming "right side" roughly means appended at the end. 
+                // Using a separator for clarity.
+                string statusText = string.Format("{0} : {1} : {2} : {3}   {4}", _currentPanelName, _currentMode, _currentTool, _currentExMode, _currentKeyInfo);
+                
+                // If we want it truly on the right, we might need a Grid or DockPanel in the StatusBar, 
+                // but since StatusBar.Items is a collection, we can add a secondary item or just append text.
+                // Given the existing implementation uses a single formatted string in one item (implied by previous Add call), 
+                // appending effectively puts it to the right of the current text.
+                if (!string.IsNullOrEmpty(_lastActionId))
+                {
+                   statusText += "   [" + _lastActionId + "]";
+                }
+
+                StatusBar.Items.Add(statusText);
             }
         }
     }

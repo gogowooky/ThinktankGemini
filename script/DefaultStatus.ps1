@@ -192,11 +192,18 @@ New-TTState     Application.Window.Title            'ウインドウタイトル
         $global:Models.Status.SetValue('Application.Window.Title', $val)
     }
 }
-New-TTState     Application.Focus.Panel             'フォーカスパネル'              @{ # あとまわし
+New-TTState     Application.Focus.Panel             'フォーカスパネル'              @{
     Default = { 'Desk' }
+    Test    = { Param($id, $val); $val -match '^(Library|Index|Shelf|Desk|System)$' }
     Apply   = { Param( $id, $val )
-        if ( $val -notmatch '^(Library|Index|Shelf|Desk|System)$' ) { 
-            $val = $global:Application.GetFdPanel().Name
+        $global:Application.CurrentPanel = $val
+    }
+    Watch   = {
+        $global:Application.Panels | ForEach-Object {
+            $_.Add_FocusChanged({
+                    Param( $pname, $mode, $tool )
+                    $global:Models.Status.SetValue( 'Application.Focus.Panel', $pname )
+                }.GetNewClosure())
         }
     }
 }
@@ -225,7 +232,7 @@ New-TTState     Application.Current.ExMode          '排他モード'           
     Default = { '' }
     Test    = { Param($id, $val); $val -match '(Ex.+|)' }
     Apply   = { Param($id, $val)
-        $global:Application.ExModMode = $val
+        $global:Application.ExMode = $val
         $global:Models.Status.SetValue( 'Application.Current.ExMode', $val )
     }
 }

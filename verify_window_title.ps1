@@ -37,7 +37,7 @@ $global:Application = [PSCustomObject]@{
         Add_IsVisibleChanged = { }
     }
     SetTitle          = { }
-    SetExModMode      = { }
+    ExMode            = ''
     SetBorderPosition = { }
     GetBorderPosition = { }
     GetFdPanel        = { return [PSCustomObject]@{ Name = 'Desk' } }

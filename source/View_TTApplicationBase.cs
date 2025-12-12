@@ -36,9 +36,11 @@ namespace ThinktankApp
         public string CurrentTool { get { return _currentTool; } }
         protected string _currentTool = "";
         public static TTApplicationBase Current { get; private set; }
+        public bool IsInitializing { get; set; }
 
         public TTApplicationBase(string xamlPath, string stylePath)
         {
+            IsInitializing = true;
             Current = this;
             Panels = new List<TTPanel>();
             PanelMap = new Dictionary<string, TTPanel>();

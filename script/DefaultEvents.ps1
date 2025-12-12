@@ -10,20 +10,20 @@ Add-TTEvent     '*-*-*-*'               'Alt'               L                   
 Add-TTEvent     '*-*-*-*'               'Alt'               I                       Application.Current.ExMode:ExIndex
 Add-TTEvent     '*-*-*-*'               'Alt'               S                       Application.Current.ExMode:ExShelf
 Add-TTEvent     '*-*-*-*'               'Alt'               D                       Application.Current.ExMode:ExDesk
-Add-TTEvent     '*-*-*-*'               'Alt'               ImeProcessed            Application.Current.ExMode:ExSystem          #   @ / `
+Add-TTEvent     '*-*-*-*'               'Alt'               Oem3                    Application.Current.ExMode:ExSystem          #   @ / `
 
 
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         L                       Application.Focus.Panel:Library
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         I                       Application.Focus.Panel:Index
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         S                       Application.Focus.Panel:Shelf
 Add-TTEvent     '*-*-*-*'               'Alt+Shift'         D                       Application.Focus.Panel:Desk
-Add-TTEvent     '*-*-*-*'               'Alt+Shift'         ImeProcessed            Application.Focus.Panel:System              #  @ / `
+Add-TTEvent     '*-*-*-*'               'Alt+Shift'         Oem3                    Application.Focus.Panel:System              #  @ / `
 
 # Add-TTEvent     App             'Alt+Shift'     L                   Application.Focus.Panel:Library
 # ... (Other focus actions need to be defined or mapped)
 #endregion
 
-#region === ExModMode ExApp
+#region === ExMode ExApp
 #region A
 # Add-TTEvent     '*-*-*-ExApp'           'None'          A                   Application.Menu.Visible:toggle
 #endregion
@@ -37,11 +37,11 @@ Add-TTEvent     '*-*-*-ExApp'           'None'              Down                
 #endregion
 #endregion
 
-#region === ExModMode ExPanel
+#region === ExMode ExPanel
 #region Q/E/W
-# Add-TTEvent     '*-*-*-ExPanel'         'None'          Q                   [ExPanel].Current.Mode:Table
-# Add-TTEvent     '*-*-*-ExPanel'         'None'          E                   [ExPanel].Current.Mode:Editor
-# Add-TTEvent     '*-*-*-ExPanel'         'None'          W                   [ExPanel].Current.Mode:WebView
+Add-TTEvent     '*-*-*-ExPanel'         'None'              Q                       [ExPanel].Current.Mode:Table
+Add-TTEvent     '*-*-*-ExPanel'         'None'              E                       [ExPanel].Current.Mode:Editor
+Add-TTEvent     '*-*-*-ExPanel'         'None'              W                       [ExPanel].Current.Mode:WebView
 #endregion
 #endregion
 

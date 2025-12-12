@@ -82,6 +82,19 @@ function Get-TTState ($ID) {
 function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
     if ( $PCName -notin @( $null, $Env:Computername, '*' ) ) { return }
     
+    if ($Context -match 'ExPanel') {
+        'Library', 'Index', 'Shelf', 'Desk', 'System' | ForEach-Object {
+            $pName = $_
+            $exName = "Ex$pName"
+            
+            $realContext = $Context -replace 'ExPanel', $exName
+            $realActionID = $ActionID -replace '\[ExPanel\]', $pName
+            
+            Add-TTEvent $realContext $Mods $Key $realActionID $PCName
+        }
+        return
+    }
+
     if ($Key.Contains(',')) {
         $Key.Split(',') | ForEach-Object { Add-TTEvent $Context $Mods $_.Trim() $ActionID $PCName }
         return

@@ -15,8 +15,8 @@ namespace ThinktankApp
         public ContextMenu Menu { get; private set; }
         public TTModels Models { get; private set; }
 
-        protected string _currentPanelMode = "";
-        protected string _currentPanelTool = "";
+        protected string _currentPanelMode = "Main";
+        protected string _currentPanelTool = "Main";
 
         public virtual void Focus(string mode, string tool) { }
         public virtual void SetMode(string mode) { _currentPanelMode = mode; }

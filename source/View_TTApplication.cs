@@ -192,6 +192,14 @@ namespace ThinktankApp
                     ps.Invoke();
                 }
 
+                IsInitializing = false;
+
+                // Apply initial focus if CurrentPanel was set during initialization
+                if (!string.IsNullOrEmpty(CurrentPanel))
+                {
+                    Focus(CurrentPanel, "", "");
+                }
+
                 // Setup KeyTables after loading all scripts and states
                 SetupKeyTables();
             }
@@ -289,7 +297,7 @@ namespace ThinktankApp
         protected override void RebuildCurrentKeyTable()
         {
             CurrentKeyTable = new Dictionary<int, Dictionary<int, TTAction>>();
-            _currentKeyTableTag = string.Format("{0}-{1}-{2}-{3}", _currentPanelName, _currentMode, _currentTool, _currentExModMode);
+            _currentKeyTableTag = string.Format("{0}-{1}-{2}-{3}", _currentPanelName, _currentMode, _currentTool, _currentExMode);
 
             // Temporary storage for best matches: Modifier -> Key -> ActionMatch
             var bestMatches = new Dictionary<int, Dictionary<int, ActionMatch>>();
@@ -299,7 +307,7 @@ namespace ThinktankApp
                 TTEvent evnt = item as TTEvent;
                 if (evnt == null) continue;
 
-                // Parse Context: Panel-Mode-Tool-ExModMode
+                // Parse Context: Panel-Mode-Tool-ExMode
                 string[] parts = evnt.Context.Split('-');
                 if (parts.Length != 4) continue; 
 
@@ -313,17 +321,17 @@ namespace ThinktankApp
                 if (!MatchContext(pMode, _currentMode)) continue;
                 if (!MatchContext(pTool, _currentTool)) continue;
                 
-                // Strict ExModMode matching:
-                if (!string.IsNullOrEmpty(_currentExModMode))
+                // Strict ExMode matching:
+                if (!string.IsNullOrEmpty(_currentExMode))
                 {
-                     if (!string.Equals(pExMode, _currentExModMode, StringComparison.OrdinalIgnoreCase))
+                     if (!string.Equals(pExMode, _currentExMode, StringComparison.OrdinalIgnoreCase))
                      {
                          continue;
                      }
                 }
                 else
                 {
-                    if (!MatchContext(pExMode, _currentExModMode)) continue;
+                    if (!MatchContext(pExMode, _currentExMode)) continue;
                 }
 
                 // Calculate Score (higher is better)
@@ -349,11 +357,11 @@ namespace ThinktankApp
                     }
                 }
 
-                // Apply ExModMode triggering modifiers if applicable
-                if (!string.IsNullOrEmpty(_currentExModMode) && 
+                // Apply ExMode triggering modifiers if applicable
+                if (!string.IsNullOrEmpty(_currentExMode) && 
                     !string.IsNullOrEmpty(pExMode) && 
                     pExMode != "*" &&
-                    pExMode.Equals(_currentExModMode, StringComparison.OrdinalIgnoreCase))
+                    pExMode.Equals(_currentExMode, StringComparison.OrdinalIgnoreCase))
                 {
                     intm |= (int)_triggeringModifiers;
                 }
@@ -428,6 +436,16 @@ namespace ThinktankApp
             if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Alt) != 0) modStr += "Alt + ";
             if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Windows) != 0) modStr += "Win + ";
             _currentKeyInfo = modStr + keyStr;
+            
+            if (action != null)
+            {
+                _lastActionId = action.ID;
+            }
+            else
+            {
+                _lastActionId = "";
+            }
+
             UpdateStatusBar();
 
             if (action != null)
@@ -440,14 +458,14 @@ namespace ThinktankApp
 
                 bool result = action.Invoke(args, _runspace);
 
-                // If we are in ExModMode, check return value to decide persistence
-                if (!string.IsNullOrEmpty(_currentExModMode))
+                // If we are in ExMode, check return value to decide persistence
+                if (!string.IsNullOrEmpty(_currentExMode))
                 {
                     if (!result)
                     {
-                        ExModMode = "";
+                        ExMode = "";
                     }
-                    return true; // Always handle the key in ExModMode if action matched
+                    return true; // Always handle the key in ExMode if action matched
                 }
 
                 return result;

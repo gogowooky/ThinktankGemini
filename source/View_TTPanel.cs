@@ -70,21 +70,56 @@ namespace ThinktankApp
         {
             if (string.IsNullOrEmpty(tool)) return;
             _currentPanelTool = tool;
+            
+            if (TTApplicationBase.Current != null && TTApplicationBase.Current.IsInitializing) return;
 
-            if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible)
+            if (View != null)
             {
-                if (tool.ToLower() == "keyword" && EditorKeyword != null) EditorKeyword.Focus();
-                else if (tool.ToLower() == "main" && EditorMain != null) EditorMain.Focus();
-            }
-            else if (TablePanel != null && TablePanel.Visibility == Visibility.Visible)
-            {
-                if (tool.ToLower() == "keyword" && TableKeyword != null) TableKeyword.Focus();
-                else if (tool.ToLower() == "main" && TableMain != null) TableMain.Focus();
-            }
-            else if (WebViewPanel != null && WebViewPanel.Visibility == Visibility.Visible)
-            {
-                if (tool.ToLower() == "keyword" && WebViewKeyword != null) WebViewKeyword.Focus();
-                else if (tool.ToLower() == "main" && WebViewMain != null) WebViewMain.Focus();
+                View.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
+                {
+                    bool result = false;
+                    string target = "";
+                    if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible)
+                    {
+                        if (tool.ToLower().EndsWith("keyword") && EditorKeyword != null) 
+                        {
+                            target = "EditorKeyword";
+                            result = EditorKeyword.Focus();
+                        }
+                        else if (tool.ToLower().EndsWith("main") && EditorMain != null) 
+                        {
+                            target = "EditorMain";
+                            result = EditorMain.Focus();
+                        }
+                    }
+                    else if (TablePanel != null && TablePanel.Visibility == Visibility.Visible)
+                    {
+                        if (tool.ToLower().EndsWith("keyword") && TableKeyword != null) 
+                        {
+                            target = "TableKeyword";
+                            result = TableKeyword.Focus();
+                        }
+                        else if (tool.ToLower().EndsWith("main") && TableMain != null) 
+                        {
+                            target = "TableMain";
+                            result = TableMain.Focus();
+                        }
+                    }
+                    else if (WebViewPanel != null && WebViewPanel.Visibility == Visibility.Visible)
+                    {
+                        if (tool.ToLower().EndsWith("keyword") && WebViewKeyword != null) 
+                        {
+                            target = "WebViewKeyword";
+                            result = WebViewKeyword.Focus();
+                        }
+                        else if (tool.ToLower().EndsWith("main") && WebViewMain != null) 
+                        {
+                            target = "WebViewMain";
+                            result = WebViewMain.Focus();
+                        }
+                    }
+                    Console.WriteLine("SetTool Focus Attempt: Panel=" + Name + " Tool=" + tool + " Target=" + target + " Result=" + result);
+                }));
             }
         }
 
