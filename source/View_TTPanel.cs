@@ -84,49 +84,40 @@ namespace ThinktankApp
                 {
                     View.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
                     {
-                        bool result = false;
-                        string target = "";
                         string tool = value; // capture for closure
                         if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible)
                         {
                             if (tool.ToLower().EndsWith("keyword") && EditorKeyword != null) 
                             {
-                                target = "EditorKeyword";
-                                result = EditorKeyword.Focus();
+                                EditorKeyword.Focus();
                             }
                             else if (tool.ToLower().EndsWith("main") && EditorMain != null) 
                             {
-                                target = "EditorMain";
-                                result = EditorMain.Focus();
+                                EditorMain.Focus();
                             }
                         }
                         else if (TablePanel != null && TablePanel.Visibility == Visibility.Visible)
                         {
                             if (tool.ToLower().EndsWith("keyword") && TableKeyword != null) 
                             {
-                                target = "TableKeyword";
-                                result = TableKeyword.Focus();
+                                TableKeyword.Focus();
                             }
                             else if (tool.ToLower().EndsWith("main") && TableMain != null) 
                             {
-                                target = "TableMain";
-                                result = TableMain.Focus();
+                                TableMain.Focus();
                             }
                         }
                         else if (WebViewPanel != null && WebViewPanel.Visibility == Visibility.Visible)
                         {
                             if (tool.ToLower().EndsWith("keyword") && WebViewKeyword != null) 
                             {
-                                target = "WebViewKeyword";
-                                result = WebViewKeyword.Focus();
+                                WebViewKeyword.Focus();
                             }
                             else if (tool.ToLower().EndsWith("main") && WebViewMain != null) 
                             {
-                                target = "WebViewMain";
-                                result = WebViewMain.Focus();
+                                WebViewMain.Focus();
                             }
                         }
-                        Console.WriteLine("SetTool Focus Attempt: Panel=" + Name + " Tool=" + tool + " Target=" + target + " Result=" + result);
                     }));
                 }
             }
