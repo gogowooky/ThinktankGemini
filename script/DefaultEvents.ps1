@@ -32,7 +32,7 @@ Add-TTEvent     'Panel-*-*-*'           'Alt'               W                   
 #endregion
 
 #region C
-Add-TTEvent     'Panel-*-*-*'           'Alt'               C                       [Panel].Keyword.Clear
+Add-TTEvent     'Panel-Mode-*-*'        'Alt'               C                       [Panel].[Mode].Keyword:''
 #endregion
 
 #endregion

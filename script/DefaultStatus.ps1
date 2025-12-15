@@ -344,7 +344,7 @@ New-TTState     [Panels].Current.Mode               '[Panels]のモード'      
     Test    = { Param($id, $val); $val -match '^(Editor|Table|WebView|next|prev)$' }
     Apply   = { Param($id, $val); 
         $p = $id.split('.')[0]
-        $global:Application.PanelMap[$p].SetMode( $val )
+        $global:Application.PanelMap[$p].Mode = $val
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
@@ -389,7 +389,7 @@ New-TTState     [Panels].Current.Tool               '[Panels]のツール'      
     }
     Test    = { Param($id, $val); $val -match '^(Editor|Table|WebView)?(Keyword|Main|toggle)$' }
     Apply   = { Param($id, $val);
-        $p = $id.split('.')[0]; $global:Application.PanelMap[$p].SetTool( $val ) }
+        $p = $id.split('.')[0]; $global:Application.PanelMap[$p].Tool = $val }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
 

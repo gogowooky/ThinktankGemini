@@ -229,23 +229,23 @@ namespace ThinktankApp
                 {
                     case "Library": 
                         Library = panel; 
-                        panel.SetMode("Table");
+                        panel.Mode = "Table";
                         break;
                     case "Index": 
                         Index = panel; 
-                        panel.SetMode("Table");
+                        panel.Mode = "Table";
                         break;
                     case "Shelf": 
                         Shelf = panel; 
-                        panel.SetMode("Table");
+                        panel.Mode = "Table";
                         break;
                     case "Desk": 
                         Desk = panel; 
-                        panel.SetMode("Editor");
+                        panel.Mode = "Editor";
                         break;
                     case "System": 
                         SystemPanel = panel; 
-                        panel.SetMode("WebView");
+                        panel.Mode = "WebView";
                         break;
                 }
 

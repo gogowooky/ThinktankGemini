@@ -30,7 +30,7 @@ namespace ThinktankApp
 
         public void Focus()
         {
-            SetTool("Main");
+            Tool = "Main";
         }
 
         public override void Focus(string mode, string tool)
@@ -38,88 +38,97 @@ namespace ThinktankApp
             string targetMode = string.IsNullOrEmpty(mode) ? _currentPanelMode : mode;
             string targetTool = string.IsNullOrEmpty(tool) ? _currentPanelTool : tool;
 
-            SetMode(targetMode);
-            SetTool(targetTool);
+            Mode = targetMode;
+            Tool = targetTool;
         }
 
-        public override void SetMode(string mode)
+        public override string Mode
         {
-            if (string.IsNullOrEmpty(mode)) return;
-            _currentPanelMode = mode;
-
-            if (EditorPanel != null) EditorPanel.Visibility = Visibility.Collapsed;
-            if (TablePanel != null) TablePanel.Visibility = Visibility.Collapsed;
-            if (WebViewPanel != null) WebViewPanel.Visibility = Visibility.Collapsed;
-
-            switch (mode.ToLower())
+            get { return base.Mode; }
+            set
             {
-                case "editor":
-                    if (EditorPanel != null) EditorPanel.Visibility = Visibility.Visible;
-                    break;
-                case "table":
-                    if (TablePanel != null) TablePanel.Visibility = Visibility.Visible;
-                    break;
-                case "webview":
-                    if (WebViewPanel != null) WebViewPanel.Visibility = Visibility.Visible;
-                    break;
-            }
-            UpdateTitle();
-        }
+                if (string.IsNullOrEmpty(value)) return;
+                base.Mode = value;
 
-        public override void SetTool(string tool)
-        {
-            if (string.IsNullOrEmpty(tool)) return;
-            _currentPanelTool = tool;
-            
-            if (TTApplicationBase.Current != null && TTApplicationBase.Current.IsInitializing) return;
+                if (EditorPanel != null) EditorPanel.Visibility = Visibility.Collapsed;
+                if (TablePanel != null) TablePanel.Visibility = Visibility.Collapsed;
+                if (WebViewPanel != null) WebViewPanel.Visibility = Visibility.Collapsed;
 
-            if (View != null)
-            {
-                View.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
+                switch (value.ToLower())
                 {
-                    bool result = false;
-                    string target = "";
-                    if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible)
+                    case "editor":
+                        if (EditorPanel != null) EditorPanel.Visibility = Visibility.Visible;
+                        break;
+                    case "table":
+                        if (TablePanel != null) TablePanel.Visibility = Visibility.Visible;
+                        break;
+                    case "webview":
+                        if (WebViewPanel != null) WebViewPanel.Visibility = Visibility.Visible;
+                        break;
+                }
+                UpdateTitle();
+            }
+        }
+
+        public override string Tool
+        {
+            get { return base.Tool; }
+            set
+            {
+                if (string.IsNullOrEmpty(value)) return;
+                base.Tool = value;
+                
+                if (TTApplicationBase.Current != null && TTApplicationBase.Current.IsInitializing) return;
+
+                if (View != null)
+                {
+                    View.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
                     {
-                        if (tool.ToLower().EndsWith("keyword") && EditorKeyword != null) 
+                        bool result = false;
+                        string target = "";
+                        string tool = value; // capture for closure
+                        if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible)
                         {
-                            target = "EditorKeyword";
-                            result = EditorKeyword.Focus();
+                            if (tool.ToLower().EndsWith("keyword") && EditorKeyword != null) 
+                            {
+                                target = "EditorKeyword";
+                                result = EditorKeyword.Focus();
+                            }
+                            else if (tool.ToLower().EndsWith("main") && EditorMain != null) 
+                            {
+                                target = "EditorMain";
+                                result = EditorMain.Focus();
+                            }
                         }
-                        else if (tool.ToLower().EndsWith("main") && EditorMain != null) 
+                        else if (TablePanel != null && TablePanel.Visibility == Visibility.Visible)
                         {
-                            target = "EditorMain";
-                            result = EditorMain.Focus();
+                            if (tool.ToLower().EndsWith("keyword") && TableKeyword != null) 
+                            {
+                                target = "TableKeyword";
+                                result = TableKeyword.Focus();
+                            }
+                            else if (tool.ToLower().EndsWith("main") && TableMain != null) 
+                            {
+                                target = "TableMain";
+                                result = TableMain.Focus();
+                            }
                         }
-                    }
-                    else if (TablePanel != null && TablePanel.Visibility == Visibility.Visible)
-                    {
-                        if (tool.ToLower().EndsWith("keyword") && TableKeyword != null) 
+                        else if (WebViewPanel != null && WebViewPanel.Visibility == Visibility.Visible)
                         {
-                            target = "TableKeyword";
-                            result = TableKeyword.Focus();
+                            if (tool.ToLower().EndsWith("keyword") && WebViewKeyword != null) 
+                            {
+                                target = "WebViewKeyword";
+                                result = WebViewKeyword.Focus();
+                            }
+                            else if (tool.ToLower().EndsWith("main") && WebViewMain != null) 
+                            {
+                                target = "WebViewMain";
+                                result = WebViewMain.Focus();
+                            }
                         }
-                        else if (tool.ToLower().EndsWith("main") && TableMain != null) 
-                        {
-                            target = "TableMain";
-                            result = TableMain.Focus();
-                        }
-                    }
-                    else if (WebViewPanel != null && WebViewPanel.Visibility == Visibility.Visible)
-                    {
-                        if (tool.ToLower().EndsWith("keyword") && WebViewKeyword != null) 
-                        {
-                            target = "WebViewKeyword";
-                            result = WebViewKeyword.Focus();
-                        }
-                        else if (tool.ToLower().EndsWith("main") && WebViewMain != null) 
-                        {
-                            target = "WebViewMain";
-                            result = WebViewMain.Focus();
-                        }
-                    }
-                    Console.WriteLine("SetTool Focus Attempt: Panel=" + Name + " Tool=" + tool + " Target=" + target + " Result=" + result);
-                }));
+                        Console.WriteLine("SetTool Focus Attempt: Panel=" + Name + " Tool=" + tool + " Target=" + target + " Result=" + result);
+                    }));
+                }
             }
         }
 
@@ -131,41 +140,61 @@ namespace ThinktankApp
                 return;
             }
 
+            TextEditor editor = null;
             switch (mode.ToLower())
             {
-                case "editor":
-                    if (EditorKeyword != null) EditorKeyword.Text = keyword;
-                    break;
-                case "table":
-                    if (TableKeyword != null) TableKeyword.Text = keyword;
-                    break;
-                case "webview":
-                    try 
+                case "editor": editor = EditorKeyword; break;
+                case "table": editor = TableKeyword; break;
+                case "webview": editor = WebViewKeyword; break;
+            }
+
+            if (editor != null)
+            {
+                var document = editor.Document;
+                bool found = false;
+                foreach (var line in document.Lines)
+                {
+                    if (document.GetText(line) == keyword)
                     {
-                        if (WebViewKeyword != null && WebViewKeyword.Text != keyword) 
-                        {
-                            WebViewKeyword.Text = keyword;
-                        }
+                        editor.CaretOffset = line.Offset;
+                        editor.ScrollToLine(line.LineNumber);
+                        found = true;
+                        break;
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Error setting WebViewKeyword.Text: " + ex.Message);
-                    }
-                    NavigateWebView(keyword);
-                    break;
+                }
+
+                if (!found)
+                {
+                    var currentLine = document.GetLineByOffset(editor.CaretOffset);
+                    int insertOffset = currentLine.EndOffset;
+                    // If not empty document and we are appending, ensure newline
+                    string textToInsert = (document.TextLength > 0 ? "\n" : "") + keyword;
+                    document.Insert(insertOffset, textToInsert);
+                    editor.CaretOffset = insertOffset + textToInsert.Length; 
+                    editor.ScrollToLine(document.GetLineByOffset(editor.CaretOffset).LineNumber);
+                }
+            }
+
+            if (mode.ToLower() == "webview")
+            {
+                NavigateWebView(keyword);
             }
         }
 
         public string GetKeyword(string mode)
         {
+            TextEditor editor = null;
             switch (mode.ToLower())
             {
-                case "editor":
-                    return EditorKeyword != null ? EditorKeyword.Text : "";
-                case "table":
-                    return TableKeyword != null ? TableKeyword.Text : "";
-                case "webview":
-                    return WebViewKeyword != null ? WebViewKeyword.Text : "";
+                case "editor": editor = EditorKeyword; break;
+                case "table": editor = TableKeyword; break;
+                case "webview": editor = WebViewKeyword; break;
+            }
+
+            if (editor != null)
+            {
+                var line = editor.Document.GetLineByOffset(editor.CaretOffset);
+                return editor.Document.GetText(line);
             }
             return "";
         }

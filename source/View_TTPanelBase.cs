@@ -19,12 +19,30 @@ namespace ThinktankApp
         protected string _currentPanelTool = "Main";
 
         public virtual void Focus(string mode, string tool) { }
-        public virtual void SetMode(string mode) { _currentPanelMode = mode; }
-        public virtual void SetTool(string tool) { _currentPanelTool = tool; }
+        
+        public virtual string Mode 
+        { 
+            get { return _currentPanelMode; } 
+            set 
+            { 
+                _currentPanelMode = value; 
+                // Set logic is handled in derived classes if needed via override or additional logic here logic removed for pure property pattern
+            }
+        }
+
+        public virtual string Tool 
+        { 
+            get { return _currentPanelTool; } 
+            set { _currentPanelTool = value; }
+        }
+
+        public string GetTool() { return Tool; }
+
+        public void SetToolOnly(string tool) { _currentPanelTool = tool; }
 
         public string PanelMode
         {
-            get { return _currentPanelMode; }
+            get { return Mode; }
             set
             {
                 if (_isFocused)
@@ -33,18 +51,14 @@ namespace ThinktankApp
                 }
                 else
                 {
-                    SetMode(value);
-                    if (GetMode() != value) // If inherited GetMode logic relies on visibility which SetMode sets, this check ensures consistency, but primarily we just want to ensure mode is set. 
-                    {
-                        // Some basic logic if needed, but SetMode virtual call should handle it.
-                    }
+                    Mode = value;
                 }
             }
         }
 
         public string PanelTool
         {
-            get { return _currentPanelTool; }
+            get { return Tool; }
             set
             {
                 if (_isFocused)
@@ -53,7 +67,7 @@ namespace ThinktankApp
                 }
                 else
                 {
-                    SetTool(value);
+                    Tool = value;
                 }
             }
         }
