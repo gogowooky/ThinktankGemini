@@ -344,7 +344,7 @@ New-TTState     [Panels].Current.Mode               '[Panels]のモード'      
     Test    = { Param($id, $val); $val -match '^(Editor|Table|WebView|next|prev)$' }
     Apply   = { Param($id, $val); 
         $p = $id.split('.')[0]
-        $global:Application.$p.SetMode( $val )
+        $global:Application.PanelMap[$p].SetMode( $val )
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
@@ -389,7 +389,7 @@ New-TTState     [Panels].Current.Tool               '[Panels]のツール'      
     }
     Test    = { Param($id, $val); $val -match '^(Editor|Table|WebView)?(Keyword|Main|toggle)$' }
     Apply   = { Param($id, $val);
-        $p = $id.split('.')[0]; $global:Application.$p.SetTool( $val ) }
+        $p = $id.split('.')[0]; $global:Application.PanelMap[$p].SetTool( $val ) }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
 
@@ -408,7 +408,7 @@ New-TTState     [Panels].Current.Tool               '[Panels]のツール'      
 New-TTState     [Panels].Title.Visible              '[Panels]タイトル表示'          @{
     Default = { 'true' }
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
-    Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.$p.SetTitleVisible( $val ) }
+    Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.PanelMap[$p].SetTitleVisible( $val ) }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
         # $global:Application.PanelMap[$pname].Title.Add_IsVisibleChanged({
@@ -557,7 +557,7 @@ New-TTState     [Panels].Table.Resource             '[Panels]リソース名'   
         }
         $map[ $id.split('.')[0] ]
     }
-    Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.$p.SetTableResource( $val ) }
+    Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.PanelMap[$p].SetTableResource( $val ) }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
         # $global:Application.PanelMap[$pname].TableMain.Add_SourceUpdated({
