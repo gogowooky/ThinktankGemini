@@ -74,7 +74,7 @@ namespace ThinktankApp
                 {
                     var item = obj as TTObject;
                     if (item == null) return false;
-                    if (item is TTAction && ((TTAction)item).IsHidden) return false;
+                    // if (item is TTAction && ((TTAction)item).IsHidden) return false;
                     return true;
                 };
             }
@@ -88,7 +88,7 @@ namespace ThinktankApp
                     if (item == null) return false;
                     
                     // Check IsHidden
-                    if (item is TTAction && ((TTAction)item).IsHidden) return false;
+                    // if (item is TTAction && ((TTAction)item).IsHidden) return false;
 
                     // OR logic: if any group matches, return true
                     foreach (var group in orGroups)

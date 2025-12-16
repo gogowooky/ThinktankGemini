@@ -80,6 +80,7 @@ function Get-TTState ($ID) {
 }
 
 function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
+    # Write-Host "DEBUG: Add-TTEvent Ctx='$Context' Key='$Key' Act='$ActionID'"
     if ( $PCName -notin @( $null, $Env:Computername, '*' ) ) { return }
     
     if ($Context -match 'ExPanel') {

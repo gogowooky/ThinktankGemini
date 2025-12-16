@@ -23,12 +23,6 @@ Add-TTAction    Application.Operation.Quit  '終了' {
 #
 
 #region ::: パネル
-Add-TTAction    Panel.Keyword.Clear             'Keywordクリア' {
-    $panel = [TTExMode]::ExFdPanel()
-    $mode = $panel.GetMode()
-    Apply-TTState "$($panel.Name).$mode.Keyword" ''
-    return $true
-}
 # Add-TTAction    Panel.FontSize.Up               'パネル文字サイズ拡大' {
 #     $pname = [TTExMode]::ExFdPanel()
 #     $state = Get-TTState "$pname.Panel.FontSize"
