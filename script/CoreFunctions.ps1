@@ -107,6 +107,18 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
         return
     }
 
+    if ($Context -match 'Mode') {
+        'Editor', 'Table', 'WebView' | ForEach-Object {
+            $mName = $_
+            
+            $realContext = $Context -replace 'Mode', $mName
+            $realActionID = $ActionID -replace '\[Mode\]', $mName
+            
+            Add-TTEvent $realContext $Mods $Key $realActionID $PCName
+        }
+        return
+    }
+
     if ($Key.Contains(',')) {
         $Key.Split(',') | ForEach-Object { Add-TTEvent $Context $Mods $_.Trim() $ActionID $PCName }
         return
