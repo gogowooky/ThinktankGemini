@@ -99,99 +99,6 @@ New-TTState     Application.Window.State            'ウインドウ状態'     
             })
     }
 }
-New-TTState     Application.Window.Width            'ウインドウ幅'                  @{
-    Default = { '1200' }
-    Test    = { Param($id, $val); $val -match '(\d{1,4}|inc|dec)' }
-    Apply   = { Param($id, $val)
-        switch -regex ($val) {
-            'inc' { $val = $global:Application.Window.Width + 10 }
-            'dec' { $val = $global:Application.Window.Width - 10 }
-        }
-        $global:Application.Window.Width = [int]$val
-    }
-    Watch   = {
-        $global:Application.Window.Add_SizeChanged({
-                Param( $win, $evnt )
-                $global:Models.Status.SetValue( 'Application.Window.Width', $win.Width )
-                $global:Models.Status.SetValue( 'Application.Window.Height', $win.Height )
-            })
-    }
-}
-New-TTState     Application.Window.Height           'ウインドウ高'                  @{
-    Default = { '600' }
-    Test    = { Param($id, $val); $val -match '(\d{1,4}|inc|dec)' }
-    Apply   = { Param($id, $val)
-        switch -regex ($val) {
-            'inc' { $val = $global:Application.Window.Height + 10 }
-            'dec' { $val = $global:Application.Window.Height - 10 }
-        }
-        $global:Application.Window.Height = [int]$val
-    }
-}
-New-TTState     Application.Window.Left             'ウインドウ横位置'              @{
-    Default = { '100' }
-    Test    = { Param($id, $val); $val -match '(\d{1,4}|right|left)' }
-    Apply   = { Param($id, $val)
-        switch -regex ($val) {
-            'right' { $val = $global:Application.Window.Left + 10 }
-            'left' { $val = $global:Application.Window.Left - 10 }
-        }
-        $global:Application.Window.Left = $val
-    }
-    Watch   = {
-        $global:Application.Window.Add_LocationChanged({
-                Param( $win, $evnt )
-                $global:Models.Status.SetValue( 'Application.Window.Top', $win.Top )
-                $global:Models.Status.SetValue( 'Application.Window.Left', $win.Left )
-            })
-    }
-}
-New-TTState     Application.Window.Top              'ウインドウ縦位置'              @{
-    Default = { '50' }
-    Test    = { Param($id, $val); $val -match '(\d{1,4}|down|up)' }
-    Apply   = { Param($id, $val)
-        switch -regex ($val) {
-            'down' { $val = $global:Application.Window.Top + 10 }
-            'up' { $val = $global:Application.Window.Top - 10 }
-        }
-        $global:Application.Window.Top = $val
-    }
-}
-New-TTState     Application.Window.FontSize         'アプリ全体のフォントサイズ'    @{ # Panel対応後に修正
-    # パネルごとのFontSize制御ができてから
-    Default = { 12 }
-    Test    = { Param($id, $val); $val -match '(\d{1,2}|up|down)' }
-    Apply   = { Param($id, $val)
-        switch ( $val ) {
-            'up' { $val = ( $global:Application.Window.FontSize + 1 ) }
-            'down' { $val = ( $global:Application.Window.FontSize - 1 ) }
-        }
-        $global:Application.Window.FontSize = [int]$val
-        $global:Application.Menu.FontSize = [int]$val
-        $global:Models.Status.SetValue( 'Application.Window.FontSize', $val )
-
-        @(  
-            'Library.Panel.FontSize', 
-            'Index.Panel.FontSize', 
-            'Shelf.Panel.FontSize', 
-            'Desk.Panel.FontSize', 
-            'System.Panel.FontSize').foreach{
-            Apply-TTState $_ $val
-        }
-
-    }
-}
-New-TTState     Application.Window.Title            'ウインドウタイトル'            @{
-    Default = { 
-        $name = Get-TTState 'Application.Product.Name'
-        $ver = Get-TTState 'Application.Product.Version'
-        "$name/$ver"
-    }
-    Apply   = { Param($id, $val)
-        $global:Application.Title = $val
-        $global:Models.Status.SetValue('Application.Window.Title', $val)
-    }
-}
 New-TTState     Application.Focus.Panel             'フォーカスパネル'              @{
     Default = { 'Desk' }
     Test    = { Param($id, $val); $val -match '^(Library|Index|Shelf|Desk|System)$' }
@@ -201,31 +108,10 @@ New-TTState     Application.Focus.Panel             'フォーカスパネル'  
     Watch   = {
         $global:Application.Panels | ForEach-Object {
             $_.Add_FocusChanged({
-                    Param( $pname, $mode, $tool )
-                    $global:Models.Status.SetValue( 'Application.Focus.Panel', $pname )
-                }.GetNewClosure())
+                Param( $pname, $mode, $tool )
+                $global:Models.Status.SetValue( 'Application.Focus.Panel', $pname )
+            }.GetNewClosure())
         }
-    }
-}
-New-TTState     Application.Menu.Visible            'メニュー表示'                  @{ # 要否検討
-    Default = { 'true' }
-    Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
-    Apply   = { Param($id, $val)
-        switch ( [string]$val ) {
-            'true' { $global:Application.Menu.Visibility = [Visibility]::Visible }
-            'false' { $global:Application.Menu.Visibility = [Visibility]::Collapsed }
-            default {
-                $vis = ( $global:Application.Menu.Visibility -eq [Visibility]::Visible )
-                $global:Application.Menu.Visibility = @( [Visibility]::Visible, [Visibility]::Collapsed )[ $vis ]
-            }
-        }
-    }
-    Watch   = {
-        $global:Application.Menu.Add_IsVisibleChanged({
-                Param($menu, $evnt)
-                $global:Models.Status.SetValue('Application.Menu.Visible', $menu.IsVisible)
-            })
-        # $global:Application.Menu.Add_IsVisibleChanged({})
     }
 }
 New-TTState     Application.Current.ExMode          '排他モード'                    @{
