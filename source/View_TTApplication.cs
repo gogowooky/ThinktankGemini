@@ -473,5 +473,12 @@ namespace ThinktankApp
 
             return false;
         }
+
+        public bool IsExPanel()
+        {
+            if (string.IsNullOrEmpty(ExMode)) return false;
+            string[] panels = { "Library", "Index", "Shelf", "Desk", "System" };
+            return panels.Contains(ExMode, StringComparer.OrdinalIgnoreCase);
+        }
     }
 }
