@@ -65,7 +65,16 @@ namespace ThinktankApp
         {
             if (TableMain == null || TableMain.ItemsSource == null) return;
 
-            string filterText = TableKeyword != null ? TableKeyword.Text : "";
+            string filterText = "";
+            if (TableKeyword != null)
+            {
+                var doc = TableKeyword.Document;
+                if (doc.TextLength > 0)
+                {
+                    var line = doc.GetLineByOffset(TableKeyword.CaretOffset);
+                    filterText = doc.GetText(line);
+                }
+            }
             System.Windows.Data.CollectionView view = (System.Windows.Data.CollectionView)System.Windows.Data.CollectionViewSource.GetDefaultView(TableMain.ItemsSource);
             
             if (string.IsNullOrWhiteSpace(filterText))

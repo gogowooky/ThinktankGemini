@@ -538,15 +538,21 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
                     if ($_.GetMode() -eq 'Table') { $_.UpdateTableFilter() }
                 }
             }.GetNewClosure())
-        # $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({
-        #         Param( $crt, $evnt ) 
-        #         $pn = $crt.TTPanel.Name
-        #         $global:Models.Status.SetValue( "$pn.Table.Keyword", $crt.TTPanel.GetKeyword('Table') )
-        #         # Register-DelayedRun "$pn.TableKeyword.TextArea.Caret.PositionChanged" 3 {
-        #         $global:Application.$pn.UpdateTableFilter()
-        #         # }.GetNewClosure()
-        #     })
-        $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({})
+        $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({
+                Param( $crt, $evnt ) 
+                $pn = $pname
+                $panel = $global:Application.PanelMap[$pn]
+                $editor = $panel.TableKeyword
+                
+                $global:Models.Status.SetValue( "$pn.Table.Keyword", $panel.GetKeyword('Table') )
+                $panel.UpdateTableFilter()
+
+                $line = $editor.Document.GetLineByOffset($editor.CaretOffset).LineNumber
+                $editor.ScrollToLine($line)
+                if ($line -eq 1) {
+                    $editor.ScrollToVerticalOffset(0)
+                }
+            }.GetNewClosure())
     }
 }
 New-TTState     [Panels].Table.Resource             '[Panels]リソース名'            @{
