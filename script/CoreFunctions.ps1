@@ -80,7 +80,7 @@ function Get-TTState ($ID) {
 }
 
 function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
-    # Write-Host "DEBUG: Add-TTEvent Ctx='$Context' Key='$Key' Act='$ActionID'"
+    "Add-TTEvent Ctx='$Context' Key='$Key' Act='$ActionID'" | Out-File -FilePath "debug_events.log" -Append -Encoding utf8
     if ( $PCName -notin @( $null, $Env:Computername, '*' ) ) { return }
     
     if ($Context -match 'ExPanel') {
@@ -125,7 +125,7 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
         return
     }
 
-    if ($ActionID -match '^(.+):(.+)$') {
+    if ($ActionID -match '^(.+):(.*)$') {
         $stateID = $matches[1]
         $stateValue = $matches[2]
         
