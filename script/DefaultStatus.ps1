@@ -324,48 +324,30 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].EditorKeyword.Add_TextChanged({
-                Param($kwd, $evnt)
-                # $pn = $kwd.TTPanel.Name
-                # $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
-                # # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
-                # $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
-                # $global:Application.$pn.UpdateHighlight()
-                # }.GetNewClosure()
-            })
-        $global:Application.PanelMap[$pname].EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
-                param($tv, $e)
-                # $edit = $tv.EditorComponent
-                # $currentVerticalOffset = $tv.VerticalOffset
-                # $isCaretAtFirstLine = $edit.Document.GetLineByOffset( $edit.CaretOffset ).LineNumber -eq 1
+        $panel = $global:Application.PanelMap[$pname]
 
-                # $halfLineHeight = $tv.DefaultLineHeight / 2
-
-                # $scrollDifference = [Math]::Abs($currentVerticalOffset - $global:previousVerticalOffset)
-
-                # if (    $isCaretAtFirstLine -and
-                #     $currentVerticalOffset -ne 0 -and
-                #     $scrollDifference -ge ($halfLineHeight - 0.1) -and
-                #     $scrollDifference -le ($halfLineHeight + 0.1) ) {
-                #     $edit.ScrollToVerticalOffset(0)
-                # }
-
-                # $global:previousVerticalOffset = $currentVerticalOffset
-            })
-        $global:Application.PanelMap[$pname].EditorKeyword.TextArea.Caret.Add_PositionChanged({
-                Param( $crt, $evnt ) 
-                # $crt.TTPanel.CenterKeywordCaret()
-                # $pn = $crt.TTPanel.Name
-                # $global:Models.Status.SetValue( "$pn.Editor.Keyword", $crt.TTPanel.GetKeyword('Editor') )
- 
-                # $crt.TTPanel.UpdateKeywordRegex()
-                # $crt.TTPanel.UpdateHighlight()
-
-                # Register-DelayedRun "$pn.EditorKeyword.TextArea.Caret.PositionChanged" 2 {
-                #     $global:Application.$script:pn.UpdateKeywordRegex()
-                #     $global:Application.$script:pn.UpdateHighlight()
-                # }.GetNewClosure()
-            })
+        if ($panel.EditorKeyword -ne $null) {
+            $panel.EditorKeyword.Add_TextChanged({
+                    Param($kwd, $evnt)
+                    # $pn = $kwd.TTPanel.Name
+                    # $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
+                    # # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
+                    # $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
+                    # $global:Application.$pn.UpdateHighlight()
+                    # }.GetNewClosure()
+                })
+            # Check for TextArea/TextView existence if needed, but EditorKeyword usually has them
+            if ($panel.EditorKeyword.TextArea -ne $null) {
+                $panel.EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
+                        param($tv, $e)
+                        # ...
+                    })
+                $panel.EditorKeyword.TextArea.Caret.Add_PositionChanged({
+                        Param( $crt, $evnt ) 
+                        # ...
+                    })
+            }
+        }
     }
 }
 New-TTState     [Panels].Editor.Memo                '[Panels]メモID'                @{
@@ -379,11 +361,15 @@ New-TTState     [Panels].Editor.Memo                '[Panels]メモID'          
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].EditorMain.Add_DocumentChanged({
-                Param($edt, $evnt)
-                $pname = $edt.TTPanel.Name
-                $global:Models.Status.SetValue( "$pname.Editor.Memo", $edt.TTPanel.MemoID )
-            })
+        $panel = $global:Application.PanelMap[$pname]
+        
+        if ($panel.EditorMain -ne $null) {
+            $panel.EditorMain.Add_DocumentChanged({
+                    Param($edt, $evnt)
+                    $pname = $edt.TTPanel.Name
+                    $global:Models.Status.SetValue( "$pname.Editor.Memo", $edt.TTPanel.MemoID )
+                })
+        }
     }
 }
 New-TTState     [Panels].Editor.Wordwrap            '[Panels]メモWordwrap'          @{
@@ -416,29 +402,33 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].TableKeyword.Add_TextChanged({
-                Param($kwd, $evnt)
-                $pn = $pname
-                $global:Models.Status.SetValue( "$pn.Table.Keyword", $global:Application.PanelMap[$pn].GetKeyword('Table') )
-                $global:Application.Panels | ForEach-Object {
-                    if ($_.GetMode() -eq 'Table') { $_.UpdateTableFilter() }
-                }
-            }.GetNewClosure())
-        $global:Application.PanelMap[$pname].TableKeyword.TextArea.Caret.Add_PositionChanged({
-                Param( $crt, $evnt ) 
-                $pn = $pname
-                $panel = $global:Application.PanelMap[$pn]
-                $editor = $panel.TableKeyword
-                
-                $global:Models.Status.SetValue( "$pn.Table.Keyword", $panel.GetKeyword('Table') )
-                $panel.UpdateTableFilter()
+        $panel = $global:Application.PanelMap[$pname]
 
-                $line = $editor.Document.GetLineByOffset($editor.CaretOffset).LineNumber
-                $editor.ScrollToLine($line)
-                if ($line -eq 1) {
-                    $editor.ScrollToVerticalOffset(0)
-                }
-            }.GetNewClosure())
+        if ($panel.TableKeyword -ne $null) {
+            $panel.TableKeyword.Add_TextChanged({
+                    Param($kwd, $evnt)
+                    $pn = $pname
+                    $global:Models.Status.SetValue( "$pn.Table.Keyword", $global:Application.PanelMap[$pn].GetKeyword('Table') )
+                    $global:Application.Panels | ForEach-Object {
+                        if ($_.GetMode() -eq 'Table') { $_.UpdateTableFilter() }
+                    }
+                }.GetNewClosure())
+            $panel.TableKeyword.TextArea.Caret.Add_PositionChanged({
+                    Param( $crt, $evnt ) 
+                    $pn = $pname
+                    $panel = $global:Application.PanelMap[$pn]
+                    $editor = $panel.TableKeyword
+                    
+                    $global:Models.Status.SetValue( "$pn.Table.Keyword", $panel.GetKeyword('Table') )
+                    $panel.UpdateTableFilter()
+
+                    $line = $editor.Document.GetLineByOffset($editor.CaretOffset).LineNumber
+                    $editor.ScrollToLine($line)
+                    if ($line -eq 1) {
+                        $editor.ScrollToVerticalOffset(0)
+                    }
+                }.GetNewClosure())
+        }
     }
 }
 New-TTState     [Panels].Table.Resource             '[Panels]リソース名'            @{
@@ -451,12 +441,16 @@ New-TTState     [Panels].Table.Resource             '[Panels]リソース名'   
     Apply   = { Param($id, $val); $p = $id.split('.')[0]; $global:Application.PanelMap[$p].SetTableResource( $val ) }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        # $global:Application.PanelMap[$pname].TableMain.Add_SourceUpdated({
-        #         Param($tbl, $evnt)
-        #         $pname = $tbl.TTPanel.Name
-        #         $global:Models.Status.SetValue( "$pname.Table.Resource", $tbl.TTPanel.TableResource )
-        #     })
-        $global:Application.PanelMap[$pname].TableMain.Add_SourceUpdated({})
+        $panel = $global:Application.PanelMap[$pname]
+        
+        if ($panel.TableMain -ne $null) {
+            # $panel.TableMain.Add_SourceUpdated({
+            #         Param($tbl, $evnt)
+            #         $pname = $tbl.TTPanel.Name
+            #         $global:Models.Status.SetValue( "$pname.Table.Resource", $tbl.TTPanel.TableResource )
+            #     })
+            $panel.TableMain.Add_SourceUpdated({})
+        }
     }
 }
 New-TTState     [Panels].Table.Sort                 '[Panels]ソート'                @{
@@ -478,14 +472,18 @@ New-TTState     [Panels].Table.Sort                 '[Panels]ソート'         
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        # $global:Application.PanelMap[$pname].TableMain.Add_Sorting({
-        #         Param($tbl, $evnt)
-        #         $pname = $tbl.TTPanel.Name
-        #         $sort = [System.Windows.Data.CollectionViewSource]::GetDefaultView( $tbl.ItemsSource ).SortDescriptions[0]
-        #         $sortval = ('{0}|{1}' -f $sort.PropertyName, $sort.Direction)
-        #         $global:Models.Status.SetValue( "$pname.Table.Sort", $sortval )
-        #     })
-        $global:Application.PanelMap[$pname].TableMain.Add_Sorting({})
+        $panel = $global:Application.PanelMap[$pname]
+        
+        if ($panel.TableMain -ne $null) {
+            # $panel.TableMain.Add_Sorting({
+            #         Param($tbl, $evnt)
+            #         $pname = $tbl.TTPanel.Name
+            #         $sort = [System.Windows.Data.CollectionViewSource]::GetDefaultView( $tbl.ItemsSource ).SortDescriptions[0]
+            #         $sortval = ('{0}|{1}' -f $sort.PropertyName, $sort.Direction)
+            #         $global:Models.Status.SetValue( "$pname.Table.Sort", $sortval )
+            #     })
+            $panel.TableMain.Add_Sorting({})
+        }
     }
 }
 #endregion
@@ -507,24 +505,30 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
     }
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
-        # $global:Application.PanelMap[$pname].WebViewKeyword.Add_TextChanged({
-        #         Param($kwd, $evnt)
-        #         $panel = $kwd.TTPanel
-        #         $pn = $panel.Name
-        #         $md = $panel.GetMode()
-        #         $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
-        #         # $panel.UpdateMarker('WebView')
-        #     })
-        $global:Application.PanelMap[$pname].WebViewKeyword.Add_TextChanged({})
-        # $global:Application.PanelMap[$pname].WebViewKeyword.TextArea.Caret.Add_PositionChanged({
-        #         Param($kwd, $evnt)
-        #         $panel = $kwd.TTPanel
-        #         $pn = $panel.Name
-        #         $md = $panel.GetMode()
-        #         $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
-        #         # $panel.UpdateMarker('WebView')
-        #     })
-        $global:Application.PanelMap[$pname].WebViewKeyword.TextArea.Caret.Add_PositionChanged({})
+        $panel = $global:Application.PanelMap[$pname]
+        
+        if ($panel.WebViewKeyword -ne $null) {
+            # $panel.WebViewKeyword.Add_TextChanged({
+            #         Param($kwd, $evnt)
+            #         $panel = $kwd.TTPanel
+            #         $pn = $panel.Name
+            #         $md = $panel.GetMode()
+            #         $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+            #         # $panel.UpdateMarker('WebView')
+            #     })
+            $panel.WebViewKeyword.Add_TextChanged({})
+            # $panel.WebViewKeyword.TextArea.Caret.Add_PositionChanged({
+            #         Param($kwd, $evnt)
+            #         $panel = $kwd.TTPanel
+            #         $pn = $panel.Name
+            #         $md = $panel.GetMode()
+            #         $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+            #         # $panel.UpdateMarker('WebView')
+            #     })
+            if ($panel.WebViewKeyword.TextArea -ne $null -and $panel.WebViewKeyword.TextArea.Caret -ne $null) {
+                $panel.WebViewKeyword.TextArea.Caret.Add_PositionChanged({})
+            }
+        }
     }
 }
 #endregion
