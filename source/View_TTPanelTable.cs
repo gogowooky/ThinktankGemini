@@ -44,7 +44,6 @@ namespace ThinktankApp
             }
         }
 
-
         public void UpdateTableFilter()
         {
             if (TableMain == null || TableMain.ItemsSource == null) return;
@@ -150,8 +149,6 @@ namespace ThinktankApp
                 TableKeyword.TextChanged += (s, e) => UpdateTableFilter();
             }
         }
-
-
 
         public override void SetFontSize(string size)
         {

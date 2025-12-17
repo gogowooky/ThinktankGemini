@@ -9,15 +9,13 @@ using Microsoft.Web.WebView2.Core;
 
 namespace ThinktankApp
 {
-    public class TTPanelWebView : TTPanelTable
+    public class TTPanelWebViewBase : TTPanelTable
     {
         public DockPanel WebViewPanel { get; private set; }
         public TextEditor WebViewKeyword { get; private set; }
         public WebView2 WebViewMain { get; private set; }
-        
-        private string _pendingUrl = "";
 
-        public TTPanelWebView(string name, string xamlPath, string stylePath, TTModels models) 
+        public TTPanelWebViewBase(string name, string xamlPath, string stylePath, TTModels models) 
             : base(name, xamlPath, stylePath, models)
         {
         }
@@ -40,6 +38,35 @@ namespace ThinktankApp
             if (WebViewMain != null) 
             {
                 WebViewMain.GotFocus += (s, e) => OnFocusChanged("WebView", "Main");
+            }
+            if (WebViewKeyword != null) 
+            {
+                WebViewKeyword.GotFocus += (s, e) => OnFocusChanged("WebView", "Keyword");
+            }
+        }
+
+        public override string GetMode()
+        {
+            if (WebViewPanel != null && WebViewPanel.Visibility == Visibility.Visible) return "WebView";
+            return base.GetMode();
+        }
+    }
+
+    public class TTPanelWebView : TTPanelWebViewBase
+    {
+        private string _pendingUrl = "";
+
+        public TTPanelWebView(string name, string xamlPath, string stylePath, TTModels models) 
+            : base(name, xamlPath, stylePath, models)
+        {
+        }
+
+        public override void Setup()
+        {
+            base.Setup();
+
+            if (WebViewMain != null) 
+            {
                 WebViewMain.CoreWebView2InitializationCompleted += (s, e) =>
                 {
                     if (!e.IsSuccess)
@@ -69,7 +96,6 @@ namespace ThinktankApp
             }
             if (WebViewKeyword != null) 
             {
-                WebViewKeyword.GotFocus += (s, e) => OnFocusChanged("WebView", "Keyword");
                 WebViewKeyword.PreviewKeyDown += (s, e) => 
                 {
                     if (e.Key == Key.Enter)
@@ -113,12 +139,6 @@ namespace ThinktankApp
                     Console.WriteLine("Error navigating WebView: " + ex.Message);
                 }
             }
-        }
-
-        public override string GetMode()
-        {
-            if (WebViewPanel != null && WebViewPanel.Visibility == Visibility.Visible) return "WebView";
-            return base.GetMode();
         }
     }
 }

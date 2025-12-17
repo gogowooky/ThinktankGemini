@@ -6,13 +6,13 @@ using ICSharpCode.AvalonEdit;
 
 namespace ThinktankApp
 {
-    public class TTPanelEditor : TTPanelBase
+    public class TTPanelEditorBase : TTPanelBase
     {
         public DockPanel EditorPanel { get; private set; }
         public TextEditor EditorKeyword { get; private set; }
         public TextEditor EditorMain { get; private set; }
 
-        public TTPanelEditor(string name, string xamlPath, string stylePath, TTModels models) 
+        public TTPanelEditorBase(string name, string xamlPath, string stylePath, TTModels models) 
             : base(name, xamlPath, stylePath, models)
         {
         }
@@ -34,11 +34,38 @@ namespace ThinktankApp
 
             if (EditorMain != null)
             {
+                EditorMain.GotFocus += (s, e) => OnFocusChanged("Editor", "Main");
+            }
+            if (EditorKeyword != null)
+            {
+                EditorKeyword.GotFocus += (s, e) => OnFocusChanged("Editor", "Keyword");
+            }
+        }
+
+        public override string GetMode()
+        {
+            if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible) return "Editor";
+            return base.GetMode();
+        }
+    }
+
+    public class TTPanelEditor : TTPanelEditorBase
+    {
+        public TTPanelEditor(string name, string xamlPath, string stylePath, TTModels models) 
+            : base(name, xamlPath, stylePath, models)
+        {
+        }
+
+        public override void Setup()
+        {
+            base.Setup();
+
+            if (EditorMain != null)
+            {
                 EditorMain.ShowLineNumbers = true;
                 EditorMain.WordWrap = true;
                 EditorMain.FontFamily = new System.Windows.Media.FontFamily("Meiryo");
                 EditorMain.FontSize = 12;
-                EditorMain.GotFocus += (s, e) => OnFocusChanged("Editor", "Main");
             }
 
             if (EditorKeyword != null)
@@ -47,7 +74,6 @@ namespace ThinktankApp
                 EditorKeyword.WordWrap = false;
                 EditorKeyword.FontFamily = new System.Windows.Media.FontFamily("Meiryo");
                 EditorKeyword.FontSize = 12;
-                EditorKeyword.GotFocus += (s, e) => OnFocusChanged("Editor", "Keyword");
             }
         }
 
@@ -58,12 +84,6 @@ namespace ThinktankApp
             {
                 if (EditorMain != null) EditorMain.FontSize = fontSize;
             }
-        }
-
-        public override string GetMode()
-        {
-            if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible) return "Editor";
-            return base.GetMode();
         }
     }
 }
