@@ -108,16 +108,21 @@ namespace ThinktankApp
         public void UpdateHighlightRule()
         {
             string scriptPath = "";
-            try {
-                var loc = Models.GetType().Assembly.Location;
-                if (!string.IsNullOrEmpty(loc)) scriptPath = Path.Combine(Path.GetDirectoryName(loc), "..", "script");
-            } catch {}
-             // Try to find script path better if possible, but assuming standard layout:
-             var appRes = TTApplication.Current as TTApplicationResource;
-             if (appRes != null)
-             {
-                 scriptPath = Path.Combine(appRes.BaseDir, "script");
-             }
+            
+            // Should be available via TTApplicationResource
+            var appRes = TTApplication.Current as TTApplicationResource;
+            if (appRes != null)
+            {
+                scriptPath = appRes.ScriptPath;
+            }
+            else
+            {
+                // Fallback (e.g. design time or unit test if mocked)
+                try {
+                     var loc = Models.GetType().Assembly.Location;
+                     if (!string.IsNullOrEmpty(loc)) scriptPath = Path.Combine(Path.GetDirectoryName(loc), "..", "script");
+                } catch { }
+            }
 
             if (EditorMain != null)
             {

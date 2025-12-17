@@ -53,12 +53,14 @@ namespace ThinktankApp
             }
         }
 
+        public string ScriptPath { get; private set; }
         public string PCName { get; private set; }
         public string UserName { get; private set; }
 
         public TTApplicationResource(string xamlPath, string stylePath, string scriptDir)
             : base(xamlPath, stylePath)
         {
+            ScriptPath = scriptDir;
             BaseDir = Path.GetDirectoryName(scriptDir);
             MemoDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Memo"));
             LinkDir = Path.GetFullPath(Path.Combine(BaseDir, "..", "Link"));
