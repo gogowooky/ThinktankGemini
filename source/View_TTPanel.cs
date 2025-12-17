@@ -199,5 +199,9 @@ namespace ThinktankApp
             if (TableKeyword != null) TableKeyword.Visibility = v;
             if (WebViewKeyword != null) WebViewKeyword.Visibility = v;
         }
+
+        public void UpdateKeywordRegex() { }
+        public void UpdateHighlight() { }
+        public void CenterKeywordCaret() { }
     }
 }

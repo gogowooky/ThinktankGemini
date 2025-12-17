@@ -108,9 +108,9 @@ New-TTState     Application.Focus.Panel             'フォーカスパネル'  
     Watch   = {
         $global:Application.Panels | ForEach-Object {
             $_.Add_FocusChanged({
-                Param( $pname, $mode, $tool )
-                $global:Models.Status.SetValue( 'Application.Focus.Panel', $pname )
-            }.GetNewClosure())
+                    Param( $pname, $mode, $tool )
+                    $global:Models.Status.SetValue( 'Application.Focus.Panel', $pname )
+                }.GetNewClosure())
         }
     }
 }
@@ -326,40 +326,40 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
         $pname = $id.split('.')[0]
         $global:Application.PanelMap[$pname].EditorKeyword.Add_TextChanged({
                 Param($kwd, $evnt)
-                $pn = $kwd.TTPanel.Name
-                $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
-                # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
-                $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
-                $global:Application.$pn.UpdateHighlight()
+                # $pn = $kwd.TTPanel.Name
+                # $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
+                # # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
+                # $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
+                # $global:Application.$pn.UpdateHighlight()
                 # }.GetNewClosure()
             })
         $global:Application.PanelMap[$pname].EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
                 param($tv, $e)
-                $edit = $tv.EditorComponent
-                $currentVerticalOffset = $tv.VerticalOffset
-                $isCaretAtFirstLine = $edit.Document.GetLineByOffset( $edit.CaretOffset ).LineNumber -eq 1
+                # $edit = $tv.EditorComponent
+                # $currentVerticalOffset = $tv.VerticalOffset
+                # $isCaretAtFirstLine = $edit.Document.GetLineByOffset( $edit.CaretOffset ).LineNumber -eq 1
 
-                $halfLineHeight = $tv.DefaultLineHeight / 2
+                # $halfLineHeight = $tv.DefaultLineHeight / 2
 
-                $scrollDifference = [Math]::Abs($currentVerticalOffset - $global:previousVerticalOffset)
+                # $scrollDifference = [Math]::Abs($currentVerticalOffset - $global:previousVerticalOffset)
 
-                if (    $isCaretAtFirstLine -and
-                    $currentVerticalOffset -ne 0 -and
-                    $scrollDifference -ge ($halfLineHeight - 0.1) -and
-                    $scrollDifference -le ($halfLineHeight + 0.1) ) {
-                    $edit.ScrollToVerticalOffset(0)
-                }
+                # if (    $isCaretAtFirstLine -and
+                #     $currentVerticalOffset -ne 0 -and
+                #     $scrollDifference -ge ($halfLineHeight - 0.1) -and
+                #     $scrollDifference -le ($halfLineHeight + 0.1) ) {
+                #     $edit.ScrollToVerticalOffset(0)
+                # }
 
-                $global:previousVerticalOffset = $currentVerticalOffset
+                # $global:previousVerticalOffset = $currentVerticalOffset
             })
         $global:Application.PanelMap[$pname].EditorKeyword.TextArea.Caret.Add_PositionChanged({
                 Param( $crt, $evnt ) 
-                $crt.TTPanel.CenterKeywordCaret()
-                $pn = $crt.TTPanel.Name
-                $global:Models.Status.SetValue( "$pn.Editor.Keyword", $crt.TTPanel.GetKeyword('Editor') )
+                # $crt.TTPanel.CenterKeywordCaret()
+                # $pn = $crt.TTPanel.Name
+                # $global:Models.Status.SetValue( "$pn.Editor.Keyword", $crt.TTPanel.GetKeyword('Editor') )
  
-                $crt.TTPanel.UpdateKeywordRegex()
-                $crt.TTPanel.UpdateHighlight()
+                # $crt.TTPanel.UpdateKeywordRegex()
+                # $crt.TTPanel.UpdateHighlight()
 
                 # Register-DelayedRun "$pn.EditorKeyword.TextArea.Caret.PositionChanged" 2 {
                 #     $global:Application.$script:pn.UpdateKeywordRegex()

@@ -24,16 +24,17 @@ Add-TTEvent     'Panel-*-*-*'           'Alt'               E                   
 Add-TTEvent     'Panel-*-*-*'           'Alt'               W                       [Panel].Current.Mode:WebView
 #endregion
 
+#endregion
+
+#region === Keyword
+
 #region C
-# Add-TTEvent     'Panel-Mode-*-*'        'Alt'               C                       [Panel].[Mode].Keyword:
-Add-TTEvent     '*-*-*-ExPanel'         'Alt'               C                       ExFdPanel.Keyword.Clear
-Add-TTEvent     '*-*-*-*'               'Alt'               C                       ExFdPanel.Keyword.Clear
+Add-TTEvent     '*-*-Keyword-*'         'Alt'               C                       ExFdPanel.Keyword.Clear
 #endregion
 
 #endregion
 
-
-#region === ExMode ExApp
+#region === ExApp
 
 #region Q
 Add-TTEvent     '*-*-*-ExApp'           'None'              Q                       Application.Operation.Quit
@@ -48,17 +49,16 @@ Add-TTEvent     '*-*-*-ExApp'           'None'              Down                
 
 #endregion
 
-#region === ExMode ExPanel
+#region === ExPanel
 #region Q/E/W
 Add-TTEvent     '*-*-*-ExPanel'         'None'              Q                       [ExPanel].Current.Mode:Table
 Add-TTEvent     '*-*-*-ExPanel'         'None'              E                       [ExPanel].Current.Mode:Editor
 Add-TTEvent     '*-*-*-ExPanel'         'None'              W                       [ExPanel].Current.Mode:WebView
 #endregion
 
+#region C
+Add-TTEvent     '*-*-*-ExPanel'         'Alt'               C                       ExFdPanel.Keyword.Clear
 #endregion
 
-#region === 日付入力
-# Add-TTEvent  '*-Editor-*-*'           'Alt'               T               Date.Insert.Date
-# Add-TTEvent  '*-*-*-ExDate'           'None'              Y               ExDate.Advance.Year
-# ...
 #endregion
+
