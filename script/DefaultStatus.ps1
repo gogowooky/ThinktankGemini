@@ -3,6 +3,11 @@
 
 
 
+
+Update-TypeData -TypeName System.Windows.FrameworkElement -MemberType ScriptProperty -MemberName TTPanel -Value {
+    return [ThinktankApp.TTPanel]::GetTTPanel($this)
+} -Force
+
 #region Application.Product.*
 New-TTState     Application.Product.Name            'アプリ名'                      'Thinktank'
 New-TTState     Application.Product.Author          '制作者'                        'Shinichiro Egashira'
@@ -80,6 +85,10 @@ New-TTState     Application.System.ChatPath         'チャットディレクト
 }
 #endregion  
 #region Application.Window.*
+New-TTState     Application.Window.Title            'ウインドウタイトル'            @{
+    Default = { $global:Application.Title }
+    Apply   = { Param($id, $val); $global:Application.Title = $val }
+}
 New-TTState     Application.Window.Screen           'ウインドウ表示スクリーン'      @{
     Default = { '0' }
     Test    = { Param($id, $val); $val -match '([0-9]|next|prev)' }
@@ -218,6 +227,8 @@ New-TTState     Application.Border.UserSystem       'UserSystem境界位置'    
         $app.SystemGrid.Add_SizeChanged({})
     }
 }
+
+
 #endregion
 #region [Panels].Current.*
 New-TTState     [Panels].Current.Mode               '[Panels]のモード'              @{
@@ -235,17 +246,16 @@ New-TTState     [Panels].Current.Mode               '[Panels]のモード'      
     Watch   = { Param($id)
         $pname = $id.split('.')[0]
         $global:Application.PanelMap[$pname].Tools.foreach{
-            # $_.Add_IsVisibleChanged({ #::: Visibility変更時　Focusではない
-            #         Param($ctrl, $evnt)
-            #         if ( $ctrl.IsVisible ) {
-            #             $panel = $ctrl.TTPanel
-            #             $pname = $panel.Name
-            #             $mname = $ctrl.Name -replace '(Editor|Table|WebView)(Keyword|Main)', '$1'
-            #             $panel.CurrentTool = $panel."CurrentTool$mname"
-            #             $global:Models.Status.SetValue( "$pname.Current.Mode", $mname )
-            #         }
-            #     })
-            $_.Add_IsVisibleChanged({})
+            $_.Add_IsVisibleChanged({ 
+                    Param($ctrl, $evnt)
+                    if ( $ctrl.IsVisible ) {
+                        $panel = $ctrl.TTPanel
+                        $pname = $panel.Name
+                        $mname = $ctrl.Name -replace '(Editor|Table|WebView)(Keyword|Main)', '$1'
+                        $panel.CurrentTool = $panel."CurrentTool$mname"
+                        $global:Models.Status.SetValue( "$pname.Current.Mode", $mname )
+                    }
+                })
         }
     }
 }

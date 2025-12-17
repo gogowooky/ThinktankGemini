@@ -23,6 +23,19 @@ namespace ThinktankApp
         {
         }
 
+        public static readonly DependencyProperty TTPanelProperty =
+            DependencyProperty.RegisterAttached("TTPanel", typeof(TTPanel), typeof(TTPanel), new PropertyMetadata(null));
+
+        public static void SetTTPanel(UIElement element, TTPanel value)
+        {
+            element.SetValue(TTPanelProperty, value);
+        }
+
+        public static TTPanel GetTTPanel(UIElement element)
+        {
+            return (TTPanel)element.GetValue(TTPanelProperty);
+        }
+
         protected override void OnKeywordEnter(string mode, string text)
         {
             SetKeyword(mode, text);

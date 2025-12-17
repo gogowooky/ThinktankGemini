@@ -34,6 +34,10 @@ namespace ThinktankApp
                 EditorPanel = (DockPanel)View.FindName("EditorPanel");
                 EditorKeyword = (TextEditor)View.FindName("EditorKeyword");
                 EditorMain = (TextEditor)View.FindName("EditorMain");
+                
+                if (EditorPanel != null) TTPanel.SetTTPanel(EditorPanel, (TTPanel)this);
+                if (EditorKeyword != null) TTPanel.SetTTPanel(EditorKeyword, (TTPanel)this);
+                if (EditorMain != null) TTPanel.SetTTPanel(EditorMain, (TTPanel)this);
             }
         }
 

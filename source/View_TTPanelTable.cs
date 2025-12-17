@@ -27,6 +27,10 @@ namespace ThinktankApp
                 TablePanel = (DockPanel)View.FindName("TablePanel");
                 TableKeyword = (TextEditor)View.FindName("TableKeyword");
                 TableMain = (DataGrid)View.FindName("TableMain");
+                
+                if (TablePanel != null) TTPanel.SetTTPanel(TablePanel, (TTPanel)this);
+                if (TableKeyword != null) TTPanel.SetTTPanel(TableKeyword, (TTPanel)this);
+                if (TableMain != null) TTPanel.SetTTPanel(TableMain, (TTPanel)this);
             }
         }
 

@@ -28,6 +28,10 @@ namespace ThinktankApp
                 WebViewPanel = (DockPanel)View.FindName("WebViewPanel");
                 WebViewKeyword = (TextEditor)View.FindName("WebViewKeyword");
                 WebViewMain = (WebView2)View.FindName("WebViewMain");
+                
+                if (WebViewPanel != null) TTPanel.SetTTPanel(WebViewPanel, (TTPanel)this);
+                if (WebViewKeyword != null) TTPanel.SetTTPanel(WebViewKeyword, (TTPanel)this);
+                if (WebViewMain != null) TTPanel.SetTTPanel(WebViewMain, (TTPanel)this);
             }
         }
 
