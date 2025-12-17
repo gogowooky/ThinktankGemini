@@ -24,27 +24,6 @@ Add-TTAction    ExFdPanel.Keyword.Clear         'ExFdPanelのKeywordクリア' {
 #endregion
 
 
-#
-# TTStateを変更すると、ViewにApplyして、そのイベントで TTState.Valueが更新されるように修正した後に、以下に取り組めるようになる。
-#
-
-#region ::: パネル
-# Add-TTAction    Panel.FontSize.Up               'パネル文字サイズ拡大' {
-#     $pname = [TTExMode]::ExFdPanel()
-#     $state = Get-TTState "$pname.Panel.FontSize"
-#     if ( [int]$state -lt 20 ) { $state = [int]$state + 1 }
-#     Apply-TTState "$pname.Panel.FontSize" $state
-#     return $true
-# }
-# Add-TTAction    Panel.FontSize.Down             'パネル文字サイズ縮小' {
-#     $pname = [TTExMode]::ExFdPanel()
-#     $state = Get-TTState "$pname.Panel.FontSize"
-#     if ( 7 -lt [int]$state ) { $state = [int]$state - 1 }
-#     Apply-TTState "$pname.Panel.FontSize" $state
-
-#     return $true
-# }
-#endregion
 
 
 
@@ -2004,4 +1983,20 @@ Add-TTAction    ExFdPanel.Keyword.Clear         'ExFdPanelのKeywordクリア' {
 # #endregion
 
 
+# あとまわし
 
+# Add-TTAction    Panel.FontSize.Up               'パネル文字サイズ拡大' {
+#     $pname = [TTExMode]::ExFdPanel()
+#     $state = Get-TTState "$pname.Panel.FontSize"
+#     if ( [int]$state -lt 20 ) { $state = [int]$state + 1 }
+#     Apply-TTState "$pname.Panel.FontSize" $state
+#     return $true
+# }
+# Add-TTAction    Panel.FontSize.Down             'パネル文字サイズ縮小' {
+#     $pname = [TTExMode]::ExFdPanel()
+#     $state = Get-TTState "$pname.Panel.FontSize"
+#     if ( 7 -lt [int]$state ) { $state = [int]$state - 1 }
+#     Apply-TTState "$pname.Panel.FontSize" $state
+
+#     return $true
+# }

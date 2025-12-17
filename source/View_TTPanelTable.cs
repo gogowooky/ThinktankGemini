@@ -8,26 +8,15 @@ using ICSharpCode.AvalonEdit;
 
 namespace ThinktankApp
 {
-    public class TTPanelTable : TTPanelEditor
+    public class TTPanelTableBase : TTPanelEditor
     {
         public DockPanel TablePanel { get; private set; }
         public TextEditor TableKeyword { get; private set; }
         public DataGrid TableMain { get; private set; }
-        public string TableResource { get; private set; }
-        
-        protected TTCollection _currentCollection;
-        private DispatcherTimer _resizeTimer;
 
-        public TTPanelTable(string name, string xamlPath, string stylePath, TTModels models) 
+        public TTPanelTableBase(string name, string xamlPath, string stylePath, TTModels models)
             : base(name, xamlPath, stylePath, models)
         {
-            _resizeTimer = new DispatcherTimer();
-            _resizeTimer.Interval = TimeSpan.FromMilliseconds(100);
-            _resizeTimer.Tick += (s, e) =>
-            {
-                _resizeTimer.Stop();
-                UpdateTableColumns();
-            };
         }
 
         protected override void LoadView(string xamlPath, string stylePath)
@@ -45,21 +34,16 @@ namespace ThinktankApp
         {
             base.Setup();
 
-            if (TableMain != null) 
+            if (TableMain != null)
             {
                 TableMain.GotFocus += (s, e) => OnFocusChanged("Table", "Main");
-                TableMain.SizeChanged += (s, e) => 
-                {
-                    _resizeTimer.Stop();
-                    _resizeTimer.Start();
-                };
             }
-            if (TableKeyword != null) 
+            if (TableKeyword != null)
             {
                 TableKeyword.GotFocus += (s, e) => OnFocusChanged("Table", "Keyword");
-                TableKeyword.TextChanged += (s, e) => UpdateTableFilter();
             }
         }
+
 
         public void UpdateTableFilter()
         {
@@ -122,6 +106,52 @@ namespace ThinktankApp
                 };
             }
         }
+
+        public override string GetMode()
+        {
+            if (TablePanel != null && TablePanel.Visibility == Visibility.Visible) return "Table";
+            return base.GetMode();
+        }
+    }
+
+    public class TTPanelTable : TTPanelTableBase
+    {
+        public string TableResource { get; private set; }
+        
+        protected TTCollection _currentCollection;
+        private DispatcherTimer _resizeTimer;
+
+        public TTPanelTable(string name, string xamlPath, string stylePath, TTModels models) 
+            : base(name, xamlPath, stylePath, models)
+        {
+            _resizeTimer = new DispatcherTimer();
+            _resizeTimer.Interval = TimeSpan.FromMilliseconds(100);
+            _resizeTimer.Tick += (s, e) =>
+            {
+                _resizeTimer.Stop();
+                UpdateTableColumns();
+            };
+        }
+
+        public override void Setup()
+        {
+            base.Setup();
+
+            if (TableMain != null) 
+            {
+                TableMain.SizeChanged += (s, e) => 
+                {
+                    _resizeTimer.Stop();
+                    _resizeTimer.Start();
+                };
+            }
+            if (TableKeyword != null) 
+            {
+                TableKeyword.TextChanged += (s, e) => UpdateTableFilter();
+            }
+        }
+
+
 
         public override void SetFontSize(string size)
         {
@@ -189,12 +219,6 @@ namespace ThinktankApp
                     }));
                 }
             }
-        }
-
-        public override string GetMode()
-        {
-            if (TablePanel != null && TablePanel.Visibility == Visibility.Visible) return "Table";
-            return base.GetMode();
         }
 
         protected override string GetTitleSuffix()
@@ -292,35 +316,51 @@ namespace ThinktankApp
             TableMain.Items.SortDescriptions.Add(new SortDescription(propertyName, direction));
         }
 
-        public void SetColumnHeaderVisible(string visible)
+        public string ColumnHeaderVisibility
         {
-            if (TableMain == null) return;
-            bool isVisible = visible.ToLower() == "true";
-            TableMain.HeadersVisibility = isVisible ? DataGridHeadersVisibility.Column : DataGridHeadersVisibility.None;
-            if (GetRowHeaderVisible() == "true" && isVisible) TableMain.HeadersVisibility = DataGridHeadersVisibility.All;
-            else if (GetRowHeaderVisible() == "true") TableMain.HeadersVisibility = DataGridHeadersVisibility.Row;
+            get
+            {
+                if (TableMain == null) return "false";
+                return (TableMain.HeadersVisibility == DataGridHeadersVisibility.Column || TableMain.HeadersVisibility == DataGridHeadersVisibility.All) ? "true" : "false";
+            }
+            set
+            {
+                if (TableMain == null) return;
+                bool isVisible = value.ToLower() == "true";
+                bool isRowVisible = (TableMain.HeadersVisibility == DataGridHeadersVisibility.Row || TableMain.HeadersVisibility == DataGridHeadersVisibility.All);
+
+                if (isVisible)
+                {
+                    if (isRowVisible) TableMain.HeadersVisibility = DataGridHeadersVisibility.All;
+                    else TableMain.HeadersVisibility = DataGridHeadersVisibility.Column;
+                }
+                else
+                {
+                    if (isRowVisible) TableMain.HeadersVisibility = DataGridHeadersVisibility.Row;
+                    else TableMain.HeadersVisibility = DataGridHeadersVisibility.None;
+                }
+            }
         }
 
-        public string GetColumnHeaderVisible()
+        public string RowHeaderVisibility
         {
-            if (TableMain == null) return "false";
-            return (TableMain.HeadersVisibility == DataGridHeadersVisibility.Column || TableMain.HeadersVisibility == DataGridHeadersVisibility.All) ? "true" : "false";
+            get
+            {
+                if (TableMain == null) return "false";
+                return (TableMain.HeadersVisibility == DataGridHeadersVisibility.Row || TableMain.HeadersVisibility == DataGridHeadersVisibility.All) ? "true" : "false";
+            }
+            set
+            {
+                if (TableMain == null) return;
+                bool isVisible = value.ToLower() == "true";
+                bool isColumnVisible = (TableMain.HeadersVisibility == DataGridHeadersVisibility.Column || TableMain.HeadersVisibility == DataGridHeadersVisibility.All);
+
+                if (isColumnVisible && isVisible) TableMain.HeadersVisibility = DataGridHeadersVisibility.All;
+                else if (isVisible) TableMain.HeadersVisibility = DataGridHeadersVisibility.Row;
+                else if (isColumnVisible) TableMain.HeadersVisibility = DataGridHeadersVisibility.Column;
+                else TableMain.HeadersVisibility = DataGridHeadersVisibility.None;
+            }
         }
 
-        public void SetRowHeaderVisible(string visible)
-        {
-            if (TableMain == null) return;
-            bool isVisible = visible.ToLower() == "true";
-            if (GetColumnHeaderVisible() == "true" && isVisible) TableMain.HeadersVisibility = DataGridHeadersVisibility.All;
-            else if (isVisible) TableMain.HeadersVisibility = DataGridHeadersVisibility.Row;
-            else if (GetColumnHeaderVisible() == "true") TableMain.HeadersVisibility = DataGridHeadersVisibility.Column;
-            else TableMain.HeadersVisibility = DataGridHeadersVisibility.None;
-        }
-
-        public string GetRowHeaderVisible()
-        {
-            if (TableMain == null) return "false";
-            return (TableMain.HeadersVisibility == DataGridHeadersVisibility.Row || TableMain.HeadersVisibility == DataGridHeadersVisibility.All) ? "true" : "false";
-        }
     }
 }

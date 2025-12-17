@@ -241,7 +241,7 @@ namespace ThinktankApp
                         break;
                     case "Desk": 
                         Desk = panel; 
-                        panel.Mode = "Editor";
+                        panel.Mode = "Table";
                         break;
                     case "System": 
                         SystemPanel = panel; 

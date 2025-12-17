@@ -444,7 +444,7 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
 New-TTState     [Panels].Table.Resource             '[Panels]リソース名'            @{
     Default = { Param($id)
         $map = @{
-            Library = 'Thinktank'; Index = 'Status'; Shelf = 'Actions'; Desk = 'Memos'; System = 'Memos'
+            Library = 'Thinktank'; Index = 'Status'; Shelf = 'Actions'; Desk = 'Events'; System = 'Memos'
         }
         $map[ $id.split('.')[0] ]
     }
@@ -552,8 +552,8 @@ New-TTState     [Panels].ColumnHeader.Visible       '[Panels]カラムヘッダ�
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].SetColumnHeaderVisible( $val )
-        $newval = $global:Application.PanelMap[$pname].GetColumnHeaderVisible()
+        $global:Application.PanelMap[$pname].ColumnHeaderVisibility = $val
+        $newval = $global:Application.PanelMap[$pname].ColumnHeaderVisibility
         $global:Models.Status.SetValue( $id, $newval )
     }
 }
@@ -562,8 +562,8 @@ New-TTState     [Panels].RowHeader.Visible          '[Panels]ロウヘッダー'
     Test    = { Param($id, $val); $val -match '(true|false|toggle)' }
     Apply   = { Param($id, $val)
         $pname = $id.split('.')[0]
-        $global:Application.PanelMap[$pname].SetRowHeaderVisible( $val )
-        $newval = $global:Application.PanelMap[$pname].GetRowHeaderVisible()
+        $global:Application.PanelMap[$pname].RowHeaderVisibility = $val
+        $newval = $global:Application.PanelMap[$pname].RowHeaderVisiblity
         $global:Models.Status.SetValue( $id, $newval )
     }
 }
