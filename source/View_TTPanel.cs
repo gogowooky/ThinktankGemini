@@ -200,8 +200,6 @@ namespace ThinktankApp
             if (WebViewKeyword != null) WebViewKeyword.Visibility = v;
         }
 
-        public void UpdateKeywordRegex() { }
-        public void UpdateHighlight() { }
-        public void CenterKeywordCaret() { }
+
     }
 }
