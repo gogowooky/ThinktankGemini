@@ -474,11 +474,16 @@ namespace ThinktankApp
             return false;
         }
 
-        public bool IsExPanel()
+        public TTPanel ExFdPanel()
         {
-            if (string.IsNullOrEmpty(ExMode)) return false;
-            string[] panels = { "Library", "Index", "Shelf", "Desk", "System" };
-            return panels.Contains(ExMode, StringComparer.OrdinalIgnoreCase);
+            foreach (var key in PanelMap.Keys)
+            {
+                if (ExMode.IndexOf(key, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return PanelMap[key];
+                }
+            }
+            return GetFdPanel();
         }
     }
 }

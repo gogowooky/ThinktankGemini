@@ -13,15 +13,11 @@ Add-TTAction    Application.Operation.Quit  '終了' {
 
 #region ::: パネル
 
-Add-TTAction    Panel.Keyword.Clear             'Keywordクリア' {
-    $pname = $global:Application.CurrentPanel
-    if ( $global:Application.IsExPanel() ) {
-        $pname = $global:Application.ExMode
-    }
-    
-    $panel = $global:Application.PanelMap[$pname]    
+Add-TTAction    ExFdPanel.Keyword.Clear         'ExFdPanelのKeywordクリア' {
+    $panel = $global:Application.ExFdPanel()
+    $pname = $panel.Name
     $mode = $panel.GetMode()
-    Apply-TTState "$($panel.Name).$mode.Keyword" ''
+    Apply-TTState "$pname.$mode.Keyword" ''
     return $true
 }
 

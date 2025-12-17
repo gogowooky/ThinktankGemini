@@ -25,7 +25,9 @@ Add-TTEvent     'Panel-*-*-*'           'Alt'               W                   
 #endregion
 
 #region C
-Add-TTEvent     'Panel-Mode-*-*'        'Alt'               C                       [Panel].[Mode].Keyword:
+# Add-TTEvent     'Panel-Mode-*-*'        'Alt'               C                       [Panel].[Mode].Keyword:
+Add-TTEvent     '*-*-*-ExPanel'         'Alt'               C                       ExFdPanel.Keyword.Clear
+Add-TTEvent     '*-*-*-*'               'Alt'               C                       ExFdPanel.Keyword.Clear
 #endregion
 
 #endregion
