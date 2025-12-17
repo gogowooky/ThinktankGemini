@@ -7,11 +7,11 @@ namespace ThinktankApp
         public TTEvents() : base()
         {
             Description = "Events";
-            _itemDisplayColumns = "Tag:タグ,_mods:修飾キー,_key:キー,Name:コマンド,ID:イベントID";
+            _itemDisplayColumns = "Context:コンテキスト,Mods:修飾キー,Key:キー,Name:コマンド,ID:イベントID";
             _itemNarrowProperties = "Name,ID";
-            _itemWideProperties = "Tag,_mods,_key,Name,ID";
+            _itemWideProperties = "Context,Mods,Key,Name";
             _itemMinimalProperties = "Name,ID";
-            _itemSaveProperties = "Tag,_mods,_key,Name,ID";
+            _itemSaveProperties = "Context,Mods,Key,Name";
         }
     }
 }
