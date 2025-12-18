@@ -8,6 +8,9 @@ namespace ThinktankApp
         public TTActions Actions { get; private set; }
         public TTEvents Events { get; private set; }
         public TTMemos Memos { get; private set; }
+        public TTEditings Editings { get; private set; }
+        public TTWebSearches WebSearches { get; private set; }
+        public TTWebLinks WebLinks { get; private set; }
 
 
         public TTModels() : base()
@@ -36,10 +39,25 @@ namespace ThinktankApp
 
             Memos = new TTMemos();
 
+            Editings = new TTEditings();
+            Editings.ID = "Editings";
+            Editings.Name = "編集";
+
+            WebSearches = new TTWebSearches();
+            WebSearches.ID = "WebSearches";
+            WebSearches.Name = "Web検索";
+
+            WebLinks = new TTWebLinks();
+            WebLinks.ID = "WebLinks";
+            WebLinks.Name = "Webリンク";
+
             AddItem(Status);
             AddItem(Actions);
             AddItem(Events);
             AddItem(Memos);
+            AddItem(Editings);
+            AddItem(WebSearches);
+            AddItem(WebLinks);
         }
 
         public TTCollection GetCollection(string id)

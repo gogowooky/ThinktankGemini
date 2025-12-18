@@ -28,141 +28,7 @@ Add-TTAction    ExFdPanel.Keyword.Clear         'ExFdPanelのKeywordクリア' {
 
 
 # #region ::: アプリ
-# Add-TTAction    ExPanel.BeFocused.OrContextMenu         'ExPanel GiveMe Focus' {    # 250517
-#     $expanel = [TTExModMode]::ExPanel
 
-#     if ( [TTExModMode]::FdPanel() -eq $expanel ) {
-#         Invoke-TTAction 'Panel.Open.ContextMenu' @{}
-#     }
-#     else {
-#         Apply-TTState 'Application.Focus.Panel' $expanel.Name
-#     }
-#     return $true
-#  }
-# Add-TTAction    Application.SubMenu.Folder              'フォルダ一覧' {
-#     Param($tag)
-#     $menu = $tag.Menu
-
-#     $folders = $global:Models.Status.GetItems().where{
-#         $_.ID -like 'Application.System.*Path'
-#     }.foreach{
-#         $value = $_.Value
-#         $mitm = [MenuItem]::New()
-#         $mitm.Header = ( '_{0}){1}' -f $_.ID.split('.')[2][0], $_.Description )
-#         $mitm.Tag = $tag + @{ Path = $_.Value }
-#         $mitm.Add_Click({
-#                 Param($subm)
-#                 Invoke-TTAction 'FilePath.Open.WithExplorer' (@{ Value = $subm.Tag.Path })
-#             })
-#         $menu.AddChild($mitm)
-#     }
-#     return $true
-#  }
-# Add-TTAction    Application.Reset.Status                '設定リセット' {
-#     $global:Models.Status.GetItems().foreach{
-#         Apply-TTState   $_.ID Default
-#     }       
-#     return $true
-#  }
-# Add-TTAction    Application.Reset.Memos                 'メモリセット' {
-#     $global:Models.Memos.ResetItems()
-#     return $true
-#  }
-# Add-TTAction    Application.Data.Import                 'ps3からデータ取得' {
-#     $origpath = 'C:\Users\69887\Box\個人フォルダ\2019-04-01\2022-02-08_desktop\ps3\text'
-#     $dstpath = 'C:\Users\69887\Box\個人フォルダ\2019-04-01\2022-02-08_desktop\Memo'
-
-#     Remove-Item -Recurse $dstpath -Force
-#     New-Item $dstpath -ItemType Directory -Force
-#     Copy-Item "$origpath\*.txt" -Destination "$dstpath" -Recurse
-
-#     Get-ChildItem "$dstpath\*.txt" | Rename-Item -NewName { $_.Name -replace '.txt$', '.md' }
-#     return $true
-#  }
-# Add-TTAction    Application.Archive.All                 '全メモをアーカイブ' {
-
-#    # AES暗号化のパスフレーズ（安全なパスフレーズに変更してください）
-#     $passphrase = "2r9N7/U8sWFpLCgSmJA1/Q=="
-
-#     # カレントディレクトリの.mdファイルをすべて取得
-#     $files = Get-ChildItem -Filter *.md
-
-#     # ファイルを100個ずつ処理
-#     for ($i = 0; $i -lt $files.Count; $i += 100) {
-#         $fileBatch = $files[$i..($i + 99)] | Where-Object { $_ } # 最後のバッチでnullエラーが発生するのを防ぐ
-
-#         # zipで圧縮（圧縮率を高く設定）
-#         $archiveName = "archive_$i.zip"
-#         Compress-Archive -Path $fileBatch.FullName -DestinationPath $archiveName -CompressionLevel Optimal
-
-#         # AES暗号化
-#         $aes = New-Object System.Security.Cryptography.AesCryptoServiceProvider
-#         $aes.Key = [System.Text.Encoding]::UTF8.GetBytes($passphrase)
-#         $aes.IV = [byte[]](0..15) # 初期化ベクトル（IV）は固定値を使用（必要に応じて変更してください）
-#         $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
-#         $aes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
-
-#         $encryptor = $aes.CreateEncryptor()
-#         $encryptedBytes = $encryptor.TransformFinalBlock((Get-Content -Path $archiveName -Encoding Byte), 0, (Get-Content -Path $archiveName -Encoding Byte).Length)
-#         $encryptedText = [System.Convert]::ToBase64String($aes.IV + $encryptedBytes) # IVを先頭に付加
-
-#         # テキストファイルに保存
-#         $outputFileName = "encrypted_$i.txt"
-#         $encryptedText | Out-File $outputFileName
-
-#         # 中間ファイルを削除
-#         Remove-Item $archiveName
-#     }
-
-#     Write-Host "処理が完了しました。"
-#  }
-# Add-TTAction    Application.Dearchive.File              'クリップボードのテキスト→ファイル' {
-
-#     # AES復号化のパスフレーズ（暗号化時に使用したパスフレーズを入力してください）
-#     $passphrase = "2r9N7/U8sWFpLCgSmJA1/Q=="
-
-#     # クリップボードから暗号化されたテキストを取得
-#     $encryptedText = Get-Clipboard
-
-#     # Base64デコード
-#     $encryptedBytes = [System.Convert]::FromBase64String($encryptedText)
-
-#     # AES復号化
-#     $aes = New-Object System.Security.Cryptography.AesCryptoServiceProvider
-#     $aes.Key = [System.Text.Encoding]::UTF8.GetBytes($passphrase)
-#     $aes.IV = $encryptedBytes[0..15]
-#     $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
-#     $aes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
-
-#     $decryptor = $aes.CreateDecryptor()
-#     $decryptedBytes = $decryptor.TransformFinalBlock($encryptedBytes, 16, $encryptedBytes.Length - 16)
-
-#     # zipファイルとして保存
-#     $outputFileName = '.\decrypted.zip'
-#     [System.IO.File]::WriteAllBytes($outputFileName, $decryptedBytes)
-#     Invoke-Item '.\'
-
-#     Write-Host "復号化とzipファイルへの保存が完了しました。"
-#  }
-# Add-TTAction    Application.Create.EncryptPhrase        'パスフレーズ作成' {
-#     # ランダムなバイト列を生成
-#     $rng = New-Object System.Security.Cryptography.RNGCryptoServiceProvider
-#     $bytes = New-Object byte[] 16 # パスフレーズの長さ（バイト単位）
-#     $rng.GetBytes($bytes)
-
-#     # バイト列をBase64エンコード
-#     $passphrase = [System.Convert]::ToBase64String($bytes)
-
-#     # パスフレーズを使用
-#     Write-Host "パスフレーズ: $passphrase"
-#  }
-
-# Add-TTAction    Application.Outlook.MoveSelected        'Outlook選択メールをBackup' {   # 250517
-#     Param( $actor )
-#     $outlook = [TTOutlook]::New()
-#     $outlook.BackupMail( 'selected' )
-#     $outlook.Finalize()
-#  }
 # #endregion
 # #region ::: パネル
 # Add-TTAction    Panel.Open.ContextMenu          'Panel Menu表示' {
@@ -1982,8 +1848,138 @@ Add-TTAction    ExFdPanel.Keyword.Clear         'ExFdPanelのKeywordクリア' {
 #  }
 # #endregion
 
-
+#
+#
 # あとまわし
+#
+#
+
+# Add-TTAction    Application.Dearchive.File              'クリップボードのテキスト→ファイル' {
+
+#     # AES復号化のパスフレーズ（暗号化時に使用したパスフレーズを入力してください）
+#     $passphrase = "2r9N7/U8sWFpLCgSmJA1/Q=="
+
+#     # クリップボードから暗号化されたテキストを取得
+#     $encryptedText = Get-Clipboard
+
+#     # Base64デコード
+#     $encryptedBytes = [System.Convert]::FromBase64String($encryptedText)
+
+#     # AES復号化
+#     $aes = New-Object System.Security.Cryptography.AesCryptoServiceProvider
+#     $aes.Key = [System.Text.Encoding]::UTF8.GetBytes($passphrase)
+#     $aes.IV = $encryptedBytes[0..15]
+#     $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
+#     $aes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
+
+#     $decryptor = $aes.CreateDecryptor()
+#     $decryptedBytes = $decryptor.TransformFinalBlock($encryptedBytes, 16, $encryptedBytes.Length - 16)
+
+#     # zipファイルとして保存
+#     $outputFileName = '.\decrypted.zip'
+#     [System.IO.File]::WriteAllBytes($outputFileName, $decryptedBytes)
+#     Invoke-Item '.\'
+
+#     Write-Host "復号化とzipファイルへの保存が完了しました。"
+#  }
+# Add-TTAction    Application.Create.EncryptPhrase        'パスフレーズ作成' {
+#     # ランダムなバイト列を生成
+#     $rng = New-Object System.Security.Cryptography.RNGCryptoServiceProvider
+#     $bytes = New-Object byte[] 16 # パスフレーズの長さ（バイト単位）
+#     $rng.GetBytes($bytes)
+
+#     # バイト列をBase64エンコード
+#     $passphrase = [System.Convert]::ToBase64String($bytes)
+
+#     # パスフレーズを使用
+#     Write-Host "パスフレーズ: $passphrase"
+#  }
+
+# Add-TTAction    Application.Outlook.MoveSelected        'Outlook選択メールをBackup' {   # 250517
+#     Param( $actor )
+#     $outlook = [TTOutlook]::New()
+#     $outlook.BackupMail( 'selected' )
+#     $outlook.Finalize()
+#  }
+
+# Add-TTAction    Application.SubMenu.Folder              'フォルダ一覧' {
+#     Param($tag)
+#     $menu = $tag.Menu
+
+#     $folders = $global:Models.Status.GetItems().where{
+#         $_.ID -like 'Application.System.*Path'
+#     }.foreach{
+#         $value = $_.Value
+#         $mitm = [MenuItem]::New()
+#         $mitm.Header = ( '_{0}){1}' -f $_.ID.split('.')[2][0], $_.Description )
+#         $mitm.Tag = $tag + @{ Path = $_.Value }
+#         $mitm.Add_Click({
+#                 Param($subm)
+#                 Invoke-TTAction 'FilePath.Open.WithExplorer' (@{ Value = $subm.Tag.Path })
+#             })
+#         $menu.AddChild($mitm)
+#     }
+#     return $true
+#  }
+# Add-TTAction    Application.Reset.Status                '設定リセット' {
+#     $global:Models.Status.GetItems().foreach{
+#         Apply-TTState   $_.ID Default
+#     }       
+#     return $true
+#  }
+# Add-TTAction    Application.Reset.Memos                 'メモリセット' {
+#     $global:Models.Memos.ResetItems()
+#     return $true
+#  }
+# Add-TTAction    Application.Data.Import                 'ps3からデータ取得' {
+#     $origpath = 'C:\Users\69887\Box\個人フォルダ\2019-04-01\2022-02-08_desktop\ps3\text'
+#     $dstpath = 'C:\Users\69887\Box\個人フォルダ\2019-04-01\2022-02-08_desktop\Memo'
+
+#     Remove-Item -Recurse $dstpath -Force
+#     New-Item $dstpath -ItemType Directory -Force
+#     Copy-Item "$origpath\*.txt" -Destination "$dstpath" -Recurse
+
+#     Get-ChildItem "$dstpath\*.txt" | Rename-Item -NewName { $_.Name -replace '.txt$', '.md' }
+#     return $true
+#  }
+# Add-TTAction    Application.Archive.All                 '全メモをアーカイブ' {
+
+#    # AES暗号化のパスフレーズ（安全なパスフレーズに変更してください）
+#     $passphrase = "2r9N7/U8sWFpLCgSmJA1/Q=="
+
+#     # カレントディレクトリの.mdファイルをすべて取得
+#     $files = Get-ChildItem -Filter *.md
+
+#     # ファイルを100個ずつ処理
+#     for ($i = 0; $i -lt $files.Count; $i += 100) {
+#         $fileBatch = $files[$i..($i + 99)] | Where-Object { $_ } # 最後のバッチでnullエラーが発生するのを防ぐ
+
+#         # zipで圧縮（圧縮率を高く設定）
+#         $archiveName = "archive_$i.zip"
+#         Compress-Archive -Path $fileBatch.FullName -DestinationPath $archiveName -CompressionLevel Optimal
+
+#         # AES暗号化
+#         $aes = New-Object System.Security.Cryptography.AesCryptoServiceProvider
+#         $aes.Key = [System.Text.Encoding]::UTF8.GetBytes($passphrase)
+#         $aes.IV = [byte[]](0..15) # 初期化ベクトル（IV）は固定値を使用（必要に応じて変更してください）
+#         $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
+#         $aes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
+
+#         $encryptor = $aes.CreateEncryptor()
+#         $encryptedBytes = $encryptor.TransformFinalBlock((Get-Content -Path $archiveName -Encoding Byte), 0, (Get-Content -Path $archiveName -Encoding Byte).Length)
+#         $encryptedText = [System.Convert]::ToBase64String($aes.IV + $encryptedBytes) # IVを先頭に付加
+
+#         # テキストファイルに保存
+#         $outputFileName = "encrypted_$i.txt"
+#         $encryptedText | Out-File $outputFileName
+
+#         # 中間ファイルを削除
+#         Remove-Item $archiveName
+#     }
+
+#     Write-Host "処理が完了しました。"
+#  }
+
 
 # Add-TTAction    Panel.FontSize.Up               'パネル文字サイズ拡大' {
 #     $pname = [TTExMode]::ExFdPanel()
@@ -2000,3 +1996,16 @@ Add-TTAction    ExFdPanel.Keyword.Clear         'ExFdPanelのKeywordクリア' {
 
 #     return $true
 # }
+
+
+# Add-TTAction    ExPanel.BeFocused.OrContextMenu         'ExPanel GiveMe Focus' {    # 250517
+#     $expanel = [TTExModMode]::ExPanel
+
+#     if ( [TTExModMode]::FdPanel() -eq $expanel ) {
+#         Invoke-TTAction 'Panel.Open.ContextMenu' @{}
+#     }
+#     else {
+#         Apply-TTState 'Application.Focus.Panel' $expanel.Name
+#     }
+#     return $true
+#  }
