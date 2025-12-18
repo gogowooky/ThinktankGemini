@@ -339,11 +339,13 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
         if ($panel.EditorKeyword -ne $null) {
             $panel.EditorKeyword.Add_TextChanged({
                     Param($kwd, $evnt)
-                    # $pn = $kwd.TTPanel.Name
-                    # $global:Models.Status.SetValue( "$pn.Editor.Keyword", $kwd.TTPanel.GetKeyword('Editor') )
-                    # # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
-                    # $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
-                    # $global:Application.$pn.UpdateHighlight()
+                    $panel = $kwd.TTPanel
+                    if ($null -eq $panel) { return }
+                    $pn = $panel.Name
+                    $global:Models.Status.SetValue( "$pn.Editor.Keyword", $panel.GetKeyword('Editor') )
+                    # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
+                    $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
+                    $global:Application.$pn.UpdateHighlight()
                     # }.GetNewClosure()
                 })
             # Check for TextArea/TextView existence if needed, but EditorKeyword usually has them
@@ -518,26 +520,30 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
         $panel = $global:Application.PanelMap[$pname]
         
         if ($panel.WebViewKeyword -ne $null) {
-            # $panel.WebViewKeyword.Add_TextChanged({
-            #         Param($kwd, $evnt)
-            #         $panel = $kwd.TTPanel
-            #         $pn = $panel.Name
-            #         $md = $panel.GetMode()
-            #         $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
-            #         # $panel.UpdateMarker('WebView')
-            #     })
-            $panel.WebViewKeyword.Add_TextChanged({})
-            # $panel.WebViewKeyword.TextArea.Caret.Add_PositionChanged({
-            #         Param($kwd, $evnt)
-            #         $panel = $kwd.TTPanel
-            #         $pn = $panel.Name
-            #         $md = $panel.GetMode()
-            #         $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
-            #         # $panel.UpdateMarker('WebView')
-            #     })
-            if ($panel.WebViewKeyword.TextArea -ne $null -and $panel.WebViewKeyword.TextArea.Caret -ne $null) {
-                $panel.WebViewKeyword.TextArea.Caret.Add_PositionChanged({})
-            }
+            $panel.WebViewKeyword.Add_TextChanged({
+                    Param($kwd, $evnt)
+                    $panel = $kwd.TTPanel
+                    if ($null -eq $panel) { return }
+
+                    $pn = $panel.Name
+                    $md = $panel.GetMode()
+                    $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+                    # $panel.UpdateMarker('WebView')
+                })
+            # $panel.WebViewKeyword.Add_TextChanged({})
+            $panel.WebViewKeyword.TextArea.Caret.Add_PositionChanged({
+                    Param($kwd, $evnt)
+                    $panel = $kwd.TTPanel
+                    if ($null -eq $panel) { return }
+
+                    $pn = $panel.Name
+                    $md = $panel.GetMode()
+                    $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+                    # $panel.UpdateMarker('WebView')
+                })
+            # if ($panel.WebViewKeyword.TextArea -ne $null -and $panel.WebViewKeyword.TextArea.Caret -ne $null) {
+            #     $panel.WebViewKeyword.TextArea.Caret.Add_PositionChanged({})
+            # }
         }
     }
 }
