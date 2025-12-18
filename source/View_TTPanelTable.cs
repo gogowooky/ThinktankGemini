@@ -50,6 +50,12 @@ namespace ThinktankApp
 
         public void UpdateTableFilter(string filterText = null)
         {
+            if (View != null && !View.Dispatcher.CheckAccess())
+            {
+                View.Dispatcher.BeginInvoke(new Action(() => UpdateTableFilter(filterText)));
+                return;
+            }
+
             if (TableMain == null || TableMain.ItemsSource == null) return;
 
             if (filterText == null)
@@ -65,6 +71,8 @@ namespace ThinktankApp
                     }
                 }
             }
+            // System.Console.WriteLine("UpdateTableFilter: " + filterText);
+
             System.Windows.Data.CollectionView view = (System.Windows.Data.CollectionView)System.Windows.Data.CollectionViewSource.GetDefaultView(TableMain.ItemsSource);
             
             if (string.IsNullOrWhiteSpace(filterText))
@@ -73,7 +81,6 @@ namespace ThinktankApp
                 {
                     var item = obj as TTObject;
                     if (item == null) return false;
-                    // if (item is TTAction && ((TTAction)item).IsHidden) return false;
                     return true;
                 };
             }
@@ -86,16 +93,11 @@ namespace ThinktankApp
                     var item = obj as TTObject;
                     if (item == null) return false;
                     
-                    // Check IsHidden
-                    // if (item is TTAction && ((TTAction)item).IsHidden) return false;
-
-                    // OR logic: if any group matches, return true
                     foreach (var group in orGroups)
                     {
                         var andKeywords = group.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         bool groupMatch = true;
 
-                        // AND logic: all keywords in group must match
                         foreach (var keyword in andKeywords)
                         {
                             if (!item.Matches(keyword.Trim()))
@@ -111,6 +113,7 @@ namespace ThinktankApp
                     return false;
                 };
             }
+            view.Refresh();
         }
 
         public override string GetMode()

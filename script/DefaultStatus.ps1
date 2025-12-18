@@ -345,20 +345,24 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
                     $pn = $panel.Name
                     $val = $panel.GetKeyword('Editor')
                     $global:Models.Status.SetValue( "$pn.Editor.Keyword", $val )
-                    $global:Application.PanelMap[$pn].UpdateTableFilter($val)
+                    
+                    $global:Application.Panels | ForEach-Object {
+                        $_.UpdateTableFilter($val)
+                    }
+
                     $global:Application.$pn.UpdateKeywordRegex()
                     $global:Application.$pn.UpdateHighlight()
-                })
+                }.GetNewClosure())
             # Check for TextArea/TextView existence if needed, but EditorKeyword usually has them
             if ($panel.EditorKeyword.TextArea -ne $null) {
-                $panel.EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
-                        param($tv, $e)
-                        # ...
-                    })
+                # $panel.EditorKeyword.TextArea.TextView.Add_ScrollOffsetChanged({
+                #         param($tv, $e)
+                #         # ...
+                #     })
                 $panel.EditorKeyword.TextArea.Caret.Add_PositionChanged({
                         Param( $crt, $evnt ) 
                         # ...
-                    })
+                    }.GetNewClosure())
             }
         }
     }
@@ -530,10 +534,13 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
                     $md = $panel.GetMode()
                     $val = $panel.GetKeyword('WebView')
                     $global:Models.Status.SetValue( "$pn.$md.Keyword", $val )
-                    $global:Application.PanelMap[$pn].UpdateTableFilter($val)
+                    
+                    $global:Application.Panels | ForEach-Object {
+                        $_.UpdateTableFilter($val)
+                    }
+
                     # $panel.UpdateMarker('WebView')
-                })
-            # $panel.WebViewKeyword.Add_TextChanged({})
+                }.GetNewClosure())
             $panel.WebViewKeyword.TextArea.Caret.Add_PositionChanged({
                     Param($kwd, $evnt)
                     $panel = $kwd.TTPanel
@@ -543,10 +550,7 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
                     $md = $panel.GetMode()
                     $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
                     # $panel.UpdateMarker('WebView')
-                })
-            # if ($panel.WebViewKeyword.TextArea -ne $null -and $panel.WebViewKeyword.TextArea.Caret -ne $null) {
-            #     $panel.WebViewKeyword.TextArea.Caret.Add_PositionChanged({})
-            # }
+                }.GetNewClosure())
         }
     }
 }

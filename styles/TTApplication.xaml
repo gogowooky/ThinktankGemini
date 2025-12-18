@@ -39,19 +39,19 @@
                     </Grid.RowDefinitions>
 
                     <Grid Name="LibraryGrid"    Grid.Row="0" />
-                    <Grid Name="IndexGrid"      Grid.Row="1" />
+                    <Grid Name="IndexGrid"      Grid.Row="1" Margin="0,4,0,0" />
 
                     <GridSplitter Name="LibraryIndexSplitter" Grid.Row = "1" Style="{StaticResource HSplitterStyle}" />
                 </Grid>
 
-                <Grid Name="ShelfDeskGrid" Grid.Column="1" >
+                <Grid Name="ShelfDeskGrid" Grid.Column="1" Margin="4,0,0,0" >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="4*"/>
                     </Grid.RowDefinitions>
 
                     <Grid Name="ShelfGrid" Grid.Row="0" />
-                    <Grid Name="DeskGrid" Grid.Row="1" />
+                    <Grid Name="DeskGrid" Grid.Row="1" Margin="0,4,0,0" />
 
                     <GridSplitter Name="ShelfDeskSplitter" Grid.Row="1" Style="{StaticResource HSplitterStyle}" />
                 </Grid>
@@ -60,7 +60,7 @@
 
             </Grid>
 
-            <Grid Name="SystemGrid" Grid.Row="1" />
+            <Grid Name="SystemGrid" Grid.Row="1" Margin="0,4,0,0" />
 
             <GridSplitter Name="UserSystemSplitter" Grid.Row="1" Style="{StaticResource HSplitterStyle}" />
 
