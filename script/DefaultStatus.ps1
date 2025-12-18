@@ -262,6 +262,7 @@ New-TTState     [Panels].Current.Mode               '[Panels]のモード'      
 $global:tool_gotfocus = {
     Param( $ctrl, $evnt )
 
+    if ($ctrl.TTPanel -eq $null) { return }
     $pname = $ctrl.TTPanel.Name
     $mname = $ctrl.Name -replace '(Editor|Table|WebView)(Keyword|Main)', '$1'
     $tname = $ctrl.Name -replace '(Editor|Table|WebView)(Keyword|Main)', '$2'
@@ -342,11 +343,11 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
                     $panel = $kwd.TTPanel
                     if ($null -eq $panel) { return }
                     $pn = $panel.Name
-                    $global:Models.Status.SetValue( "$pn.Editor.Keyword", $panel.GetKeyword('Editor') )
-                    # Register-DelayedRun "$pn.EditorKeyword.TextChanged" 3 {
-                    $global:Application.$pn.UpdateKeywordRegex() # EditorMainの変更時はこちらは不要
+                    $val = $panel.GetKeyword('Editor')
+                    $global:Models.Status.SetValue( "$pn.Editor.Keyword", $val )
+                    $global:Application.PanelMap[$pn].UpdateTableFilter($val)
+                    $global:Application.$pn.UpdateKeywordRegex()
                     $global:Application.$pn.UpdateHighlight()
-                    # }.GetNewClosure()
                 })
             # Check for TextArea/TextView existence if needed, but EditorKeyword usually has them
             if ($panel.EditorKeyword.TextArea -ne $null) {
@@ -527,7 +528,9 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
 
                     $pn = $panel.Name
                     $md = $panel.GetMode()
-                    $global:Models.Status.SetValue( "$pn.$md.Keyword", $panel.GetKeyword('WebView') )
+                    $val = $panel.GetKeyword('WebView')
+                    $global:Models.Status.SetValue( "$pn.$md.Keyword", $val )
+                    $global:Application.PanelMap[$pn].UpdateTableFilter($val)
                     # $panel.UpdateMarker('WebView')
                 })
             # $panel.WebViewKeyword.Add_TextChanged({})

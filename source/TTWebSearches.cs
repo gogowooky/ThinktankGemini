@@ -1,5 +1,8 @@
 using System;
 using System.Reflection;
+using System.Collections;
+using System.Management.Automation;
+using System.Net;
 
 namespace ThinktankApp
 {
@@ -17,53 +20,55 @@ namespace ThinktankApp
 
         public string CreateUrlFromTag(object match)
         {
-            // [MOCKED] problematic logic commented out
-            /*
             try
             {
-                Type type = match.GetType();
-                PropertyInfo propTag = type.GetProperty("tag");
-                PropertyInfo propKeywords = type.GetProperty("keywords");
+                string tag = "";
+                string keywords = "";
 
-                string tag = (string)propTag?.GetValue(match, null);
-                string keywords = (string)propKeywords?.GetValue(match, null);
-                
-                if (tag == null) tag = (string)type.GetProperty("Tag")?.GetValue(match, null);
-                if (keywords == null) keywords = (string)type.GetProperty("Keywords")?.GetValue(match, null);
+                if (match is IDictionary)
+                {
+                    IDictionary dict = (IDictionary)match;
+                    if (dict.Contains("tag")) tag = dict["tag"] as string;
+                    if (dict.Contains("keywords")) keywords = dict["keywords"] as string;
+                }
+                else
+                {
+                    // Fallback to reflection for properties (case-insensitive)
+                    Type type = match.GetType();
+                    PropertyInfo pTag = type.GetProperty("tag", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    PropertyInfo pKw = type.GetProperty("keywords", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
-                if (tag == null) tag = "";
+                    if (pTag != null) tag = pTag.GetValue(match, null) as string;
+                    if (pKw != null) keywords = pKw.GetValue(match, null) as string;
+                }
+
+                if (string.IsNullOrEmpty(tag)) return "";
                 if (keywords == null) keywords = "";
 
                 var websearch = GetItem(tag) as TTWebSearch;
                 if (websearch == null) return "";
 
-                string url = websearch.Url;
-                
-                if (websearch.Script == null) 
+                if (websearch.Script != null && websearch.Script is ScriptBlock)
                 {
-                    return url.Replace("<keywords>", Uri.EscapeDataString(keywords));
-                }
-
-                if (websearch.Script is System.Management.Automation.ScriptBlock sb)
-                {
-                     // Invoke with the match object
-                     var results = sb.Invoke(match);
-                     if (results != null && results.Count > 0)
-                     {
+                    ScriptBlock sb = (ScriptBlock)websearch.Script;
+                    var results = sb.Invoke(match);
+                    if (results != null && results.Count > 0)
+                    {
                         return results[0].ToString();
-                     }
-                     return "";
+                    }
+                    return "";
                 }
 
-                return url.Replace("<keywords>", Uri.EscapeDataString(keywords));
+                string url = websearch.Url;
+                if (string.IsNullOrEmpty(url)) return "";
+
+                return url.Replace("<keywords>", WebUtility.UrlEncode(keywords));
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                // Fail silently or log if possible
                 return "";
             }
-            */
-            return "";
         }
     }
 }

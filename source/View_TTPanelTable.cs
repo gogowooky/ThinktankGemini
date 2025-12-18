@@ -48,18 +48,21 @@ namespace ThinktankApp
             }
         }
 
-        public void UpdateTableFilter()
+        public void UpdateTableFilter(string filterText = null)
         {
             if (TableMain == null || TableMain.ItemsSource == null) return;
 
-            string filterText = "";
-            if (TableKeyword != null)
+            if (filterText == null)
             {
-                var doc = TableKeyword.Document;
-                if (doc.TextLength > 0)
+                filterText = "";
+                if (TableKeyword != null)
                 {
-                    var line = doc.GetLineByOffset(TableKeyword.CaretOffset);
-                    filterText = doc.GetText(line);
+                    var doc = TableKeyword.Document;
+                    if (doc.TextLength > 0)
+                    {
+                        var line = doc.GetLineByOffset(TableKeyword.CaretOffset);
+                        filterText = doc.GetText(line);
+                    }
                 }
             }
             System.Windows.Data.CollectionView view = (System.Windows.Data.CollectionView)System.Windows.Data.CollectionViewSource.GetDefaultView(TableMain.ItemsSource);
