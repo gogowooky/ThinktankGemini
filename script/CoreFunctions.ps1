@@ -34,7 +34,13 @@ function New-TTState ($StateID, $Description, $Scripts) {
         
         if ($state.Default -ne $null) {
             if ($state.Default -is [ScriptBlock]) {
-                $state.Value = $state.Default.Invoke($StateID)
+                try {
+                    $state.Value = $state.Default.Invoke($StateID)
+                }
+                catch {
+                    Write-Host "EXCEPTION in Default ($StateID): $_" -ForegroundColor Red
+                    $state.Value = $null # エラー時は null で継続
+                }
             }
             else {
                 $state.Value = $state.Default
@@ -64,7 +70,12 @@ function Apply-TTState ($ID, $Value, $PCName) {
     # Test logic could be added here
     
     if ($state.Apply -ne $null -and $state.Apply -is [ScriptBlock]) {
-        $state.Apply.Invoke($ID, $val)
+        try {
+            $state.Apply.Invoke($ID, $val)
+        }
+        catch {
+            Write-Host "EXCEPTION in Apply ($ID): $_" -ForegroundColor Red
+        }
     }
     else {
         $global:Application.Status.SetValue($ID, $val)
@@ -149,12 +160,15 @@ function Add-TTEvent ($Context, $Mods, $Key, $ActionID, $PCName) {
 function Initialize-TTStatus {
     Write-Host "Initializing TTStatus..."
 
-    # 0. Apply Watch
     if ($global:Application.Status.Items) {
         $global:Application.Status.Items | ForEach-Object {
             if ($_.Watch -is [ScriptBlock]) {
-                $_.Watch.Invoke($_.ID)
-                return
+                try {
+                    $_.Watch.Invoke($_.ID)
+                }
+                catch {
+                    Write-Host "EXCEPTION in Watch ($($_.ID)): $_" -ForegroundColor Red
+                }
             }
         }
     }
