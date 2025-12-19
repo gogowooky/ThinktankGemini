@@ -21,6 +21,7 @@ function New-TTState ($StateID, $Description, $Scripts) {
     $state = [ThinktankApp.TTState]::new()
     $state.ID = $StateID
     $state.Name = $Description
+    $state.From = "Default"
 
     if ($Scripts -is [string]) {
         $state.Value = $Scripts
@@ -70,10 +71,21 @@ function Apply-TTState ($ID, $Value, $PCName) {
         }
     }
 
-    # Test logic could be added here
-    
+    # Determine source (From)
+    $from = ""
+    if ($Value -eq 'Default') {
+        $from = "Default"
+    }
+    elseif ($PCName -ne $null -and $PCName -ne '*' -and $PCName -ne '') {
+        $from = "($PCName)"
+    }
+    else {
+        $from = "($Env:UserName)"
+    }
+
     if ($state.Apply -ne $null -and $state.Apply -is [ScriptBlock]) {
         try {
+            $state.From = $from
             $state.Apply.Invoke($ID, $val)
         }
         catch {
@@ -85,7 +97,7 @@ function Apply-TTState ($ID, $Value, $PCName) {
         }
     }
     else {
-        $global:Application.Status.SetValue($ID, $val)
+        $global:Application.Status.SetValue($ID, $val, $from)
     }
 }
 

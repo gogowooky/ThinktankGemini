@@ -5,8 +5,27 @@ namespace ThinktankApp
 {
     public class TTState : TTObject
     {
-        public string Value { get; set; }
-        public string Description { get; set; }
+        private string _value;
+        private string _description;
+        private string _from;
+
+        public string Value
+        {
+            get { return _value; }
+            set { SetProperty(ref _value, value); }
+        }
+
+        public string Description
+        {
+            get { return _description; }
+            set { SetProperty(ref _description, value); }
+        }
+
+        public string From
+        {
+            get { return _from; }
+            set { SetProperty(ref _from, value); }
+        }
         
         // Scripts can be ScriptBlock or String (for Default/Value)
         public object Default { get; set; }
@@ -18,6 +37,7 @@ namespace ThinktankApp
         {
             Value = "";
             Description = "";
+            From = "";
             Default = null;
             Test = null;
             Apply = null;
@@ -29,6 +49,7 @@ namespace ThinktankApp
             if (base.Matches(keyword)) return true;
             if (Value != null && Value.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
             if (Description != null && Description.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            if (From != null && From.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
             return false;
         }
     }
