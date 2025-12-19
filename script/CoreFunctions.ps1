@@ -38,8 +38,11 @@ function New-TTState ($StateID, $Description, $Scripts) {
                     $state.Value = $state.Default.Invoke($StateID)
                 }
                 catch {
-                    Write-Host "EXCEPTION in Default ($StateID): $_" -ForegroundColor Red
-                    $state.Value = $null # エラー時は null で継続
+                    [Console]::WriteLine("--- [PS EXCEPTION: Default ($StateID)] ---")
+                    [Console]::WriteLine("Error : $_")
+                    [Console]::WriteLine("Stack : $($_.ScriptStackTrace)")
+                    [Console]::WriteLine("------------------------------------------")
+                    $state.Value = $null
                 }
             }
             else {
@@ -74,7 +77,11 @@ function Apply-TTState ($ID, $Value, $PCName) {
             $state.Apply.Invoke($ID, $val)
         }
         catch {
-            Write-Host "EXCEPTION in Apply ($ID): $_" -ForegroundColor Red
+            [Console]::WriteLine("--- [PS EXCEPTION: Apply ($ID)] ---")
+            [Console]::WriteLine("Value : $val")
+            [Console]::WriteLine("Error : $_")
+            [Console]::WriteLine("Stack : $($_.ScriptStackTrace)")
+            [Console]::WriteLine("-----------------------------------")
         }
     }
     else {
@@ -167,7 +174,11 @@ function Initialize-TTStatus {
                     $_.Watch.Invoke($_.ID)
                 }
                 catch {
-                    Write-Host "EXCEPTION in Watch ($($_.ID)): $_" -ForegroundColor Red
+                    $pid = $_.ID
+                    [Console]::WriteLine("--- [PS EXCEPTION: Watch ($pid)] ---")
+                    [Console]::WriteLine("Error : $_")
+                    [Console]::WriteLine("Stack : $($_.ScriptStackTrace)")
+                    [Console]::WriteLine("------------------------------------")
                 }
             }
         }
