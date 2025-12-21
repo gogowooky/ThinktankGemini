@@ -430,7 +430,7 @@ New-TTState     [Panels].Table.Keyword              '[Panels]テーブルキー�
     Default = { Param($id)
         $map = @{
             Library = ''
-            Index   = '@7d'
+            Index   = 'Desk'
             Shelf   = ''
             Desk    = ''
             System  = 'http://google.com'
