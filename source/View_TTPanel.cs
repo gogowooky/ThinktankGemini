@@ -89,7 +89,28 @@ namespace ThinktankApp
             set
             {
                 if (string.IsNullOrEmpty(value)) return;
-                base.Tool = value;
+
+                string targetTool = value;
+                if (targetTool.Equals("toggle", StringComparison.OrdinalIgnoreCase))
+                {
+                    string current = base.Tool;
+                    if (string.IsNullOrEmpty(current)) current = "Main";
+
+                    if (current.EndsWith("Keyword", StringComparison.OrdinalIgnoreCase))
+                    {
+                        targetTool = current.Substring(0, current.Length - 7) + "Main";
+                    }
+                    else if (current.EndsWith("Main", StringComparison.OrdinalIgnoreCase))
+                    {
+                        targetTool = current.Substring(0, current.Length - 4) + "Keyword";
+                    }
+                    else 
+                    {
+                        targetTool = "Keyword";
+                    }
+                }
+
+                base.Tool = targetTool;
                 
                 if (TTApplicationBase.Current != null && TTApplicationBase.Current.IsInitializing) return;
 
@@ -97,7 +118,7 @@ namespace ThinktankApp
                 {
                     View.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
                     {
-                        string tool = value; // capture for closure
+                        string tool = targetTool; // capture for closure
                         if (EditorPanel != null && EditorPanel.Visibility == Visibility.Visible)
                         {
                             if (tool.ToLower().EndsWith("keyword") && EditorKeyword != null) 

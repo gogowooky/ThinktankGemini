@@ -370,9 +370,7 @@ New-TTState     [Panels].Editor.Keyword             '[Panels]エディタキー�
                     $val = $panel.GetKeyword('Editor')
                     $global:Models.Status.SetValue( "$pn.Editor.Keyword", $val )
                     
-                    $global:Application.Panels | ForEach-Object {
-                        $_.UpdateTableFilter($val)
-                    }
+
 
                     $global:Application.$pn.UpdateKeywordRegex()
                     $global:Application.$pn.UpdateHighlight()
@@ -561,9 +559,7 @@ New-TTState     [Panels].WebView.Keyword            '[Panels]ウェブビュー�
                     $val = $panel.GetKeyword('WebView')
                     $global:Models.Status.SetValue( "$pn.$md.Keyword", $val )
                     
-                    $global:Application.Panels | ForEach-Object {
-                        $_.UpdateTableFilter($val)
-                    }
+
 
                     # $panel.UpdateMarker('WebView')
                 }.GetNewClosure())
